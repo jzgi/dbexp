@@ -30,7 +30,7 @@ namespace WebReady.Web
 
         static readonly Map<string, WebService> services = new Map<string, WebService>(4);
 
-        static readonly Map<string, WebReference> references = new Map<string, WebReference>(16);
+        static readonly Map<string, WebUse> references = new Map<string, WebUse>(16);
 
         static readonly Map<string, DbSource> sources = new Map<string, DbSource>(4);
 
@@ -40,9 +40,9 @@ namespace WebReady.Web
         static readonly GlobalLogger Logger;
 
         // configured connectors that connect to peer services
-        static readonly Map<string, WebReference> Ref;
+        static readonly Map<string, WebUse> Ref;
 
-        static List<WebReference> polls;
+        static List<WebUse> polls;
 
         // the thread schedules and drives periodic jobs, such as event polling 
         static Thread scheduler;
@@ -81,10 +81,10 @@ namespace WebReady.Web
                     var e = r.EntryAt(i);
                     if (Ref == null)
                     {
-                        Ref = new Map<string, WebReference>(16);
+                        Ref = new Map<string, WebUse>(16);
                     }
 
-                    Ref.Add(new WebReference(e.Key, e.Value)
+                    Ref.Add(new WebUse(e.Key, e.Value)
                     {
                         Clustered = true
                     });
@@ -181,7 +181,7 @@ namespace WebReady.Web
                 if (@ref.Key == refName)
                 {
                     @ref.SetPoller(poller, interval);
-                    if (polls == null) polls = new List<WebReference>();
+                    if (polls == null) polls = new List<WebUse>();
                     polls.Add(@ref);
                     match++;
                 }

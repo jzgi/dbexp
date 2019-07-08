@@ -18,11 +18,11 @@ namespace WebReady.Web
             return null;
         }
 
-        public static void CallAny(this WebReference[] df)
+        public static void CallAny(this WebUse[] df)
         {
         }
 
-        public static void CallAll(this WebReference[] df)
+        public static void CallAll(this WebUse[] df)
         {
         }
 

@@ -1,7 +1,7 @@
 namespace WebReady
 {
     ///
-    /// Used to build a number during a parsing process.
+    /// Used to build a number during the parsing process.
     ///
     public struct JNumber
     {

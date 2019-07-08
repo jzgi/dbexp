@@ -1,17 +1,21 @@
 {
   "logging": 2,
-  "web": {
-    "addrs": [
-      "http://144000.tv"
-    ]
+  "WEBSERVICE": {
+    "main": {
+      "addrs": [
+        "http://144000.tv"
+      ]
+    }
   },
-  "ref": {
+  "DBSOURCE": {
+    "postgres": {
+      "host": "/tmp",
+      "port": 5432,
+      "username": "",
+      "password": ""
+    }
+  },
+  "WEBUSE": {
     "dir": "http://dir.144000.tv"
-  },
-  "db": {
-    "host": "/tmp",
-    "port": 5432,
-    "username": "",
-    "password": ""
   }
 }

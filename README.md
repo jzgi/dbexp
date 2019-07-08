@@ -2,7 +2,7 @@
 
 WebReady is an extensible webapp framework that exposes well-designed database objects directly as RESTful web services.
 
-WebReady is based on the high-performance [Kestral HTTP server](https://github.com/dotnet/core) that is built in ASP.NET Core, as well as the [Npgsql data access library](https://www.npgsql.org/).
+WebReady is based on the high-performance [Kestral HTTP server](https://github.com/aspnet/AspNetCore/tree/master/src/Servers/Kestrel) that is built in ASP.NET Core, as well as the [Npgsql data access library](https://www.npgsql.org/).
 
 
 <pre>

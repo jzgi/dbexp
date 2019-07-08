@@ -1,6 +1,6 @@
 using System;
 
-namespace WebCase
+namespace WebReady
 {
     public interface IRoll<K, V> where K : IEquatable<K>
     {

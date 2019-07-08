@@ -1,4 +1,4 @@
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// The methods for resouce handling

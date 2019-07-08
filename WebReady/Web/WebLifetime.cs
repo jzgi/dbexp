@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Microsoft.AspNetCore.Hosting;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     internal class WebLifetime : IApplicationLifetime
     {

@@ -1,4 +1,4 @@
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// A resource cabinat.

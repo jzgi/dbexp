@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// To set SQL parameters.  

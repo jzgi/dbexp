@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace WebCase.Db
+namespace WebReady.Db
 {
     public class DbCompositeType
     {

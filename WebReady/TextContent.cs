@@ -1,4 +1,4 @@
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// To generate a plain/text string or CSV content. 

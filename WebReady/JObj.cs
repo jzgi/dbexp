@@ -1,6 +1,6 @@
 using System;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// A JSON object model.

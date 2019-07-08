@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// A binary static content of certain mime type.

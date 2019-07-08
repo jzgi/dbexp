@@ -1,6 +1,8 @@
-namespace WebCase
+using WebReady.Web;
+
+namespace WebReady
 {
-    public class WebReadyApp
+    public class WebReady : Global
     {
         public static void Main(string[] args)
         {

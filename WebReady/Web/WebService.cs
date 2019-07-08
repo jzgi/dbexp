@@ -16,12 +16,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// An embedded web server that wraps around the kestrel HTTP engine.
     /// </summary>
-    public sealed class WebService : IHttpApplication<HttpContext>
+    public abstract class WebService : IHttpApplication<HttpContext>
     {
         readonly string[] addrs;
 
@@ -37,7 +37,7 @@ namespace WebCase.Web
         // dbset operation areas keyed by service id
 //        readonly ConcurrentDictionary<string, DbArea> areas;
 
-        internal WebService(AppConfig.Web cfg, ILoggerProvider logprov)
+        internal WebService(AppJson.Web cfg, ILoggerProvider logprov)
         {
             // init the embedded server
             var options = new KestrelServerOptions();

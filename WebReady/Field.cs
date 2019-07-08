@@ -1,6 +1,6 @@
 using System;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// A field in a form model.
@@ -64,6 +64,7 @@ namespace WebCase
                     Array.Copy(arr, 0, alloc, 0, len);
                     value = arr = alloc;
                 }
+
                 arr[items++] = v;
             }
         }
@@ -82,6 +83,7 @@ namespace WebCase
             {
                 return "true".Equals(str) || "1".Equals(str) || "on".Equals(str);
             }
+
             return false;
         }
 
@@ -92,6 +94,7 @@ namespace WebCase
             {
                 return str[0];
             }
+
             return '\0';
         }
 
@@ -105,6 +108,7 @@ namespace WebCase
                     return n;
                 }
             }
+
             return 0;
         }
 
@@ -118,6 +122,7 @@ namespace WebCase
                     return n;
                 }
             }
+
             return 0;
         }
 
@@ -131,6 +136,7 @@ namespace WebCase
                     return n;
                 }
             }
+
             return 0;
         }
 
@@ -144,6 +150,7 @@ namespace WebCase
                     return n;
                 }
             }
+
             return 0;
         }
 
@@ -157,6 +164,7 @@ namespace WebCase
                     return n;
                 }
             }
+
             return 0;
         }
 
@@ -167,6 +175,7 @@ namespace WebCase
             {
                 return dt;
             }
+
             return default;
         }
 
@@ -185,6 +194,7 @@ namespace WebCase
                     return buf;
                 }
             }
+
             return null;
         }
 
@@ -194,6 +204,7 @@ namespace WebCase
             {
                 return default;
             }
+
             return new ArraySegment<byte>(v.contentbuf, v.offset, v.count);
         }
 
@@ -213,6 +224,7 @@ namespace WebCase
             {
                 arr[i] = short.TryParse(strs[i], out var n) ? n : (short) 0;
             }
+
             return arr;
         }
 
@@ -232,6 +244,7 @@ namespace WebCase
             {
                 arr[i] = int.TryParse(strs[i], out var n) ? n : 0;
             }
+
             return arr;
         }
 
@@ -244,12 +257,14 @@ namespace WebCase
                 string str = (string) v.value;
                 return new[] {long.TryParse(str, out var n) ? n : 0};
             }
+
             string[] strs = (string[]) v.value;
             long[] arr = new long[len];
             for (int i = 0; i < len; i++)
             {
                 arr[i] = long.TryParse(strs[i], out var n) ? n : 0;
             }
+
             return arr;
         }
 
@@ -270,6 +285,7 @@ namespace WebCase
             {
                 arr[i] = strs[i];
             }
+
             return arr;
         }
     }

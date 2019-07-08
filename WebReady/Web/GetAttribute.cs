@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// To document a GET request to the target action.

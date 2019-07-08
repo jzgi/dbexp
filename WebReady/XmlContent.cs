@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// To generate a UTF-8 encoded XML document. 

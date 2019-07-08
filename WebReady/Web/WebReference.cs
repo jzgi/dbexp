@@ -2,9 +2,9 @@
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using static WebCase.DataUtility;
+using static WebReady.DataUtility;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// A client connector that implements both one-to-one and one-to-many communication in both sync and async approaches.

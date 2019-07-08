@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// An XML element.

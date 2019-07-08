@@ -1,4 +1,4 @@
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// The enumeration of JSON member types.

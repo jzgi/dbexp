@@ -1,4 +1,4 @@
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// To analyze HTTP header.

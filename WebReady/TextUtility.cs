@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace WebCase
+namespace WebReady
 {
     public static class TextUtility
     {

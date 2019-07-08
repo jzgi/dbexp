@@ -3,14 +3,14 @@ using System.IO;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace WebCase
+namespace WebReady
 {
-    public class AppLogger : ILoggerProvider, ILogger
+    public class GlobalLogger : ILoggerProvider, ILogger
     {
         // opened writer on the log file
         readonly StreamWriter logWriter;
 
-        internal AppLogger(string file)
+        internal GlobalLogger(string file)
         {
             // init the file-based logger
             FileStream stream = new FileStream(file, FileMode.Append, FileAccess.Write);

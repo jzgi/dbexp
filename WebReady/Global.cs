@@ -8,9 +8,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using WebCase.Db;
+using WebReady.Db;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// The application scope that holds global states.
@@ -23,21 +23,21 @@ namespace WebCase.Web
 
         internal static readonly WebLifetime Lifetime = new WebLifetime();
 
-        public static readonly AppConfig Config;
+        public static readonly AppJson Config;
 
         public static readonly JObj Json;
 
 
-        static readonly Map<string, WebService> services;
+        static readonly Map<string, WebService> services = new Map<string, WebService>(4);
 
-        static readonly Map<string, WebReference> references;
+        static readonly Map<string, WebReference> references = new Map<string, WebReference>(16);
 
-        static readonly Map<string, DbSource> sources;
+        static readonly Map<string, DbSource> sources = new Map<string, DbSource>(4);
 
 
         internal static readonly string Sign;
 
-        static readonly AppLogger Logger;
+        static readonly GlobalLogger Logger;
 
         // configured connectors that connect to peer services
         static readonly Map<string, WebReference> Ref;
@@ -53,7 +53,7 @@ namespace WebCase.Web
         {
             // setup logger
             string logfile = DateTime.Now.ToString("yyyyMM") + ".log";
-            Logger = new AppLogger(logfile);
+            Logger = new GlobalLogger(logfile);
             if (!File.Exists(APP_JSON))
             {
                 Logger.Log(LogLevel.Error, APP_JSON + " not found");
@@ -64,7 +64,7 @@ namespace WebCase.Web
             byte[] bytes = File.ReadAllBytes(APP_JSON);
             JsonParser parser = new JsonParser(bytes, bytes.Length);
             Json = (JObj) parser.Parse();
-            Config = new AppConfig();
+            Config = new AppJson();
             Config.Read(Json, 0xff);
 
             if (Config.logging > 0)
@@ -116,11 +116,12 @@ namespace WebCase.Web
                 });
                 scheduler.Start();
             }
-
-
-            // setup web server
-            WebService = new WebService(Config.web, Logger);
         }
+
+        public void AddService<T>(string key) where T : WebService, new()
+        {
+        }
+
 
         // LOGGING
 

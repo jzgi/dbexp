@@ -2,9 +2,9 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using WebCase;
+using WebReady;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     public static class WebClientUtility
     {

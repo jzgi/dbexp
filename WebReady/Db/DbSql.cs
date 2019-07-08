@@ -1,6 +1,6 @@
 using System;
 
-namespace WebCase.Db
+namespace WebReady.Db
 {
     /// <summary>
     /// A specialized string builder for generating SQL commands.

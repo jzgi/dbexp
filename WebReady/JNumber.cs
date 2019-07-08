@@ -1,4 +1,4 @@
-namespace WebCase
+namespace WebReady
 {
     ///
     /// Used to build a number during a parsing process.

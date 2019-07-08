@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// Represents an output sink fovoid a dataset, a single data object, ovoid only some of its data fields.

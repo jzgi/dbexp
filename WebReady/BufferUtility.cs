@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using static System.Environment;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// A global byte/char buffer pool.

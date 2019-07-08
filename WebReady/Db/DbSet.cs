@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace WebCase.Db
+namespace WebReady.Db
 {
     public class DbSet : IEnumerable<DbRow>
     {

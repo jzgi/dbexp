@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// Tag for API documentation comments. 

@@ -1,6 +1,6 @@
 using System;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// For generating dynamic HTML5 content tooled with UiKit.

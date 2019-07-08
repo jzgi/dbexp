@@ -1,12 +1,12 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// The configuration for an applicaion.
     /// </summary>
-    public class AppConfig : IData
+    public class AppJson : IData
     {
         // the sharding notation for this service instance
         public string shard;
@@ -53,6 +53,7 @@ namespace WebCase
 
                     connstr = sb.ToString();
                 }
+
                 return connstr;
             }
         }

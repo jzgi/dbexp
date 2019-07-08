@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebCase.Web
+namespace WebReady.Web
 {
     /// <summary>
     /// To implement principal authorization of access to the target resources.

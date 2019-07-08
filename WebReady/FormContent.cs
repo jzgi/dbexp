@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebCase
+namespace WebReady
 {
     /// <summary>
     /// To generate a urlencoded byte or char string.

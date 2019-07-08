@@ -3,9 +3,9 @@ using System.Data;
 using System.Threading.Tasks;
 using Npgsql;
 using NpgsqlTypes;
-using WebCase.Web;
+using WebReady.Web;
 
-namespace WebCase.Db
+namespace WebReady.Db
 {
     /// <summary>
     /// An environment for database operations. It provides strong-typed reads/writes and lightweight O/R mapping.
@@ -42,7 +42,7 @@ namespace WebCase.Db
         // current parameter index
         int index;
 
-        internal DbContext(AppConfig cfg)
+        internal DbContext(AppJson cfg)
         {
             connection = new NpgsqlConnection(cfg.ConnectionString);
             command = new NpgsqlCommand

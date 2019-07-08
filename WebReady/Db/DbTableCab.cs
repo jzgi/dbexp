@@ -1,6 +1,6 @@
-using WebCase.Web;
+using WebReady.Web;
 
-namespace WebCase.Db
+namespace WebReady.Db
 {
     public class DbTableCab : WebCab
     {

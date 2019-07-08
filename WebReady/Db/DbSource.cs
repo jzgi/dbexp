@@ -1,4 +1,4 @@
-namespace WebCase.Db
+namespace WebReady.Db
 {
     public class DbSource
     {

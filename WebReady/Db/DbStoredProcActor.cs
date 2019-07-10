@@ -5,7 +5,7 @@ namespace WebReady.Db
     /// <summary>
     /// A function or procedure that returns a void type, a base type, or composite type.
     /// </summary>
-    public class DbStoredProcAct : WebAct
+    public class DbStoredProcActor : WebActor
     {
         readonly Map<string, DbArg> args;
     }

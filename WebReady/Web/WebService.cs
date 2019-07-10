@@ -21,7 +21,7 @@ namespace WebReady.Web
     /// <summary>
     /// An embedded web server that wraps around the kestrel HTTP engine.
     /// </summary>
-    public abstract class WebService : IHttpApplication<HttpContext>
+    public abstract class WebService : WebFolder, IHttpApplication<HttpContext>
     {
         readonly string[] addrs;
 
@@ -72,16 +72,21 @@ namespace WebReady.Web
 
             string path = wc.Path;
             int dot = path.LastIndexOf('.');
-            if (dot != -1) // the resource is a static file
+            
+            // determine it is file or action content
+            if (dot != -1) 
             {
+                // try to give file content from cache or file system
                 if (!TryGiveFromCache(wc))
                 {
                     GiveFile(path, path.Substring(dot), wc);
                     TryAddToCache(wc);
                 }
             }
-            else
+            else 
             {
+                await HandleAsync(path.Substring(1), wc);
+
                 wc.Give(404, "not found");
                 return;
             }

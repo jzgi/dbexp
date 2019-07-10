@@ -2,7 +2,7 @@ using WebReady.Web;
 
 namespace WebReady.Db
 {
-    public class DbTableFuncCab : WebCab
+    public class DbTableFolder : WebFolder
     {
         
     }

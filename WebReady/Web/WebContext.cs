@@ -46,9 +46,7 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebCab Work { get; internal set; }
-
-        public WebAct Action { get; internal set; }
+        public WebActor Actor { get; internal set; }
 
         public string Subscript { get; internal set; }
 
@@ -56,7 +54,7 @@ namespace WebReady.Web
 
         /// The decrypted/decoded principal object.
         ///
-        public IData Principal { get; set; }
+        public IPrincipal Principal { get; internal set; }
 
 
         // WEB FEATURES

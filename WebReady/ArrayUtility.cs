@@ -13,6 +13,7 @@ namespace WebReady
             {
                 return new[] {v};
             }
+
             int len = arr.Length;
             E[] alloc;
             if (limit > 0 && limit <= len)
@@ -27,6 +28,7 @@ namespace WebReady
                 Array.Copy(arr, alloc, len);
                 alloc[len] = v;
             }
+
             return alloc;
         }
 
@@ -36,6 +38,7 @@ namespace WebReady
             {
                 return v;
             }
+
             int len = arr.Length;
             int vlen = v.Length;
             E[] alloc = new E[len + vlen];
@@ -50,6 +53,7 @@ namespace WebReady
             {
                 return v;
             }
+
             int len = arr.Length;
             int vlen = v.Length;
 
@@ -71,6 +75,7 @@ namespace WebReady
                         break;
                     }
                 }
+
                 if (!dup)
                 {
                     lst.Add(t);
@@ -87,8 +92,10 @@ namespace WebReady
                 {
                     alloc[len + i] = lst[i];
                 }
+
                 return alloc;
             }
+
             return arr;
         }
 
@@ -127,6 +134,7 @@ namespace WebReady
                     return alloc;
                 }
             }
+
             return arr;
         }
 
@@ -141,6 +149,7 @@ namespace WebReady
                     if (cond(e)) return e;
                 }
             }
+
             return default;
         }
 
@@ -155,6 +164,7 @@ namespace WebReady
                     if (cond(e)) return e;
                 }
             }
+
             return default;
         }
 
@@ -169,6 +179,7 @@ namespace WebReady
                     if (cond(e)) return i;
                 }
             }
+
             return -1;
         }
 
@@ -186,16 +197,36 @@ namespace WebReady
                     if (arr[i].Equals(v)) return true;
                 }
             }
+
             return false;
         }
 
+        public static bool Overlaps<E>(this E[] arr, E[] another)
+        {
+            if (arr == null && another == null)
+            {
+                return false;
+            }
 
-        public static bool IsSameAs<E>(this E[] arr, E[] another)
+            if (arr != null && another != null)
+            {
+                int len = arr.Length;
+                for (int i = 0; i < len; i++)
+                {
+                    if (another.Contains(arr[i])) return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool EqualsTo<E>(this E[] arr, E[] another)
         {
             if (arr == null && another == null)
             {
                 return true;
             }
+
             if (arr != null && another != null && arr.Length == another.Length)
             {
                 int len = arr.Length;
@@ -203,8 +234,10 @@ namespace WebReady
                 {
                     if (!arr[i].Equals(another[i])) return false;
                 }
+
                 return true;
             }
+
             return false;
         }
     }

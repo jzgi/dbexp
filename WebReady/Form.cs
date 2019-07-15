@@ -34,7 +34,7 @@ namespace WebReady
             }
             else
             {
-                entries[idx].value.Add(v);
+                _entries[idx].value.Add(v);
             }
         }
 

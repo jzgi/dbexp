@@ -1,4 +1,5 @@
 ﻿#region License
+
 // The PostgreSQL License
 //
 // Copyright (C) 2018 The Npgsql Development Team
@@ -19,31 +20,30 @@
 // AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS
 // ON AN "AS IS" BASIS, AND THE NPGSQL DEVELOPMENT TEAM HAS NO OBLIGATIONS
 // TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
 #endregion
 
 using System;
-using System.IO;
-using Npgsql.BackendMessages;
-using NpgsqlTypes;
 using System.Data;
-using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Npgsql.BackendMessages;
 using Npgsql.TypeHandling;
 using Npgsql.TypeMapping;
+using NpgsqlTypes;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace Npgsql.TypeHandlers
 {
     [TypeMapping("text", NpgsqlDbType.Text,
-        new[] { DbType.String, DbType.StringFixedLength, DbType.AnsiString, DbType.AnsiStringFixedLength },
-        new[] { typeof(string), typeof(char[]), typeof(char), typeof(ArraySegment<char>) },
+        new[] {DbType.String, DbType.StringFixedLength, DbType.AnsiString, DbType.AnsiStringFixedLength},
+        new[] {typeof(string), typeof(char[]), typeof(char), typeof(ArraySegment<char>)},
         DbType.String
     )]
     [TypeMapping("xml", NpgsqlDbType.Xml, dbType: DbType.Xml)]
-
     [TypeMapping("character varying", NpgsqlDbType.Varchar, inferredDbType: DbType.String)]
     [TypeMapping("character", NpgsqlDbType.Char, inferredDbType: DbType.String)]
     [TypeMapping("name", NpgsqlDbType.Name, inferredDbType: DbType.String)]
@@ -73,7 +73,7 @@ namespace Npgsql.TypeHandlers
         #endregion
 
         protected internal TextHandler(NpgsqlConnection connection)
-            => _encoding = connection.Connector.TextEncoding;
+            => _encoding = connection.Connector?.TextEncoding;
 
         #region Read
 
@@ -111,8 +111,10 @@ namespace Npgsql.TypeHandlers
                         await buf.ReadMore(async);
                         continue;
                     }
+
                     break;
                 }
+
                 return buf.TextEncoding.GetString(tempBuf);
             }
         }
@@ -140,8 +142,10 @@ namespace Npgsql.TypeHandlers
                     await buf.ReadMore(async);
                     continue;
                 }
+
                 break;
             }
+
             return buf.TextEncoding.GetChars(tempBuf);
         }
 
@@ -176,6 +180,7 @@ namespace Npgsql.TypeHandlers
                 buf.ReadBytes(bytes, 0, byteLen);
                 return new ValueTask<byte[]>(bytes);
             }
+
             return ReadLong();
 
             async ValueTask<byte[]> ReadLong()
@@ -205,8 +210,10 @@ namespace Npgsql.TypeHandlers
                         await buf.ReadMore(async);
                         continue;
                     }
+
                     break;
                 }
+
                 return bytes;
             }
         }
@@ -275,7 +282,7 @@ namespace Npgsql.TypeHandlers
             return buf.WriteChars(value, 0, charLen, lengthCache.GetLast(), async);
         }
 
-        public virtual Task Write(ArraySegment<char> value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async) => 
+        public virtual Task Write(ArraySegment<char> value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async) =>
             buf.WriteChars(value.Array, value.Offset, value.Count, lengthCache.GetLast(), async);
 
         Task WriteString(string str, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, [CanBeNull] NpgsqlParameter parameter, bool async)

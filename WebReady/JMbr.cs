@@ -76,6 +76,7 @@ namespace WebReady
             {
                 return (JObj) v.refv;
             }
+
             return null;
         }
 
@@ -85,6 +86,7 @@ namespace WebReady
             {
                 return (JArr) v.refv;
             }
+
             return null;
         }
 
@@ -100,6 +102,7 @@ namespace WebReady
                 var str = (string) v.refv;
                 return str.Length == 0 ? '\0' : str[0];
             }
+
             return '\0';
         }
 
@@ -109,6 +112,7 @@ namespace WebReady
             {
                 return v.numv.Short;
             }
+
             return 0;
         }
 
@@ -118,6 +122,7 @@ namespace WebReady
             {
                 return v.numv.Int;
             }
+
             return 0;
         }
 
@@ -127,6 +132,7 @@ namespace WebReady
             {
                 return v.numv.Long;
             }
+
             return 0;
         }
 
@@ -136,6 +142,7 @@ namespace WebReady
             {
                 return v.numv.Double;
             }
+
             return 0;
         }
 
@@ -145,6 +152,7 @@ namespace WebReady
             {
                 return v.numv.Decimal;
             }
+
             return 0;
         }
 
@@ -154,6 +162,7 @@ namespace WebReady
             {
                 return v.numv;
             }
+
             return default;
         }
 
@@ -164,6 +173,7 @@ namespace WebReady
                 string str = (string) v.refv;
                 if (TextUtility.TryParseDate(str, out var dt)) return dt;
             }
+
             return default;
         }
 
@@ -173,6 +183,7 @@ namespace WebReady
             {
                 return (string) v.refv;
             }
+
             return null;
         }
     }

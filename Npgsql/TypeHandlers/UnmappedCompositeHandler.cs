@@ -1,4 +1,5 @@
 ﻿#region License
+
 // The PostgreSQL License
 //
 // Copyright (C) 2018 The Npgsql Development Team
@@ -19,6 +20,7 @@
 // AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS
 // ON AN "AS IS" BASIS, AND THE NPGSQL DEVELOPMENT TEAM HAS NO OBLIGATIONS
 // TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
 #endregion
 
 using System;
@@ -33,8 +35,10 @@ using Npgsql.PostgresTypes;
 using Npgsql.TypeHandling;
 using Npgsql.TypeMapping;
 using NpgsqlTypes;
+using WebReady;
+
 #if !NETSTANDARD1_3
-using System.Dynamic;
+
 #endif
 
 namespace Npgsql.TypeHandlers
@@ -53,16 +57,14 @@ namespace Npgsql.TypeHandlers
     /// * The length of the column(32-bit integer), or -1 if null
     /// * The column data encoded as binary
     /// </remarks>
-    class UnmappedCompositeHandler : NpgsqlTypeHandler<object>
+    class UnmappedCompositeHandler : NpgsqlTypeHandler<JObj>
     {
         readonly ConnectorTypeMapper _typeMapper;
         readonly INpgsqlNameTranslator _nameTranslator;
 
-        [CanBeNull]
-        List<MemberDescriptor> _members;
+        [CanBeNull] List<MemberDescriptor> _members;
 
-        [CanBeNull]
-        Type _resolvedType;
+        [CanBeNull] Type _resolvedType;
 
         internal UnmappedCompositeHandler(INpgsqlNameTranslator nameTranslator, ConnectorTypeMapper typeMapper)
         {
@@ -85,62 +87,75 @@ namespace Npgsql.TypeHandlers
 
             await buf.Ensure(4, async);
             var fieldCount = buf.ReadInt32();
-            if (fieldCount != _members.Count)  // PostgreSQL sanity check
-                throw new Exception($"pg_attributes contains {_members.Count} rows for type {PgDisplayName}, but {fieldCount} fields were received!");
+            if (fieldCount != _members?.Count) // PostgreSQL sanity check
+                throw new Exception($"pg_attributes contains {_members?.Count} rows for type {PgDisplayName}, but {fieldCount} fields were received!");
 
             // If TAny is a struct, we have to box it here to properly set its fields below
             object result = Activator.CreateInstance<TAny>();
             foreach (var member in _members)
             {
                 await buf.Ensure(8, async);
-                buf.ReadInt32();  // read typeOID, not used
+                buf.ReadInt32(); // read typeOID, not used
                 var fieldLen = buf.ReadInt32();
                 if (fieldLen == -1)
-                    continue;  // Null field, simply skip it and leave at default
+                    continue; // Null field, simply skip it and leave at default
                 member.Setter(result, await member.Handler.ReadAsObject(buf, fieldLen, async));
             }
-            return (TAny)result;
+
+            return (TAny) result;
         }
 
-        internal override ValueTask<object> ReadAsObject(NpgsqlReadBuffer buf, int len, bool async, FieldDescription fieldDescription = null)
-            => Read(buf, len, async, fieldDescription);
+        internal override async ValueTask<object> ReadAsObject(NpgsqlReadBuffer buf, int len, bool async, FieldDescription fieldDescription = null)
+            => await Read(buf, len, async, fieldDescription);
 
         internal override object ReadAsObject(NpgsqlReadBuffer buf, int len, FieldDescription fieldDescription = null)
             => Read(buf, len, false, fieldDescription).Result;
 
-#pragma warning disable CS1998 // Needless async (for netstandard1.3)
-        public override async ValueTask<object> Read(NpgsqlReadBuffer buf, int len, bool async, FieldDescription fieldDescription = null)
-#pragma warning restore CS1998 // Needless async (for netstandard1.3)
+        public override async ValueTask<JObj> Read(NpgsqlReadBuffer buf, int len, bool async, FieldDescription fieldDescription = null)
         {
-#if NETSTANDARD1_3
-            throw new NotSupportedException("Not support in .NET Standard 1.3");
-#else
             if (_members == null)
                 ResolveFields();
             Debug.Assert(_members != null);
 
             await buf.Ensure(4, async);
             var fieldCount = buf.ReadInt32();
-            if (fieldCount != _members.Count)  // PostgreSQL sanity check
+            if (fieldCount != _members.Count) // PostgreSQL sanity check
                 throw new Exception($"pg_attributes contains {_members.Count} rows for type {PgDisplayName}, but {fieldCount} fields were received!");
 
-            var result = (IDictionary<string, object>)new ExpandoObject();
+            var result = new JObj();
 
             foreach (var member in _members)
             {
                 await buf.Ensure(8, async);
-                buf.ReadInt32();  // read typeOID, not used
+                buf.ReadInt32(); // read typeOID, not used
                 var fieldLen = buf.ReadInt32();
                 if (fieldLen == -1)
                 {
                     // Null field, simply skip it and leave at default
                     continue;
                 }
-                // TODO: We need name translation
-                result[member.PgName] = await member.Handler.ReadAsObject(buf, fieldLen, async);
+
+                switch (member.OID)
+                {
+                    case 16: // bool
+                        bool boolv = member.Handler.Read<bool>(buf, fieldLen);
+                        result.Add(member.PgName, boolv);
+                        break;
+                    case 21: // int2
+                    case 23: // integer
+                    case 20: // int8
+                        long numv = member.Handler.Read<long>(buf, fieldLen);
+                        result.Add(member.PgName, (JNumber) numv);
+                        break;
+                    case 700: // float4
+                    case 701: // float8
+                        double floatv = member.Handler.Read<double>(buf, fieldLen);
+                        result.Add(member.PgName, (JNumber) floatv);
+                        break;
+                }
             }
+
             return result;
-#endif
         }
 
         #endregion
@@ -155,16 +170,14 @@ namespace Npgsql.TypeHandlers
         protected internal override int ValidateAndGetLength<TAny>(TAny value, ref NpgsqlLengthCache lengthCache, NpgsqlParameter parameter)
             => ValidateAndGetLength(value, ref lengthCache, parameter);
 
-        public override int ValidateAndGetLength(object value, ref NpgsqlLengthCache lengthCache, NpgsqlParameter parameter)
+        public override int ValidateAndGetLength(JObj value, ref NpgsqlLengthCache lengthCache, NpgsqlParameter parameter)
         {
             var type = value.GetType();
             if (_resolvedType != type)
             {
-                if (value is IDictionary<string, object> asDict)
-                    MapDynamic(asDict);
-                else
-                    Map(type);
+                Map(type);
             }
+
             Debug.Assert(_members != null);
 
             if (lengthCache == null)
@@ -175,15 +188,16 @@ namespace Npgsql.TypeHandlers
             // Leave empty slot for the entire composite type, and go ahead an populate the element slots
             var pos = lengthCache.Position;
             lengthCache.Set(0);
-            var totalLen = 4;  // number of fields
+            var totalLen = 4; // number of fields
             foreach (var f in _members)
             {
-                totalLen += 4 + 4;  // type oid + field length
+                totalLen += 4 + 4; // type oid + field length
                 var fieldValue = f.Getter(value);
                 if (fieldValue == null)
                     continue;
                 totalLen += f.Handler.ValidateObjectAndGetLength(fieldValue, ref lengthCache, null);
             }
+
             return lengthCache.Lengths[pos] = totalLen;
         }
 
@@ -194,11 +208,12 @@ namespace Npgsql.TypeHandlers
 
         protected override Task WriteWithLength<T2>(T2 value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async)
         {
-            buf.WriteInt32(ValidateAndGetLength(value, ref lengthCache, parameter));
-            return Write(value, buf, lengthCache, parameter, async);
+            throw new NotImplementedException();
+//            buf.WriteInt32(ValidateAndGetLength(value, ref lengthCache, parameter));
+//            return Write(value, buf, lengthCache, parameter, async);
         }
 
-        public override async Task Write(object value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async)
+        public override async Task Write(JObj value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async)
         {
             Debug.Assert(_resolvedType != null);
             Debug.Assert(_members != null);
@@ -229,11 +244,11 @@ namespace Npgsql.TypeHandlers
             Debug.Assert(_members == null);
             Debug.Assert(PostgresType is PostgresCompositeType, "CompositeHandler initialized with a non-composite type");
 
-            var rawFields = ((PostgresCompositeType)PostgresType).Fields;
+            var rawFields = ((PostgresCompositeType) PostgresType).Fields;
             _members = new List<MemberDescriptor>(rawFields.Count);
             foreach (var rawField in rawFields)
             {
-                var member = new MemberDescriptor { PgName = rawField.Name, OID = rawField.Type.OID };
+                var member = new MemberDescriptor {PgName = rawField.Name, OID = rawField.Type.OID};
                 if (!_typeMapper.TryGetByOID(rawField.Type.OID, out member.Handler))
                     throw new Exception($"PostgreSQL composite type {PgDisplayName} has field {rawField.Name} with an unknown type (TypeOID={rawField.Type.OID})");
                 _members.Add(member);
@@ -262,16 +277,16 @@ namespace Npgsql.TypeHandlers
 
                 switch (typeMember)
                 {
-                case PropertyInfo p:
-                    member.Getter = composite => p.GetValue(composite);
-                    member.Setter = (composite, v) => p.SetValue(composite, v);
-                    break;
-                case FieldInfo f:
-                    member.Getter = composite => f.GetValue(composite);
-                    member.Setter = (composite, v) => f.SetValue(composite, v);
-                    break;
-                default:
-                    throw new Exception($"PostgreSQL composite type {PgDisplayName} contains field {member.PgName} which cannot map to CLR type {type.Name}'s field {typeMember.Name} of type {member.GetType().Name}");
+                    case PropertyInfo p:
+                        member.Getter = composite => p.GetValue(composite);
+                        member.Setter = (composite, v) => p.SetValue(composite, v);
+                        break;
+                    case FieldInfo f:
+                        member.Getter = composite => f.GetValue(composite);
+                        member.Setter = (composite, v) => f.SetValue(composite, v);
+                        break;
+                    default:
+                        throw new Exception($"PostgreSQL composite type {PgDisplayName} contains field {member.PgName} which cannot map to CLR type {type.Name}'s field {typeMember.Name} of type {member.GetType().Name}");
                 }
             }
 
@@ -290,13 +305,14 @@ namespace Npgsql.TypeHandlers
                 var translatedName = dict.Keys.SingleOrDefault(k => _nameTranslator.TranslateMemberName(k) == member.PgName);
                 if (translatedName == null)
                     throw new Exception($"PostgreSQL composite type {PgDisplayName} contains field {member.PgName} which could not match any on provided dictionary");
-                member.Getter = composite => ((IDictionary<string, object>)composite)[translatedName];
+                member.Getter = composite => ((IDictionary<string, object>) composite)[translatedName];
             }
 
             _resolvedType = dict.GetType();
         }
 
         delegate object MemberValueGetter(object composite);
+
         delegate void MemberValueSetter(object composite, object value);
 
         class MemberDescriptor
@@ -314,10 +330,12 @@ namespace Npgsql.TypeHandlers
     }
 
 #pragma warning disable CA1040    // Avoid empty interfaces
-    interface IDynamicCompositeTypeHandlerFactory { }
+    interface IDynamicCompositeTypeHandlerFactory
+    {
+    }
 #pragma warning restore CA1040    // Avoid empty interfaces
 
-    class UnmappedCompositeTypeHandlerFactory : NpgsqlTypeHandlerFactory<object>
+    class UnmappedCompositeTypeHandlerFactory : NpgsqlTypeHandlerFactory<JObj>
     {
         readonly INpgsqlNameTranslator _nameTranslator;
 
@@ -326,7 +344,7 @@ namespace Npgsql.TypeHandlers
             _nameTranslator = nameTranslator;
         }
 
-        protected override NpgsqlTypeHandler<object> Create(NpgsqlConnection conn)
-            => new UnmappedCompositeHandler(_nameTranslator, conn.Connector.TypeMapper);
+        protected override NpgsqlTypeHandler<JObj> Create(NpgsqlConnection conn)
+            => new UnmappedCompositeHandler(_nameTranslator, conn.Connector?.TypeMapper);
     }
 }

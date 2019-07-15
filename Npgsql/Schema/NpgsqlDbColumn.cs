@@ -153,18 +153,12 @@ namespace Npgsql.Schema
 
         #region Npgsql-specific fields
 
-        [PublicAPI]
-        public PostgresType PostgresType { get; internal set; }
-        [PublicAPI]
-        public uint TypeOID { get; internal set; }
-        [PublicAPI]
-        public uint TableOID { get; internal set; }
-        [PublicAPI]
-        public short? ColumnAttributeNumber { get; internal set; }
-        [PublicAPI]
-        public string DefaultValue { get; internal set; }
-        [PublicAPI]
-        public NpgsqlDbType? NpgsqlDbType { get; internal set; }
+        [PublicAPI] public PostgresType PostgresType { get; internal set; }
+        [PublicAPI] public uint TypeOID { get; internal set; }
+        [PublicAPI] public uint TableOID { get; internal set; }
+        [PublicAPI] public short? ColumnAttributeNumber { get; internal set; }
+        [PublicAPI] public string DefaultValue { get; internal set; }
+        [PublicAPI] public NpgsqlDbType? NpgsqlDbType { get; internal set; }
 
         [CanBeNull]
         public override object this[string propertyName]
@@ -173,18 +167,18 @@ namespace Npgsql.Schema
             {
                 switch (propertyName)
                 {
-                case nameof(PostgresType):
-                    return PostgresType;
-                case nameof(TypeOID):
-                    return TypeOID;
-                case nameof(TableOID):
-                    return TableOID;
-                case nameof(ColumnAttributeNumber):
-                    return ColumnAttributeNumber;
-                case nameof(DefaultValue):
-                    return DefaultValue;
-                case nameof(NpgsqlDbType):
-                    return NpgsqlDbType;
+                    case nameof(PostgresType):
+                        return PostgresType;
+                    case nameof(TypeOID):
+                        return TypeOID;
+                    case nameof(TableOID):
+                        return TableOID;
+                    case nameof(ColumnAttributeNumber):
+                        return ColumnAttributeNumber;
+                    case nameof(DefaultValue):
+                        return DefaultValue;
+                    case nameof(NpgsqlDbType):
+                        return NpgsqlDbType;
                 }
 
                 return base[propertyName];

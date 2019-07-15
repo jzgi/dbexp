@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.7">
     <PropertyGroup>
-        <Description>Greatbone Library</Description>
+        <Description>WebReady Framework</Description>
         <VersionPrefix>3</VersionPrefix>
         <Authors>hismichael</Authors>
         <TargetFramework>netcoreapp2.2</TargetFramework>
         <DebugType>portable</DebugType>
-        <PackageId>Greatbone.Service</PackageId>
+        <PackageId>WebReady</PackageId>
         <RuntimeFrameworkVersion>2.2.0</RuntimeFrameworkVersion>
         <Version>3.2.3</Version>
         <LangVersion>7.3</LangVersion>
         <Company>Greatbone</Company>
-        <PackageProjectUrl>https://github.com/greatbone/greatbone</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/greatbone/greatbone</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/jxtek/webready</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/jxtek/webready</RepositoryUrl>
+        <PackageVersion>1.0</PackageVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <PlatformTarget>x64</PlatformTarget>

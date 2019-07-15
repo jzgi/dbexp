@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Npgsql.BackendMessages;
 using Npgsql.PostgresTypes;
 using Npgsql.TypeHandling;
-using Npgsql.TypeMapping;
+using WebReady;
 
 namespace Npgsql.TypeHandlers
 {
@@ -33,7 +28,7 @@ namespace Npgsql.TypeHandlers
             PostgresType = pgType;
             _nameTranslator = nameTranslator;
             _conn = conn;
-            _wrappedHandler = (UnmappedCompositeHandler)new UnmappedCompositeTypeHandlerFactory(_nameTranslator).Create(PostgresType, _conn);
+            _wrappedHandler = (UnmappedCompositeHandler) new UnmappedCompositeTypeHandlerFactory(_nameTranslator).Create(PostgresType, _conn);
         }
 
         public override ValueTask<T> Read(NpgsqlReadBuffer buf, int len, bool async, FieldDescription fieldDescription = null)
@@ -42,8 +37,13 @@ namespace Npgsql.TypeHandlers
         public override int ValidateAndGetLength(T value, ref NpgsqlLengthCache lengthCache, NpgsqlParameter parameter)
             => _wrappedHandler.ValidateAndGetLength(value, ref lengthCache, parameter);
 
-        public override Task Write(T value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async)
-           => _wrappedHandler.Write(value, buf, lengthCache, parameter, async);
+        public override async Task Write(T value, NpgsqlWriteBuffer buf, NpgsqlLengthCache lengthCache, NpgsqlParameter parameter, bool async)
+        {
+            if (value is JObj v)
+            {
+                await _wrappedHandler.Write(v, buf, lengthCache, parameter, async);
+            }
+        }
     }
 
     /// <summary>

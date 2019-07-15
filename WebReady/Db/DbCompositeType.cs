@@ -4,6 +4,10 @@ namespace WebReady.Db
 {
     public class DbCompositeType
     {
-         List<DbArg> args;
+        List<DbArg> args;
+
+        DbCompositeType()
+        {
+        }
     }
 }

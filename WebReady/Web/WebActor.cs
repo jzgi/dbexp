@@ -31,22 +31,12 @@ namespace WebReady.Web
         {
         }
 
-        public virtual void GET(WebContext wc, string subscript)
+        public virtual void GET(WebContext wc)
         {
             throw NotImplemented;
         }
 
-        public virtual void POST(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void PUT(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void DELETE(WebContext wc, string subscript)
+        public virtual void POST(WebContext wc)
         {
             throw NotImplemented;
         }

@@ -72,9 +72,9 @@ namespace WebReady.Web
 
             string path = wc.Path;
             int dot = path.LastIndexOf('.');
-            
+
             // determine it is file or action content
-            if (dot != -1) 
+            if (dot != -1)
             {
                 // try to give file content from cache or file system
                 if (!TryGiveFromCache(wc))
@@ -83,8 +83,16 @@ namespace WebReady.Web
                     TryAddToCache(wc);
                 }
             }
-            else 
+            else
             {
+                // authenticate
+                var prin = wc.Principal;
+                string h = wc.Header("Authorization");
+                if (h != null)
+                {
+                }
+
+
                 await HandleAsync(path.Substring(1), wc);
 
                 wc.Give(404, "not found");

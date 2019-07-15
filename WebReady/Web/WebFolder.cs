@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 namespace WebReady.Web
 {
     /// <summary>
-    /// A web resource directory.
+    /// A web resource folder that may contain child folders and actors.
     /// </summary>
-    public abstract class WebFolder : WebActor
+    public abstract class WebFolder
     {
-        // sub folders
+        static readonly Exception NotImplemented = new NotImplementedException();
+
+        // child folders
         Map<string, WebFolder> folders;
 
         // actors 
@@ -16,7 +18,11 @@ namespace WebReady.Web
 
         Exception except = new Exception();
 
-        public void AddSub(WebFolder sub)
+        public void AddFolder<F>() where F : WebFolder
+        {
+        }
+
+        public void AddActor<A>() where A : WebActor
         {
         }
 
@@ -24,8 +30,6 @@ namespace WebReady.Web
         {
             try
             {
-                if (!DoAuthorize(wc)) throw except;
-
                 int slash = rsc.IndexOf('/');
                 // determine sub-dicrectory or end action
                 if (slash != -1)
@@ -51,6 +55,26 @@ namespace WebReady.Web
             finally
             {
             }
+        }
+
+        public virtual void GET(WebContext wc, string subscript)
+        {
+            throw NotImplemented;
+        }
+
+        public virtual void POST(WebContext wc)
+        {
+            throw NotImplemented;
+        }
+
+        public virtual void PUT(WebContext wc, string subscript)
+        {
+            throw NotImplemented;
+        }
+
+        public virtual void DELETE(WebContext wc, string subscript)
+        {
+            throw NotImplemented;
         }
     }
 }

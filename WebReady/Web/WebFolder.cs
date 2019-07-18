@@ -10,20 +10,28 @@ namespace WebReady.Web
     {
         static readonly Exception NotImplemented = new NotImplementedException();
 
+        WebFolder parent;
+
         // child folders
         Map<string, WebFolder> folders;
 
         // actors 
-        Map<string, WebActor> actors;
+        Map<string, WebExe> routines;
 
         Exception except = new Exception();
 
-        public void AddFolder<F>() where F : WebFolder
+        public void MakeFolder<F>(string name) where F : WebFolder, new()
         {
+            F folder = new F();
+            folder.parent = this;
+            folders.Add(name, folder);
         }
 
-        public void AddActor<A>() where A : WebActor
+        public void MakeRoutine<T>(string name) where T : WebExe, new()
         {
+            T exe = new T();
+            exe.folder = this;
+            routines.Add(name, exe);
         }
 
         internal async Task HandleAsync(string rsc, WebContext wc)
@@ -41,14 +49,14 @@ namespace WebReady.Web
                     }
                     else
                     {
-                        var act = actors[rsc];
+                        var act = routines[rsc];
                         if (act == null)
                         {
                             wc.Give(404, "action not found", true, 12);
                             return;
                         }
 
-                        wc.Actor = act;
+                        wc.Exe = act;
                     }
                 }
             }

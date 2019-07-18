@@ -1,4 +1,5 @@
 #region License
+
 // The PostgreSQL License
 //
 // Copyright (C) 2018 The Npgsql Development Team
@@ -19,6 +20,7 @@
 // AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS
 // ON AN "AS IS" BASIS, AND THE NPGSQL DEVELOPMENT TEAM HAS NO OBLIGATIONS
 // TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
 #endregion
 
 using System;
@@ -35,6 +37,7 @@ namespace NpgsqlTypes
     /// how to encode or decode values.
     /// </summary>
     /// <remarks>See http://www.postgresql.org/docs/current/static/datatype.html</remarks>
+    [Flags]
     public enum NpgsqlDbType
     {
         // Note that it's important to never change the numeric values of this enum, since user applications
@@ -46,50 +49,43 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL 8-byte "bigint" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-numeric.html</remarks>
-        [BuiltInPostgresType("int8", 20)]
-        Bigint = 1,
+        [BuiltInPostgresType("int8", 20)] Bigint = 1,
 
         /// <summary>
         /// Corresponds to the PostgreSQL 8-byte floating-point "double" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-numeric.html</remarks>
-        [BuiltInPostgresType("float8", 701)]
-        Double = 8,
+        [BuiltInPostgresType("float8", 701)] Double = 8,
 
         /// <summary>
         /// Corresponds to the PostgreSQL 4-byte "integer" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-numeric.html</remarks>
-        [BuiltInPostgresType("int4", 23)]
-        Integer = 9,
+        [BuiltInPostgresType("int4", 23)] Integer = 9,
 
         /// <summary>
         /// Corresponds to the PostgreSQL arbitrary-precision "numeric" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-numeric.html</remarks>
-        [BuiltInPostgresType("numeric", 1700)]
-        Numeric = 13,
+        [BuiltInPostgresType("numeric", 1700)] Numeric = 13,
 
         /// <summary>
         /// Corresponds to the PostgreSQL floating-point "real" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-numeric.html</remarks>
-        [BuiltInPostgresType("float4", 700)]
-        Real = 17,
+        [BuiltInPostgresType("float4", 700)] Real = 17,
 
         /// <summary>
         /// Corresponds to the PostgreSQL 2-byte "smallint" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-numeric.html</remarks>
-        [BuiltInPostgresType("int2", 21)]
-        Smallint = 18,
+        [BuiltInPostgresType("int2", 21)] Smallint = 18,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "money" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-money.html</remarks>
-        [BuiltInPostgresType("money", 790)]
-        Money = 12,
+        [BuiltInPostgresType("money", 790)] Money = 12,
 
         #endregion
 
@@ -99,8 +95,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "boolean" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-boolean.html</remarks>
-        [BuiltInPostgresType("bool", 16)]
-        Boolean = 2,
+        [BuiltInPostgresType("bool", 16)] Boolean = 2,
 
         #endregion
 
@@ -110,50 +105,43 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL geometric "box" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("box", 603)]
-        Box = 3,
+        [BuiltInPostgresType("box", 603)] Box = 3,
 
         /// <summary>
         /// Corresponds to the PostgreSQL geometric "circle" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("circle", 718)]
-        Circle = 5,
+        [BuiltInPostgresType("circle", 718)] Circle = 5,
 
         /// <summary>
         /// Corresponds to the PostgreSQL geometric "line" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("line", 628)]
-        Line = 10,
+        [BuiltInPostgresType("line", 628)] Line = 10,
 
         /// <summary>
         /// Corresponds to the PostgreSQL geometric "lseg" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("lseg", 601)]
-        LSeg = 11,
+        [BuiltInPostgresType("lseg", 601)] LSeg = 11,
 
         /// <summary>
         /// Corresponds to the PostgreSQL geometric "path" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("path", 602)]
-        Path = 14,
+        [BuiltInPostgresType("path", 602)] Path = 14,
 
         /// <summary>
         /// Corresponds to the PostgreSQL geometric "point" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("point", 600)]
-        Point = 15,
+        [BuiltInPostgresType("point", 600)] Point = 15,
 
         /// <summary>
         /// Corresponds to the PostgreSQL geometric "polygon" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-geometric.html</remarks>
-        [BuiltInPostgresType("polygon", 604)]
-        Polygon = 16,
+        [BuiltInPostgresType("polygon", 604)] Polygon = 16,
 
         #endregion
 
@@ -163,35 +151,31 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "char(n)" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-character.html</remarks>
-        [BuiltInPostgresType("bpchar", 1042)]
-        Char = 6,
+        [BuiltInPostgresType("bpchar", 1042)] Char = 6,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "text" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-character.html</remarks>
-        [BuiltInPostgresType("text", 25)]
-        Text = 19,
+        [BuiltInPostgresType("text", 25)] Text = 19,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "varchar" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-character.html</remarks>
-        [BuiltInPostgresType("varchar", 1043)]
-        Varchar = 22,
+        [BuiltInPostgresType("varchar", 1043)] Varchar = 22,
 
         /// <summary>
         /// Corresponds to the PostgreSQL internal "name" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-character.html</remarks>
-        [BuiltInPostgresType("name", 19)]
-        Name = 32,
+        [BuiltInPostgresType("name", 19)] Name = 32,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "citext" type for the citext module.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/citext.html</remarks>
-        Citext = 51,   // Extension type
+        Citext = 51, // Extension type
 
         /// <summary>
         /// Corresponds to the PostgreSQL "char" type.
@@ -201,8 +185,7 @@ namespace NpgsqlTypes
         ///
         /// See http://www.postgresql.org/docs/current/static/datatype-text.html
         /// </remarks>
-        [BuiltInPostgresType("char", 18)]
-        InternalChar = 38,
+        [BuiltInPostgresType("char", 18)] InternalChar = 38,
 
         #endregion
 
@@ -212,8 +195,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "bytea" type, holding a raw byte string.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-binary.html</remarks>
-        [BuiltInPostgresType("bytea", 17)]
-        Bytea = 4,
+        [BuiltInPostgresType("bytea", 17)] Bytea = 4,
 
         #endregion
 
@@ -223,15 +205,13 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "date" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-datetime.html</remarks>
-        [BuiltInPostgresType("date", 1082)]
-        Date = 7,
+        [BuiltInPostgresType("date", 1082)] Date = 7,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "time" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-datetime.html</remarks>
-        [BuiltInPostgresType("time", 1083)]
-        Time = 20,
+        [BuiltInPostgresType("time", 1083)] Time = 20,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "timestamp" type.
@@ -244,7 +224,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "timestamp with time zone" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-datetime.html</remarks>
-        [Obsolete("Use TimestampTz instead")]  // NOTE: Don't remove this (see #1694)
+        [Obsolete("Use TimestampTz instead")] // NOTE: Don't remove this (see #1694)
         TimestampTZ = TimestampTz,
 
         /// <summary>
@@ -265,22 +245,20 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "time with time zone" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-datetime.html</remarks>
-        [Obsolete("Use TimeTz instead")]  // NOTE: Don't remove this (see #1694)
+        [Obsolete("Use TimeTz instead")] // NOTE: Don't remove this (see #1694)
         TimeTZ = TimeTz,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "time with time zone" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-datetime.html</remarks>
-        [BuiltInPostgresType("timetz", 1266)]
-        TimeTz = 31,
+        [BuiltInPostgresType("timetz", 1266)] TimeTz = 31,
 
         /// <summary>
         /// Corresponds to the obsolete PostgreSQL "abstime" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-datetime.html</remarks>
-        [Obsolete("The PostgreSQL abstime time is obsolete.")]
-        [BuiltInPostgresType("abstime", 702)]
+        [Obsolete("The PostgreSQL abstime time is obsolete.")] [BuiltInPostgresType("abstime", 702)]
         Abstime = 33,
 
         #endregion
@@ -291,29 +269,25 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "inet" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-net-types.html</remarks>
-        [BuiltInPostgresType("inet", 869)]
-        Inet = 24,
+        [BuiltInPostgresType("inet", 869)] Inet = 24,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "cidr" type, a field storing an IPv4 or IPv6 network.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-net-types.html</remarks>
-        [BuiltInPostgresType("cidr", 650)]
-        Cidr = 44,
+        [BuiltInPostgresType("cidr", 650)] Cidr = 44,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "macaddr" type, a field storing a 6-byte physical address.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-net-types.html</remarks>
-        [BuiltInPostgresType("macaddr", 829)]
-        MacAddr = 34,
+        [BuiltInPostgresType("macaddr", 829)] MacAddr = 34,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "macaddr8" type, a field storing a 6-byte or 8-byte physical address.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-net-types.html</remarks>
-        [BuiltInPostgresType("macaddr8", 774)]
-        MacAddr8 = 54,
+        [BuiltInPostgresType("macaddr8", 774)] MacAddr8 = 54,
 
         #endregion
 
@@ -323,15 +297,13 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "bit" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-bit.html</remarks>
-        [BuiltInPostgresType("bit", 1560)]
-        Bit = 25,
+        [BuiltInPostgresType("bit", 1560)] Bit = 25,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "varbit" type, a field storing a variable-length string of bits.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-boolean.html</remarks>
-        [BuiltInPostgresType("varbit", 1562)]
-        Varbit = 39,
+        [BuiltInPostgresType("varbit", 1562)] Varbit = 39,
 
         #endregion
 
@@ -348,8 +320,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "tsquery" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-textsearch.html</remarks>
-        [BuiltInPostgresType("tsquery", 3615)]
-        TsQuery = 46,
+        [BuiltInPostgresType("tsquery", 3615)] TsQuery = 46,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "tsquery" type.
@@ -366,8 +337,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "uuid" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-uuid.html</remarks>
-        [BuiltInPostgresType("uuid", 2950)]
-        Uuid = 27,
+        [BuiltInPostgresType("uuid", 2950)] Uuid = 27,
 
         #endregion
 
@@ -377,8 +347,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "xml" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-xml.html</remarks>
-        [BuiltInPostgresType("xml", 142)]
-        Xml = 28,
+        [BuiltInPostgresType("xml", 142)] Xml = 28,
 
         #endregion
 
@@ -389,8 +358,7 @@ namespace NpgsqlTypes
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-json.html</remarks>
         /// <seealso cref="Jsonb"/>
-        [BuiltInPostgresType("json", 114)]
-        Json = 35,
+        [BuiltInPostgresType("json", 114)] Json = 35,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "jsonb" type, a field storing JSON in an optimized binary
@@ -400,8 +368,7 @@ namespace NpgsqlTypes
         /// Supported since PostgreSQL 9.4.
         /// See http://www.postgresql.org/docs/current/static/datatype-json.html
         /// </remarks>
-        [BuiltInPostgresType("jsonb", 3802)]
-        Jsonb = 36,
+        [BuiltInPostgresType("jsonb", 3802)] Jsonb = 36,
 
         #endregion
 
@@ -411,7 +378,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "hstore" type, a dictionary of string key-value pairs.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/hstore.html</remarks>
-        Hstore = 37,    // Extension type
+        Hstore = 37, // Extension type
 
         #endregion
 
@@ -454,8 +421,7 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL internal "oidvector" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-oid.html</remarks>
-        [BuiltInPostgresType("oidvector", 30)]
-        Oidvector = 29,
+        [BuiltInPostgresType("oidvector", 30)] Oidvector = 29,
 
         /// <summary>
         /// Corresponds to the PostgreSQL internal "int2vector" type.
@@ -467,34 +433,29 @@ namespace NpgsqlTypes
         /// Corresponds to the PostgreSQL "oid" type.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-oid.html</remarks>
-        [BuiltInPostgresType("oid", 26)]
-        Oid = 41,
+        [BuiltInPostgresType("oid", 26)] Oid = 41,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "xid" type, an internal transaction identifier.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-oid.html</remarks>
-        [BuiltInPostgresType("xid", 28)]
-        Xid = 42,
+        [BuiltInPostgresType("xid", 28)] Xid = 42,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "cid" type, an internal command identifier.
         /// </summary>
         /// <remarks>See http://www.postgresql.org/docs/current/static/datatype-oid.html</remarks>
-        [BuiltInPostgresType("cid", 29)]
-        Cid = 43,
+        [BuiltInPostgresType("cid", 29)] Cid = 43,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "regtype" type, a numeric (OID) ID of a type in the pg_type table.
         /// </summary>
-        [BuiltInPostgresType("regtype", 2206)]
-        Regtype = 49,
+        [BuiltInPostgresType("regtype", 2206)] Regtype = 49,
 
         /// <summary>
         /// Corresponds to the PostgreSQL "tid" type, a tuple id identifying the physical location of a row within its table.
         /// </summary>
-        [BuiltInPostgresType("tid", 27)]
-        Tid = 53,
+        [BuiltInPostgresType("tid", 27)] Tid = 53,
 
         #endregion
 
@@ -509,8 +470,7 @@ namespace NpgsqlTypes
         /// This value shouldn't ordinarily be used, and makes sense only when sending a data type
         /// unsupported by Npgsql.
         /// </remarks>
-        [BuiltInPostgresType("unknown", 705)]
-        Unknown = 40,
+        [BuiltInPostgresType("unknown", 705)] Unknown = 40,
 
         #endregion
 
@@ -519,12 +479,12 @@ namespace NpgsqlTypes
         /// <summary>
         /// The geometry type for PostgreSQL spatial extension PostGIS.
         /// </summary>
-        Geometry = 50,     // Extension type
+        Geometry = 50, // Extension type
 
         /// <summary>
         /// The geography (geodetic) type for PostgreSQL spatial extension PostGIS.
         /// </summary>
-        Geography = 55     // Extension type
+        Geography = 55 // Extension type
 
         #endregion
     }

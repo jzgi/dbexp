@@ -46,7 +46,9 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebActor Actor { get; internal set; }
+        public WebFolder Folder { get; internal set; }
+
+        public WebExe Exe { get; internal set; }
 
         public string Subscript { get; internal set; }
 
@@ -399,7 +401,7 @@ namespace WebReady.Web
         public void SetTokenCookie<P>(P prin, byte proj, int maxage = 0) where P : class, IData, new()
         {
             StringBuilder sb = new StringBuilder("Token=");
-            string token = Global.Encrypt(prin, proj);
+            string token = Framework.Encrypt(prin, proj);
             sb.Append(token);
             if (maxage > 0)
             {

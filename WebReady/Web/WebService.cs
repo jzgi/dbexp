@@ -35,13 +35,13 @@ namespace WebReady.Web
         Thread cleaner;
 
         // dbset operation areas keyed by service id
-//        readonly ConcurrentDictionary<string, DbArea> areas;
+        //        readonly ConcurrentDictionary<string, DbArea> areas;
 
         internal WebService(AppJson.Web cfg, ILoggerProvider logprov)
         {
             // init the embedded server
             var options = new KestrelServerOptions();
-            ITransportFactory TransportFactory = new SocketTransportFactory(Options.Create(new SocketTransportOptions()), Global.Lifetime, NullLoggerFactory.Instance);
+            ITransportFactory TransportFactory = new SocketTransportFactory(Options.Create(new SocketTransportOptions()), Framework.Lifetime, NullLoggerFactory.Instance);
 
             var logfac = new LoggerFactory();
             logfac.AddProvider(logprov);
@@ -54,7 +54,7 @@ namespace WebReady.Web
                 addrcoll.Add(a.Trim());
             }
 
-            int factor = (int) Math.Log(Environment.ProcessorCount, 2) + 1;
+            int factor = (int)Math.Log(Environment.ProcessorCount, 2) + 1;
             // create the response cache
             if (cfg.cache)
             {
@@ -68,7 +68,7 @@ namespace WebReady.Web
         /// </summary>
         public async Task ProcessRequestAsync(HttpContext context)
         {
-            WebContext wc = (WebContext) context;
+            WebContext wc = (WebContext)context;
 
             string path = wc.Path;
             int dot = path.LastIndexOf('.');
@@ -131,7 +131,7 @@ namespace WebReady.Web
             bool gzip = false;
             using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                int len = (int) fs.Length;
+                int len = (int)fs.Length;
                 if (len > 2048)
                 {
                     var ms = new MemoryStream(len);
@@ -175,7 +175,7 @@ namespace WebReady.Web
         public void DisposeContext(HttpContext context, Exception excep)
         {
             // dispose the context
-            ((WebContext) context).Dispose();
+            ((WebContext)context).Dispose();
         }
 
         internal async Task StopAsync(CancellationToken token)
@@ -183,8 +183,8 @@ namespace WebReady.Web
             await server.StopAsync(token);
 
             // close logger
-//            logWriter.Flush();
-//            logWriter.Dispose();
+            //            logWriter.Flush();
+            //            logWriter.Dispose();
         }
 
         internal async Task StartAsync(CancellationToken token)
@@ -320,7 +320,7 @@ namespace WebReady.Web
                         return false;
                     }
 
-                    short remain = (short) (((stamp + maxage * 1000) - now) / 1000); // remaining in seconds
+                    short remain = (short)(((stamp + maxage * 1000) - now) / 1000); // remaining in seconds
                     if (remain > 0)
                     {
                         wc.IsInCache = true;
@@ -340,4 +340,12 @@ namespace WebReady.Web
             }
         }
     }
+
+    public class WebService<T> : WebService
+    {
+        public WebService(AppJson.Web cfg, ILoggerProvider logprov) : base(cfg, logprov)
+        {
+        }
+    }
+
 }

@@ -9,89 +9,103 @@ using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using WebReady.Db;
+using WebReady.Web;
+using WebException = System.Net.WebException;
 
-namespace WebReady.Web
+namespace WebReady
 {
     /// <summary>
     /// The application scope that holds global states.
     /// </summary>
-    public class Global
+    public class Framework
     {
-        public const string APP_JSON = "app.json";
+        public const string WEPAPP_JSON = "webapp.json";
 
         public const string CERT_PFX = "cert.pfx";
 
         internal static readonly WebLifetime Lifetime = new WebLifetime();
 
-        public static readonly AppJson Config;
+        //
+        // configuration processing
+        //
 
-        public static readonly JObj Json;
+        public static readonly JObj Config;
+
+        public static readonly JObj ConfigWeb, ConfigDb, ConfigExt;
+
+        // the sharding notation for this service instance
+        public static string shard;
+
+        // the descriptive information of this service instance
+        public static string descr;
+
+        // logging level
+        public static int logging = 3;
+
+        public static int cipher;
+
+        public static string certpasswd;
 
 
-        static readonly Map<string, WebService> services = new Map<string, WebService>(4);
+        static readonly Map<string, WebService> webservices = new Map<string, WebService>(4);
 
-        static readonly Map<string, WebUse> references = new Map<string, WebUse>(16);
+        static readonly Map<string, NetPeer> webpeers = new Map<string, NetPeer>(16);
 
-        static readonly Map<string, DbSource> sources = new Map<string, DbSource>(4);
+        static readonly Map<string, DbSource> dbsources = new Map<string, DbSource>(4);
 
 
         internal static readonly string Sign;
 
-        static readonly GlobalLogger Logger;
+        static readonly FrameworkLogger Logger;
 
-        // configured connectors that connect to peer services
-        static readonly Map<string, WebUse> Ref;
 
-        static List<WebUse> polls;
+        static List<NetPeer> polls;
 
         // the thread schedules and drives periodic jobs, such as event polling 
         static Thread scheduler;
 
         public static readonly WebService WebService;
 
-        static Global()
+        static Framework()
         {
-            // setup logger
+            // setup logger first
+            //
             string logfile = DateTime.Now.ToString("yyyyMM") + ".log";
-            Logger = new GlobalLogger(logfile);
-            if (!File.Exists(APP_JSON))
+            Logger = new FrameworkLogger(logfile);
+            if (!File.Exists(WEPAPP_JSON))
             {
-                Logger.Log(LogLevel.Error, APP_JSON + " not found");
+                Logger.Log(LogLevel.Error, WEPAPP_JSON + " not found");
                 return;
             }
 
-            // load the configuration file
-            byte[] bytes = File.ReadAllBytes(APP_JSON);
+            // load configuration
+            //
+            byte[] bytes = File.ReadAllBytes(WEPAPP_JSON);
             JsonParser parser = new JsonParser(bytes, bytes.Length);
-            Json = (JObj) parser.Parse();
-            Config = new AppJson();
-            Config.Read(Json, 0xff);
+            Config = (JObj) parser.Parse();
 
-            if (Config.logging > 0)
-            {
-                Logger.Level = Config.logging;
-            }
+            Sign = Config["cipher"];
+
+            Logger.Level = Config["logging"];
 
             // references
-            var r = Config.@ref;
+            JObj r = Config["WEBUSE"];
             if (r != null)
             {
                 for (int i = 0; i < r.Count; i++)
                 {
                     var e = r.EntryAt(i);
-                    if (Ref == null)
+                    if (webpeers == null)
                     {
-                        Ref = new Map<string, WebUse>(16);
+                        webpeers = new Map<string, NetPeer>(16);
                     }
 
-                    Ref.Add(new WebUse(e.Key, e.Value)
+                    webpeers.Add(new NetPeer(e.Key, e.Value)
                     {
                         Clustered = true
                     });
                 }
             }
-
-            Sign = Encrypt(Config.cipher.ToString());
 
 
             // create and start the scheduler thead
@@ -118,8 +132,34 @@ namespace WebReady.Web
             }
         }
 
-        public void AddService<T>(string key) where T : WebService, new()
+        public static void MakeService<T>(string name) where T : WebService, new()
         {
+        }
+
+
+        public static DbContext NewDbContext(string name, IsolationLevel? level = null)
+        {
+            JObj ds = Config["DBSOURCE"];
+            if (ds == null)
+            {
+                throw new WebException();
+            }
+
+            JObj db = ds[name];
+            if (db == null)
+            {
+                throw new WebException();
+            }
+
+            var source = dbsources[name];
+
+            DbContext dc = new DbContext(source);
+            if (level != null)
+            {
+                dc.Begin(level.Value);
+            }
+
+            return dc;
         }
 
 
@@ -165,45 +205,6 @@ namespace WebReady.Web
             }
         }
 
-
-        public static void Schedule(string refName, Action<IPollContext> poller, short interval = 12)
-        {
-            if (Ref == null)
-            {
-                throw new WebException("missing ref in config.json");
-            }
-
-            // setup context for each designated client
-            int match = 0;
-            for (int i = 0; i < Ref.Count; i++)
-            {
-                var @ref = Ref.ValueAt(i);
-                if (@ref.Key == refName)
-                {
-                    @ref.SetPoller(poller, interval);
-                    if (polls == null) polls = new List<WebUse>();
-                    polls.Add(@ref);
-                    match++;
-                }
-            }
-
-            if (match == 0)
-            {
-                throw new WebException("webconfig refs missing " + refName);
-            }
-        }
-
-
-        public static DbContext NewDbContext(IsolationLevel? level = null)
-        {
-            DbContext dc = new DbContext(Config);
-            if (level != null)
-            {
-                dc.Begin(level.Value);
-            }
-
-            return dc;
-        }
 
         static readonly CancellationTokenSource Cts = new CancellationTokenSource();
 
@@ -280,7 +281,7 @@ namespace WebReady.Web
         {
             byte[] bytebuf = Encoding.ASCII.GetBytes(v);
             int count = bytebuf.Length;
-            int mask = Config.cipher;
+            int mask = cipher;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
             char[] charbuf = new char[count * 2]; // the target
             int p = 0;
@@ -308,7 +309,7 @@ namespace WebReady.Web
                 byte[] bytebuf = cnt.ByteBuffer;
                 int count = cnt.Size;
 
-                int mask = Config.cipher;
+                int mask = cipher;
                 int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
                 char[] charbuf = new char[count * 2]; // the target
                 int p = 0;
@@ -335,7 +336,7 @@ namespace WebReady.Web
 
         public static P Decrypt<P>(string token) where P : IData, new()
         {
-            int mask = Config.cipher;
+            int mask = cipher;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
             int len = token.Length / 2;
             var str = new Text(1024);
@@ -366,7 +367,7 @@ namespace WebReady.Web
 
         public static string Decrypt(string v)
         {
-            int mask = Config.cipher;
+            int mask = cipher;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
             int len = v.Length / 2;
             var str = new Text(1024);

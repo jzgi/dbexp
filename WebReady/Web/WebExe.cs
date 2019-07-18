@@ -1,13 +1,16 @@
 using System;
+using System.Security.Authentication;
 
 namespace WebReady.Web
 {
     /// <summary>
-    /// The resouce handling
+    /// An executable object for logic handling.
     /// </summary>
-    public abstract class WebActor
+    public abstract class WebExe
     {
         static readonly Exception NotImplemented = new NotImplementedException();
+
+        internal WebFolder folder;
 
         string key;
 
@@ -19,6 +22,11 @@ namespace WebReady.Web
             if (roles == null) return true;
 
             var prin = wc.Principal;
+            if (prin == null)
+            {
+                throw new AuthenticationException();
+            }
+
             if (roles.Overlaps(prin.Roles))
             {
                 return true;

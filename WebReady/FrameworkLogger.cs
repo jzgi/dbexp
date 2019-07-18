@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace WebReady
 {
-    public class GlobalLogger : ILoggerProvider, ILogger
+    public class FrameworkLogger : ILoggerProvider, ILogger
     {
         // opened writer on the log file
         readonly StreamWriter logWriter;
 
-        internal GlobalLogger(string file)
+        internal FrameworkLogger(string file)
         {
             // init the file-based logger
             FileStream stream = new FileStream(file, FileMode.Append, FileAccess.Write);

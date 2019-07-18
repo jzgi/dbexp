@@ -20,6 +20,10 @@ namespace WebReady.Web
 
         Exception except = new Exception();
 
+        protected virtual void Initialize()
+        {
+        }
+
         public void MakeFolder<F>(string name) where F : WebFolder, new()
         {
             F folder = new F();

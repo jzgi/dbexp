@@ -19,6 +19,9 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebService : WebDirectory, IHttpApplication<HttpContext>
     {
+        string _name;
+
+
         string[] addrs;
 
         // shared cache or not
@@ -36,8 +39,10 @@ namespace WebReady.Web
         // dbset operation areas keyed by service id
         //        readonly ConcurrentDictionary<string, DbArea> areas;
 
-        internal void Initialize(JObj cfg)
+        internal void Initialize(string name, JObj cfg)
         {
+            _name = name;
+
             // retrieve config settings
             cfg.Get(nameof(addrs), ref addrs);
             if (addrs == null)
@@ -87,7 +92,7 @@ namespace WebReady.Web
                 // try to give file content from cache or file system
                 if (!TryGiveFromCache(wc))
                 {
-                    GiveFile(path, path.Substring(dot), wc);
+                    GiveStaticFile(path, path.Substring(dot), wc);
                     TryAddToCache(wc);
                 }
             }
@@ -118,7 +123,7 @@ namespace WebReady.Web
             }
         }
 
-        public void GiveFile(string filename, string ext, WebContext wc)
+        public void GiveStaticFile(string filename, string ext, WebContext wc)
         {
             if (!StaticContent.TryGetType(ext, out var ctyp))
             {
@@ -126,7 +131,7 @@ namespace WebReady.Web
                 return;
             }
 
-            string path = "web" + filename;
+            string path = Path.Join(_name, filename);
             if (!File.Exists(path))
             {
                 wc.Give(404); // not found
@@ -186,28 +191,11 @@ namespace WebReady.Web
             ((WebContext) context).Dispose();
         }
 
-        internal async Task StopAsync(CancellationToken token)
-        {
-            await _server.StopAsync(token);
-
-            // close logger
-            //            logWriter.Flush();
-            //            logWriter.Dispose();
-        }
-
-        volatile bool stop;
-
-        public void Stop()
-        {
-            stop = true;
-        }
-
-
         internal async Task StartAsync(CancellationToken token)
         {
             await _server.StartAsync(this, token);
 
-            Console.WriteLine(" started at " + addrs[0]);
+            Console.WriteLine(_name + " started at " + addrs[0]);
 
             // create and start the cleaner thread
             if (_cache != null)
@@ -231,6 +219,15 @@ namespace WebReady.Web
                 });
                 _cleaner.Start();
             }
+        }
+
+        internal async Task StopAsync(CancellationToken token)
+        {
+            await _server.StopAsync(token);
+
+            // close logger
+            //            logWriter.Flush();
+            //            logWriter.Dispose();
         }
 
         public void Dispose()

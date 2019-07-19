@@ -63,8 +63,6 @@ namespace WebReady
         // the thread schedules and drives periodic jobs, such as event polling 
         static Thread scheduler;
 
-        public static readonly WebService WebService;
-
         static Framework()
         {
             // load configuration
@@ -150,7 +148,7 @@ namespace WebReady
             }
 
             var svc = new T();
-            svc.Initialize(cfg);
+            svc.Initialize(name, cfg);
             services.Add(name, svc);
         }
 
@@ -211,70 +209,34 @@ namespace WebReady
         }
 
 
-        static readonly CancellationTokenSource Cts = new CancellationTokenSource();
+        static readonly CancellationTokenSource Canceller = new CancellationTokenSource();
+
 
         /// 
         /// Runs a number of web services and block until shutdown.
         /// 
         public static async Task StartAsync()
         {
-            using (var cts = new CancellationTokenSource())
+            var exitevt = new ManualResetEventSlim(false);
+
+            // start all services
+            //
+            for (int i = 0; i < services.Count; i++)
             {
-                Console.CancelKeyPress += (sender, eventArgs) =>
-                {
-                    cts.Cancel();
-
-                    // wait for the Main thread to exit gracefully.
-                    eventArgs.Cancel = true;
-                };
-
-                // start services
-                for (int i = 0; i < services.Count; i++)
-                {
-                    var svc = services.ValueAt(i);
-                    await svc.StartAsync(cts.Token);
-                }
-
-                Console.WriteLine("ctrl_c to shut down");
-
-                cts.Token.Register(state =>
-                    {
-                        ((IApplicationLifetime) state).StopApplication();
-                        // dispose services
-                        for (int i = 0; i < services.Count; i++)
-                        {
-                            var svc = services.ValueAt(i);
-
-                            svc.Dispose();
-                        }
-                    },
-                    Lifetime);
-
-                Lifetime.ApplicationStopping.WaitHandle.WaitOne();
+                var svc = services.ValueAt(i);
+                await svc.StartAsync(Canceller.Token);
             }
-        }
-
-        /// 
-        /// Runs a number of web services and block until shutdown.
-        /// 
-        public static void StartWebServer()
-        {
-            var exit = new ManualResetEventSlim(false);
-
-
-            // start service instances
-            WebService.StartAsync(Cts.Token).GetAwaiter().GetResult();
 
             // handle SIGTERM and CTRL_C 
             AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
             {
-                Cts.Cancel(false);
-                exit.Set(); // release the Main thread
+                Canceller.Cancel(false);
+                exitevt.Set(); // release the Main thread
             };
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
-                Cts.Cancel(false);
-                exit.Set(); // release the Main thread
+                Canceller.Cancel(false);
+                exitevt.Set(); // release the Main thread
                 // Don't terminate the process immediately, wait for the Main thread to exit gracefully.
                 eventArgs.Cancel = true;
             };
@@ -283,11 +245,15 @@ namespace WebReady
             Lifetime.NotifyStarted();
 
             // wait on the reset event
-            exit.Wait(Cts.Token);
+            exitevt.Wait(Canceller.Token);
 
             Lifetime.StopApplication();
 
-            WebService.StopAsync(Cts.Token).GetAwaiter().GetResult();
+            for (int i = 0; i < services.Count; i++)
+            {
+                var svc = services.ValueAt(i);
+                await svc.StopAsync(Canceller.Token);
+            }
 
             Lifetime.NotifyStopped();
         }

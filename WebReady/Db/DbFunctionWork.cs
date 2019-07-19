@@ -2,7 +2,7 @@ using WebReady.Web;
 
 namespace WebReady.Db
 {
-    public class DbFunction : WebExe
+    public class DbFunctionWork : WebWork
     {
         
     }

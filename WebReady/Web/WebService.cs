@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
@@ -10,10 +9,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
-using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace WebReady.Web
@@ -21,54 +17,67 @@ namespace WebReady.Web
     /// <summary>
     /// An embedded web server that wraps around the kestrel HTTP engine.
     /// </summary>
-    public abstract class WebService : WebFolder, IHttpApplication<HttpContext>
+    public abstract class WebService : WebDirectory, IHttpApplication<HttpContext>
     {
-        readonly string[] addrs;
+        string[] addrs;
 
-        // the embedded server
-        readonly KestrelServer server;
+        // shared cache or not
+        bool cache = true;
 
         // cache of responses
-        readonly ConcurrentDictionary<string, Response> cache;
+        ConcurrentDictionary<string, Response> _cache;
+
+        // the embedded HTTP server
+        KestrelServer _server;
 
         // the response cache cleaner thread
-        Thread cleaner;
+        Thread _cleaner;
 
         // dbset operation areas keyed by service id
         //        readonly ConcurrentDictionary<string, DbArea> areas;
 
-        internal WebService(AppJson.Web cfg, ILoggerProvider logprov)
+        internal void Initialize(JObj cfg)
         {
-            // init the embedded server
-            var options = new KestrelServerOptions();
-            ITransportFactory TransportFactory = new SocketTransportFactory(Options.Create(new SocketTransportOptions()), Framework.Lifetime, NullLoggerFactory.Instance);
+            // retrieve config settings
+            cfg.Get(nameof(addrs), ref addrs);
 
-            var logfac = new LoggerFactory();
-            logfac.AddProvider(logprov);
-            server = new KestrelServer(Options.Create(options), TransportFactory, logfac);
-
-            ICollection<string> addrcoll = server.Features.Get<IServerAddressesFeature>().Addresses;
-            this.addrs = cfg.addrs ?? throw new WebException("missing 'addrs'");
-            foreach (string a in addrs)
+            if (addrs == null)
             {
-                addrcoll.Add(a.Trim());
+                throw new WebException("Missing 'addrs' configuration");
             }
 
-            int factor = (int)Math.Log(Environment.ProcessorCount, 2) + 1;
-            // create the response cache
-            if (cfg.cache)
+            cfg.Get(nameof(cache), ref cache);
+            if (cache)
             {
-                cache = new ConcurrentDictionary<string, Response>(factor * 4, 1024);
+                int factor = (int) Math.Log(Environment.ProcessorCount, 2) + 1;
+                // create the response cache
+                _cache = new ConcurrentDictionary<string, Response>(factor * 4, 1024);
+            }
+
+            // create the HTTP embedded server
+            //
+            var opts = new KestrelServerOptions();
+            var logf = new LoggerFactory();
+            logf.AddProvider(Framework.Logger);
+            _server = new KestrelServer(Options.Create(opts), Framework.TransportFactory, logf);
+
+            var coll = _server.Features.Get<IServerAddressesFeature>().Addresses;
+            foreach (string a in addrs)
+            {
+                coll.Add(a.Trim());
             }
         }
 
+        protected internal virtual void Authenticate(WebContext wc)
+        {
+        }
 
         /// <summary>
         /// To asynchronously process the request.
         /// </summary>
         public async Task ProcessRequestAsync(HttpContext context)
         {
-            WebContext wc = (WebContext)context;
+            WebContext wc = (WebContext) context;
 
             string path = wc.Path;
             int dot = path.LastIndexOf('.');
@@ -126,16 +135,16 @@ namespace WebReady.Web
             }
 
             // load file content
-            DateTime modified = File.GetLastWriteTime(path);
+            var modified = File.GetLastWriteTime(path);
             byte[] bytes;
             bool gzip = false;
-            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+            using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                int len = (int)fs.Length;
+                int len = (int) fs.Length;
                 if (len > 2048)
                 {
                     var ms = new MemoryStream(len);
-                    using (GZipStream gzs = new GZipStream(ms, CompressionMode.Compress))
+                    using (var gzs = new GZipStream(ms, CompressionMode.Compress))
                     {
                         fs.CopyTo(gzs);
                     }
@@ -150,7 +159,7 @@ namespace WebReady.Web
                 }
             }
 
-            StaticContent cnt = new StaticContent(bytes, bytes.Length)
+            var cnt = new StaticContent(bytes, bytes.Length)
             {
                 Key = filename,
                 Type = ctyp,
@@ -175,28 +184,36 @@ namespace WebReady.Web
         public void DisposeContext(HttpContext context, Exception excep)
         {
             // dispose the context
-            ((WebContext)context).Dispose();
+            ((WebContext) context).Dispose();
         }
 
         internal async Task StopAsync(CancellationToken token)
         {
-            await server.StopAsync(token);
+            await _server.StopAsync(token);
 
             // close logger
             //            logWriter.Flush();
             //            logWriter.Dispose();
         }
 
+        volatile bool stop;
+
+        public void Stop()
+        {
+            stop = true;
+        }
+
+
         internal async Task StartAsync(CancellationToken token)
         {
-            await server.StartAsync(this, token);
+            await _server.StartAsync(this, token);
 
             Console.WriteLine(" started at " + addrs[0]);
 
             // create and start the cleaner thread
-            if (cache != null)
+            if (_cache != null)
             {
-                cleaner = new Thread(() =>
+                _cleaner = new Thread(() =>
                 {
                     while (!token.IsCancellationRequested)
                     {
@@ -204,17 +221,22 @@ namespace WebReady.Web
                         Thread.Sleep(30000); // every 30 seconds 
                         // loop to clear or remove each expired items
                         int now = Environment.TickCount;
-                        foreach (var re in cache)
+                        foreach (var re in _cache)
                         {
                             if (!re.Value.TryClean(now))
                             {
-                                cache.TryRemove(re.Key, out _);
+                                _cache.TryRemove(re.Key, out _);
                             }
                         }
                     }
                 });
-                cleaner.Start();
+                _cleaner.Start();
             }
+        }
+
+        public void Dispose()
+        {
+            _server.Dispose();
         }
 
         //
@@ -227,7 +249,7 @@ namespace WebReady.Web
                 if (!wc.IsInCache && wc.Shared == true && Response.IsCacheable(wc.StatusCode))
                 {
                     var re = new Response(wc.StatusCode, wc.Content, wc.MaxAge, Environment.TickCount);
-                    cache.AddOrUpdate(wc.Uri, re, (k, old) => re.MergeWith(old));
+                    _cache.AddOrUpdate(wc.Uri, re, (k, old) => re.MergeWith(old));
                     wc.IsInCache = true;
                 }
             }
@@ -237,7 +259,7 @@ namespace WebReady.Web
         {
             if (wc.IsGet)
             {
-                if (cache.TryGetValue(wc.Uri, out var resp))
+                if (_cache.TryGetValue(wc.Uri, out var resp))
                 {
                     return resp.TryGive(wc, Environment.TickCount);
                 }
@@ -320,7 +342,7 @@ namespace WebReady.Web
                         return false;
                     }
 
-                    short remain = (short)(((stamp + maxage * 1000) - now) / 1000); // remaining in seconds
+                    short remain = (short) (((stamp + maxage * 1000) - now) / 1000); // remaining in seconds
                     if (remain > 0)
                     {
                         wc.IsInCache = true;
@@ -340,12 +362,4 @@ namespace WebReady.Web
             }
         }
     }
-
-    public class WebService<T> : WebService
-    {
-        public WebService(AppJson.Web cfg, ILoggerProvider logprov) : base(cfg, logprov)
-        {
-        }
-    }
-
 }

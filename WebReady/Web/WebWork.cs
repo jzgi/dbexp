@@ -6,16 +6,20 @@ namespace WebReady.Web
     /// <summary>
     /// An executable object for logic handling.
     /// </summary>
-    public abstract class WebExe
+    public abstract class WebWork
     {
         static readonly Exception NotImplemented = new NotImplementedException();
-
-        internal WebFolder folder;
 
         string key;
 
         // granted roles
         string[] roles;
+
+        public WebDirectory Directory { get; internal set; }
+
+        protected internal virtual void OnInitialize()
+        {
+        }
 
         internal bool DoAuthorize(WebContext wc)
         {

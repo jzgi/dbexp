@@ -7,7 +7,13 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using WebReady.Db;
 using WebReady.Web;
 using WebException = System.Net.WebException;
@@ -24,6 +30,8 @@ namespace WebReady
         public const string CERT_PFX = "cert.pfx";
 
         internal static readonly WebLifetime Lifetime = new WebLifetime();
+
+        internal static readonly ITransportFactory TransportFactory = new SocketTransportFactory(Options.Create(new SocketTransportOptions()), Lifetime, NullLoggerFactory.Instance);
 
         //
         // configuration processing
@@ -56,7 +64,7 @@ namespace WebReady
 
         internal static readonly string Sign;
 
-        static readonly FrameworkLogger Logger;
+        internal static readonly FrameworkLogger Logger;
 
 
         static List<NetPeer> polls;
@@ -134,6 +142,14 @@ namespace WebReady
 
         public static void MakeService<T>(string name) where T : WebService, new()
         {
+            JObj cfg = Config["SERVICES"];
+            if (cfg == null)
+            {
+                throw new WebException("Missing services");
+            }
+
+            var svc = new T();
+            svc.Initialize(cfg);
         }
 
 
@@ -207,6 +223,47 @@ namespace WebReady
 
 
         static readonly CancellationTokenSource Cts = new CancellationTokenSource();
+
+        /// 
+        /// Runs a number of web services and block until shutdown.
+        /// 
+        public static async Task StartAll()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                Console.CancelKeyPress += (sender, eventArgs) =>
+                {
+                    cts.Cancel();
+
+                    // wait for the Main thread to exit gracefully.
+                    eventArgs.Cancel = true;
+                };
+
+                // start services
+                for (int i = 0; i < webservices.Count; i++)
+                {
+                    var svc = webservices.ValueAt(i);
+                    await svc.StartAsync(cts.Token);
+                }
+
+                Console.WriteLine("ctrl_c to shut down");
+
+                cts.Token.Register(state =>
+                    {
+                        ((IApplicationLifetime) state).StopApplication();
+                        // dispose services
+                        for (int i = 0; i < webservices.Count; i++)
+                        {
+                            var svc = webservices.ValueAt(i);
+
+                            svc.Dispose();
+                        }
+                    },
+                    Lifetime);
+
+                Lifetime.ApplicationStopping.WaitHandle.WaitOne();
+            }
+        }
 
         /// 
         /// Runs a number of web services and block until shutdown.

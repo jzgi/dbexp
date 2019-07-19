@@ -1,5 +1,4 @@
-﻿#pragma warning disable 618
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -46,9 +45,9 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebFolder Folder { get; internal set; }
+        public WebDirectory Directory { get; internal set; }
 
-        public WebExe Exe { get; internal set; }
+        public WebWork Work { get; internal set; }
 
         public string Subscript { get; internal set; }
 

@@ -42,9 +42,9 @@ namespace WebReady.Db
         // current parameter index
         int _index;
 
-        internal DbContext(DbSource source)
+        internal DbContext(DbSource db)
         {
-            _connection = new NpgsqlConnection(source.ConnectionString);
+            _connection = new NpgsqlConnection(db.ConnectionString);
             _command = new NpgsqlCommand
             {
                 Connection = _connection

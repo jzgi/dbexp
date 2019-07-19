@@ -16,7 +16,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using WebReady.Db;
 using WebReady.Web;
-using WebException = System.Net.WebException;
 
 namespace WebReady
 {
@@ -39,35 +38,27 @@ namespace WebReady
 
         public static readonly JObj Config;
 
-        public static readonly JObj ConfigWeb, ConfigDb, ConfigExt;
-
-        // the sharding notation for this service instance
-        public static string shard;
-
-        // the descriptive information of this service instance
-        public static string descr;
+        public static readonly JObj ConfigWeb, ConfigDb, ConfigNet, ConfigExt;
 
         // logging level
-        public static int logging = 3;
+        internal static int logging = 3;
 
-        public static int cipher;
+        internal static int sign;
 
-        public static string certpasswd;
+        internal static string certpasswd;
 
 
         static readonly Map<string, WebService> services = new Map<string, WebService>(4);
 
-        static readonly Map<string, NetPeer> webpeers = new Map<string, NetPeer>(16);
+        static readonly Map<string, WebPeer> peers = new Map<string, WebPeer>(16);
 
-        static readonly Map<string, DbSource> dbsources = new Map<string, DbSource>(4);
+        static readonly Map<string, DbSource> sources = new Map<string, DbSource>(4);
 
-
-        internal static readonly string Sign;
 
         internal static readonly FrameworkLogger Logger;
 
 
-        static List<NetPeer> polls;
+        static List<WebPeer> polls;
 
         // the thread schedules and drives periodic jobs, such as event polling 
         static Thread scheduler;
@@ -76,39 +67,43 @@ namespace WebReady
 
         static Framework()
         {
-            // setup logger first
-            //
-            string logfile = DateTime.Now.ToString("yyyyMM") + ".log";
-            Logger = new FrameworkLogger(logfile);
-            if (!File.Exists(WEPAPP_JSON))
-            {
-                Logger.Log(LogLevel.Error, WEPAPP_JSON + " not found");
-                return;
-            }
-
             // load configuration
             //
             byte[] bytes = File.ReadAllBytes(WEPAPP_JSON);
             JsonParser parser = new JsonParser(bytes, bytes.Length);
             Config = (JObj) parser.Parse();
 
-            Sign = Config["cipher"];
+            logging = Config[nameof(logging)];
+            sign = Config[nameof(sign)];
 
-            Logger.Level = Config["logging"];
+            // setup logger first
+            //
+            string file = DateTime.Now.ToString("yyyyMM") + ".log";
+            Logger = new FrameworkLogger(file);
+            Logger.Level = logging;
+            if (!File.Exists(WEPAPP_JSON))
+            {
+                Logger.Log(LogLevel.Error, WEPAPP_JSON + " not found");
+                return;
+            }
+
+            ConfigWeb = Config["WEB"];
+            ConfigDb = Config["DB"];
+            ConfigNet = Config["NET"];
+            ConfigExt = Config["EXT"];
 
             // references
-            JObj r = Config["WEBUSE"];
-            if (r != null)
+            if (ConfigNet != null)
             {
-                for (int i = 0; i < r.Count; i++)
+                for (int i = 0; i < ConfigNet.Count; i++)
                 {
-                    var e = r.EntryAt(i);
-                    if (webpeers == null)
+                    var e = ConfigNet.EntryAt(i);
+                    if (peers == null)
                     {
-                        webpeers = new Map<string, NetPeer>(16);
+                        peers = new Map<string, WebPeer>(16);
                     }
 
-                    webpeers.Add(new NetPeer(e.Key, e.Value)
+                    peers.Add(new WebPeer(e.Key, e.Value)
                     {
                         Clustered = true
                     });
@@ -142,10 +137,10 @@ namespace WebReady
 
         public static void MakeService<T>(string name) where T : WebService, new()
         {
-            JObj cfggrp = Config["SERVICE"];
+            JObj cfggrp = Config["WEB"];
             if (cfggrp == null)
             {
-                throw new WebException("missing 'SERVICE' in " + WEPAPP_JSON);
+                throw new WebException("missing 'WEB' in " + WEPAPP_JSON);
             }
 
             JObj cfg = cfggrp[name];
@@ -162,21 +157,8 @@ namespace WebReady
 
         public static DbContext NewDbContext(string name, IsolationLevel? level = null)
         {
-            JObj ds = Config["DBSOURCE"];
-            if (ds == null)
-            {
-                throw new WebException();
-            }
-
-            JObj db = ds[name];
-            if (db == null)
-            {
-                throw new WebException();
-            }
-
-            var source = dbsources[name];
-
-            DbContext dc = new DbContext(source);
+            var src = sources[name];
+            var dc = new DbContext(src);
             if (level != null)
             {
                 dc.Begin(level.Value);
@@ -345,7 +327,7 @@ namespace WebReady
         {
             byte[] bytebuf = Encoding.ASCII.GetBytes(v);
             int count = bytebuf.Length;
-            int mask = cipher;
+            int mask = sign;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
             char[] charbuf = new char[count * 2]; // the target
             int p = 0;
@@ -373,7 +355,7 @@ namespace WebReady
                 byte[] bytebuf = cnt.ByteBuffer;
                 int count = cnt.Size;
 
-                int mask = cipher;
+                int mask = sign;
                 int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
                 char[] charbuf = new char[count * 2]; // the target
                 int p = 0;
@@ -400,7 +382,7 @@ namespace WebReady
 
         public static P Decrypt<P>(string token) where P : IData, new()
         {
-            int mask = cipher;
+            int mask = sign;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
             int len = token.Length / 2;
             var str = new Text(1024);
@@ -431,7 +413,7 @@ namespace WebReady
 
         public static string Decrypt(string v)
         {
-            int mask = cipher;
+            int mask = sign;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
             int len = v.Length / 2;
             var str = new Text(1024);

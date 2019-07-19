@@ -3,7 +3,7 @@
   "WEB": {
     "samp": {
       "addrs": [
-        "http://144000.tv"
+        "http://localhost:8080"
       ]
     }
   },

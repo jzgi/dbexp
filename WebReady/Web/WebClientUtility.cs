@@ -18,11 +18,11 @@ namespace WebReady.Web
             return null;
         }
 
-        public static void CallAny(this NetPeer[] df)
+        public static void CallAny(this WebPeer[] df)
         {
         }
 
-        public static void CallAll(this NetPeer[] df)
+        public static void CallAll(this WebPeer[] df)
         {
         }
 

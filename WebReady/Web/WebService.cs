@@ -40,7 +40,6 @@ namespace WebReady.Web
         {
             // retrieve config settings
             cfg.Get(nameof(addrs), ref addrs);
-
             if (addrs == null)
             {
                 throw new FrameworkException("Missing 'addrs' configuration");

@@ -1,7 +1,7 @@
-namespace WebReady.Web
+namespace WebReady
 {
     public interface IPrincipal : IData
     {
-        string[] Roles { get; }
+        bool IsInRole(string role);
     }
 }

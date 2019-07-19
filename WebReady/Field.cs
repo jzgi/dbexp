@@ -23,7 +23,7 @@ namespace WebReady
 
         internal Field(string key, string v)
         {
-            this.name = key;
+            name = key;
             value = v;
             items = 1;
             contentbuf = null;
@@ -33,7 +33,7 @@ namespace WebReady
 
         internal Field(string key, string filename, byte[] contentbuf, int offset, int count)
         {
-            this.name = key;
+            name = key;
             value = filename;
             items = 1;
             this.contentbuf = contentbuf;

@@ -43,7 +43,7 @@ namespace WebReady.Web
 
             if (addrs == null)
             {
-                throw new WebException("Missing 'addrs' configuration");
+                throw new FrameworkException("Missing 'addrs' configuration");
             }
 
             cfg.Get(nameof(cache), ref cache);

@@ -55,7 +55,7 @@ namespace WebReady
         public static string certpasswd;
 
 
-        static readonly Map<string, WebService> webservices = new Map<string, WebService>(4);
+        static readonly Map<string, WebService> services = new Map<string, WebService>(4);
 
         static readonly Map<string, NetPeer> webpeers = new Map<string, NetPeer>(16);
 
@@ -142,14 +142,21 @@ namespace WebReady
 
         public static void MakeService<T>(string name) where T : WebService, new()
         {
-            JObj cfg = Config["SERVICES"];
+            JObj cfggrp = Config["SERVICE"];
+            if (cfggrp == null)
+            {
+                throw new WebException("missing 'SERVICE' in " + WEPAPP_JSON);
+            }
+
+            JObj cfg = cfggrp[name];
             if (cfg == null)
             {
-                throw new WebException("Missing services");
+                throw new WebException("missing '" + name + "' service in " + WEPAPP_JSON);
             }
 
             var svc = new T();
             svc.Initialize(cfg);
+            services.Add(name, svc);
         }
 
 
@@ -227,7 +234,7 @@ namespace WebReady
         /// 
         /// Runs a number of web services and block until shutdown.
         /// 
-        public static async Task StartAll()
+        public static async Task StartAsync()
         {
             using (var cts = new CancellationTokenSource())
             {
@@ -240,9 +247,9 @@ namespace WebReady
                 };
 
                 // start services
-                for (int i = 0; i < webservices.Count; i++)
+                for (int i = 0; i < services.Count; i++)
                 {
-                    var svc = webservices.ValueAt(i);
+                    var svc = services.ValueAt(i);
                     await svc.StartAsync(cts.Token);
                 }
 
@@ -252,9 +259,9 @@ namespace WebReady
                     {
                         ((IApplicationLifetime) state).StopApplication();
                         // dispose services
-                        for (int i = 0; i < webservices.Count; i++)
+                        for (int i = 0; i < services.Count; i++)
                         {
-                            var svc = webservices.ValueAt(i);
+                            var svc = services.ValueAt(i);
 
                             svc.Dispose();
                         }

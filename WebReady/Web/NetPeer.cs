@@ -149,7 +149,7 @@ namespace WebReady.Web
         {
             if (QueryString == null)
             {
-                throw new WebException("missing query before event poll");
+                throw new FrameworkException("missing query before event poll");
             }
 
             string uri = POLL_ACTION + "?" + QueryString;
@@ -172,7 +172,7 @@ namespace WebReady.Web
         {
             if (QueryString == null)
             {
-                throw new WebException("missing query before event poll");
+                throw new FrameworkException("missing query before event poll");
             }
 
             string uri = POLL_ACTION + "?" + QueryString;
@@ -202,7 +202,7 @@ namespace WebReady.Web
         {
             if (QueryString == null)
             {
-                throw new WebException("missing query before event poll");
+                throw new FrameworkException("missing query before event poll");
             }
 
             string uri = POLL_ACTION + "?" + QueryString;
@@ -235,7 +235,7 @@ namespace WebReady.Web
         {
             if (QueryString == null)
             {
-                throw new WebException("missing query before event poll");
+                throw new FrameworkException("missing query before event poll");
             }
 
             string uri = POLL_ACTION + "?" + QueryString;

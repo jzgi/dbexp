@@ -4,7 +4,7 @@ using System.Security.Authentication;
 namespace WebReady.Web
 {
     /// <summary>
-    /// An executable object for logic handling.
+    /// An executable work object for logic processing.
     /// </summary>
     public abstract class WebWork
     {
@@ -31,9 +31,9 @@ namespace WebReady.Web
                 throw new AuthenticationException();
             }
 
-            if (roles.Overlaps(prin.Roles))
+            for (int i = 0; i < roles.Length; i++)
             {
-                return true;
+                if (prin.IsInRole(roles[i])) return true;
             }
 
             return false;

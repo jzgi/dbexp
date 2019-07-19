@@ -599,7 +599,7 @@ namespace WebReady.Db
                 }
                 else
                 {
-                    throw new WebException("neither keyer nor IKeyable<D>");
+                    throw new FrameworkException("neither keyer nor IKeyable<D>");
                 }
 
                 map.Add(key, obj);

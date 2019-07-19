@@ -1,13 +1,13 @@
 {
   "logging": 2,
-  "WEBSERVICE": {
-    "main": {
+  "WEB": {
+    "samp": {
       "addrs": [
         "http://144000.tv"
       ]
     }
   },
-  "DBSOURCE": {
+  "DB": {
     "postgres": {
       "host": "/tmp",
       "port": 5432,
@@ -15,7 +15,7 @@
       "password": ""
     }
   },
-  "WEBUSE": {
+  "NET": {
     "dir": "http://dir.144000.tv"
   }
 }

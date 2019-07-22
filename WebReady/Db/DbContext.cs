@@ -163,6 +163,11 @@ namespace WebReady.Db
             return _sql;
         }
 
+        public void ConstructForWeb(WebDirectory dir)
+        {
+            
+        }
+        
         public bool Query(Action<IParams> p = null, bool prepare = true)
         {
             return Query(_sql.ToString(), p, prepare);

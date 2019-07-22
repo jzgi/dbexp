@@ -8,7 +8,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.Logging;
@@ -133,7 +132,7 @@ namespace WebReady
             }
         }
 
-        public static void MakeService<T>(string name) where T : WebService, new()
+        public static T MakeService<T>(string name) where T : WebService, new()
         {
             JObj cfggrp = Config["WEB"];
             if (cfggrp == null)
@@ -150,12 +149,18 @@ namespace WebReady
             var svc = new T();
             svc.Initialize(name, cfg);
             services.Add(name, svc);
+            return svc;
         }
 
 
         public static DbContext NewDbContext(string name, IsolationLevel? level = null)
         {
             var src = sources[name];
+            if (src == null)
+            {
+                throw new FrameworkException("missing DB '" + name + "' in " + WEPAPP_JSON);
+            }
+
             var dc = new DbContext(src);
             if (level != null)
             {

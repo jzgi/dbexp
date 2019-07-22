@@ -7,7 +7,9 @@ namespace Sample
     {
         public static async Task Main(string[] args)
         {
-            MakeService<SampleService>("samp");
+            var rootdir = MakeService<SampleService>("samp");
+
+            rootdir.LoadSubFromDb("postgres");
 
             await StartAsync();
         }

@@ -357,5 +357,14 @@ namespace WebReady.Web
                 return this;
             }
         }
+
+        
+        public void LoadSubFromDb(string dbname)
+        {
+            using (var dc = Framework.NewDbContext(dbname))
+            {
+            }
+        }
+
     }
 }

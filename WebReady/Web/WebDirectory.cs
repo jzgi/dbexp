@@ -12,10 +12,10 @@ namespace WebReady.Web
 
 
         // sub-directories
-        Map<string, WebDirectory> _children;
+        Map<string, WebDirectory> _dirs;
 
         // runnable tasks 
-        Map<string, WebWork> _works;
+        public Map<string, WebWork> _works;
 
         Exception except = new Exception();
 
@@ -28,17 +28,40 @@ namespace WebReady.Web
         public void MakeDirectory<T>(string name) where T : WebDirectory, new()
         {
             T dir = new T {Parent = this};
+
             dir.OnInitialize();
-            _children.Add(name, dir);
+
+            if (_dirs == null)
+            {
+                _dirs = new Map<string, WebDirectory>(8);
+            }
+
+            _dirs.Add(name, dir);
         }
 
         public void MakeWork<T>(string name) where T : WebWork, new()
         {
             T wrk = new T {Directory = this};
+
             wrk.OnInitialize();
+
+            if (_works == null)
+            {
+                _works = new Map<string, WebWork>(8);
+            }
+
             _works.Add(name, wrk);
         }
 
+        public void MakeSubFromDb(string dbname)
+        {
+            using (var dc = Framework.NewDbContext(dbname))
+            {
+                // load views
+
+                // load functions
+            }
+        }
 
         internal async Task HandleAsync(string rsc, WebContext wc)
         {
@@ -49,7 +72,7 @@ namespace WebReady.Web
                 if (slash != -1)
                 {
                     string key = rsc.Substring(0, slash);
-                    if (_children != null && _children.TryGet(key, out var wrk))
+                    if (_dirs != null && _dirs.TryGet(key, out var wrk))
                     {
                         await wrk.HandleAsync(rsc.Substring(slash + 1), wc);
                     }
@@ -71,26 +94,25 @@ namespace WebReady.Web
             }
         }
 
-        public virtual void GET(WebContext wc, string subscript)
+        public virtual void Get(WebContext wc, string subscript)
         {
             throw NotImplemented;
         }
 
-        public virtual void POST(WebContext wc)
+        public virtual void Post(WebContext wc)
         {
             throw NotImplemented;
         }
 
-        public virtual void PUT(WebContext wc, string subscript)
+        public virtual void Put(WebContext wc, string subscript)
         {
             throw NotImplemented;
         }
 
-        public virtual void DELETE(WebContext wc, string subscript)
+        public virtual void Delete(WebContext wc, string subscript)
         {
             throw NotImplemented;
         }
-
 
         //
         // local object provider, for Attach() and Obtain() operations
@@ -186,85 +208,85 @@ namespace WebReady.Web
         /// </summary>
         class Hold
         {
-            readonly Type typ;
+            readonly Type _typ;
 
-            readonly Func<object> fetch;
+            readonly Func<object> _fetch;
 
-            readonly Func<Task<object>> fetchAsync;
+            readonly Func<Task<object>> _fetchAsync;
 
-            readonly int maxage; //in seconds
+            readonly int _maxage; //in seconds
 
             // tick count,   
-            int expiry;
+            int _expiry;
 
-            object value;
+            object _value;
 
-            readonly byte flag;
+            readonly byte _flag;
 
             internal Hold(object value, byte flag)
             {
-                this.typ = value.GetType();
-                this.value = value;
-                this.flag = flag;
+                _typ = value.GetType();
+                _value = value;
+                _flag = flag;
             }
 
             internal Hold(Type typ, Func<object> fetch, int maxage, byte flag)
             {
-                this.typ = typ;
-                this.flag = flag;
+                _typ = typ;
+                _flag = flag;
                 if (fetch is Func<Task<object>> fetch2)
                 {
-                    this.fetchAsync = fetch2;
+                    _fetchAsync = fetch2;
                 }
                 else
                 {
-                    this.fetch = fetch;
+                    _fetch = fetch;
                 }
 
-                this.maxage = maxage;
+                _maxage = maxage;
             }
 
-            public Type Typ => typ;
+            public Type Typ => _typ;
 
-            public byte Flag => flag;
+            public byte Flag => _flag;
 
-            public bool IsAsync => fetchAsync != null;
+            public bool IsAsync => _fetchAsync != null;
 
             public object GetValue()
             {
-                if (fetch == null) // simple object
+                if (_fetch == null) // simple object
                 {
-                    return value;
+                    return _value;
                 }
 
-                lock (fetch) // cache object
+                lock (_fetch) // cache object
                 {
-                    if (Environment.TickCount >= expiry)
+                    if (Environment.TickCount >= _expiry)
                     {
-                        value = fetch();
-                        expiry = (Environment.TickCount & int.MaxValue) + maxage * 1000;
+                        _value = _fetch();
+                        _expiry = (Environment.TickCount & int.MaxValue) + _maxage * 1000;
                     }
 
-                    return value;
+                    return _value;
                 }
             }
 
             public async Task<object> GetValueAsync()
             {
-                if (fetchAsync == null) // simple object
+                if (_fetchAsync == null) // simple object
                 {
-                    return value;
+                    return _value;
                 }
 
-                int lexpiry = this.expiry;
+                int lexpiry = _expiry;
                 int ticks = Environment.TickCount;
                 if (ticks >= lexpiry)
                 {
-                    value = await fetchAsync();
-                    expiry = (Environment.TickCount & int.MaxValue) + maxage * 1000;
+                    _value = await _fetchAsync();
+                    _expiry = (Environment.TickCount & int.MaxValue) + _maxage * 1000;
                 }
 
-                return value;
+                return _value;
             }
         }
     }

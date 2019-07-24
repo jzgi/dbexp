@@ -12,19 +12,19 @@ namespace WebReady.Db
         
         
 
-        public override void GET(WebContext wc, string subscript)
+        public override void Get(WebContext wc, string subscript)
         {
         }
 
-        public override void POST(WebContext wc)
+        public override void Post(WebContext wc)
         {
         }
 
-        public override void PUT(WebContext wc, string subscript)
+        public override void Put(WebContext wc, string subscript)
         {
         }
 
-        public override void DELETE(WebContext wc, string subscript)
+        public override void Delete(WebContext wc, string subscript)
         {
         }
     }

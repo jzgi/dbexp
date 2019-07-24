@@ -9,7 +9,7 @@ namespace WebReady.Web
     /// <summary>
     /// A client connector that implements both one-to-one and one-to-many communication in both sync and async approaches.
     /// </summary>
-    public class WebPeer : HttpClient, IKeyable<string>, IPollContext
+    public class NetPeer : HttpClient, IKeyable<string>, IPollContext
     {
         const int AHEAD = 1000 * 12;
 
@@ -38,7 +38,7 @@ namespace WebReady.Web
         /// Used to construct a secure client by passing handler with certificate.
         /// </summary>
         /// <param name="handler"></param>
-        public WebPeer(HttpClientHandler handler) : base(handler)
+        public NetPeer(HttpClientHandler handler) : base(handler)
         {
         }
 
@@ -48,7 +48,7 @@ namespace WebReady.Web
         /// Used to construct a random client that does not necessarily connect to a remote service. 
         /// </summary>
         /// <param name="raddr"></param>
-        public WebPeer(string raddr) : this(null, raddr)
+        public NetPeer(string raddr) : this(null, raddr)
         {
         }
 
@@ -57,7 +57,7 @@ namespace WebReady.Web
         /// </summary>
         /// <param name="rkey">the identifying key for the remote service</param>
         /// <param name="raddr">remote address</param>
-        internal WebPeer(string rkey, string raddr)
+        internal NetPeer(string rkey, string raddr)
         {
             rKey = rkey;
             // initialize name and sshard

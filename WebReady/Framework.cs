@@ -49,7 +49,7 @@ namespace WebReady
 
         static readonly Map<string, WebService> services = new Map<string, WebService>(4);
 
-        static readonly Map<string, WebPeer> peers = new Map<string, WebPeer>(16);
+        static readonly Map<string, NetPeer> peers = new Map<string, NetPeer>(32);
 
         static readonly Map<string, DbSource> sources = new Map<string, DbSource>(4);
 
@@ -57,7 +57,7 @@ namespace WebReady
         internal static readonly FrameworkLogger Logger;
 
 
-        static List<WebPeer> polls;
+        static List<NetPeer> polls;
 
         // the thread schedules and drives periodic jobs, such as event polling 
         static Thread scheduler;
@@ -97,10 +97,10 @@ namespace WebReady
                     var e = ConfigNet.EntryAt(i);
                     if (peers == null)
                     {
-                        peers = new Map<string, WebPeer>(16);
+                        peers = new Map<string, NetPeer>(16);
                     }
 
-                    peers.Add(new WebPeer(e.Key, e.Value)
+                    peers.Add(new NetPeer(e.Key, e.Value)
                     {
                         Clustered = true
                     });
@@ -171,7 +171,9 @@ namespace WebReady
         }
 
 
-        // LOGGING
+        //
+        // logging methods
+        //
 
         public static void TRC(string msg, Exception ex = null)
         {

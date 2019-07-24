@@ -9,7 +9,7 @@ namespace Sample
         {
             var rootdir = MakeService<SampleService>("samp");
 
-            rootdir.LoadSubFromDb("postgres");
+            rootdir.MakeSubFromDb("postgres");
 
             await StartAsync();
         }

@@ -2,6 +2,10 @@ namespace WebReady
 {
     public interface IPrincipal : IData
     {
-        bool IsInRole(string role);
+        bool IsRole(string role);
+
+        string UserVar { get; }
+
+        string GetRoleVar(string role);
     }
 }

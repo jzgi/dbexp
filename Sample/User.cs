@@ -10,11 +10,11 @@ namespace Sample
         public string credential;
         internal string addr;
         internal string wx; // wexin openid
-        internal short stationid;
+        internal short ptid;
         internal DateTime created;
-        internal short admly; // role in hub
+        internal string admly;
+        internal string orgly;
         internal short orgid;
-        internal short orgly;
         internal short status;
 
         public void Read(ISource s, byte proj = 0x0f)
@@ -24,11 +24,11 @@ namespace Sample
             s.Get(nameof(credential), ref credential);
             s.Get(nameof(addr), ref addr);
             s.Get(nameof(wx), ref wx);
-            s.Get(nameof(stationid), ref stationid);
+            s.Get(nameof(ptid), ref ptid);
             s.Get(nameof(created), ref created);
             s.Get(nameof(admly), ref admly);
-            s.Get(nameof(orgid), ref orgid);
             s.Get(nameof(orgly), ref orgly);
+            s.Get(nameof(orgid), ref orgid);
             s.Get(nameof(status), ref status);
         }
 
@@ -39,11 +39,11 @@ namespace Sample
             s.Put(nameof(credential), credential);
             s.Put(nameof(addr), addr);
             s.Put(nameof(wx), wx);
-            s.Put(nameof(stationid), stationid);
+            s.Put(nameof(ptid), ptid);
             s.Put(nameof(created), created);
             s.Put(nameof(admly), admly);
-            s.Put(nameof(orgid), orgid);
             s.Put(nameof(orgly), orgly);
+            s.Put(nameof(orgid), orgid);
             s.Put(nameof(status), status);
         }
 
@@ -52,9 +52,21 @@ namespace Sample
 
         public override string ToString() => inf;
 
-        public bool IsInRole(string role)
+        public bool IsRole(string role)
         {
             return false;
+        }
+
+        public string UserVar => id;
+
+        public string GetRoleVar(string role)
+        {
+            if (role.StartsWith("ctr") || role.StartsWith("pt"))
+            {
+                return orgid.ToString();
+            }
+
+            return null;
         }
     }
 }

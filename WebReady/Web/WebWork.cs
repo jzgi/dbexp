@@ -33,7 +33,7 @@ namespace WebReady.Web
 
             for (int i = 0; i < roles.Length; i++)
             {
-                if (prin.IsInRole(roles[i])) return true;
+                if (prin.IsRole(roles[i])) return true;
             }
 
             return false;

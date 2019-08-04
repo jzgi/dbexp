@@ -45,7 +45,7 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebDirectory Directory { get; internal set; }
+        public WebScope Directory { get; internal set; }
 
         public WebWork Work { get; internal set; }
 

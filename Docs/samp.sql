@@ -138,11 +138,11 @@ create table orderlns
   status    smallint default 0 not null
 );
 
-alter table orderlns
+alter table orders
   owner to postgres;
 
 create index orders_custid
-  on orderlns (custid);
+  on orders (userid);
 
 create table ctritems
 (
@@ -196,7 +196,7 @@ WHERE ((a.id =
 GROUP BY c.ptid,
          a.id;
 
-alter table pt_items
+alter table items_pt
   owner to postgres;
 
 create view my_user as
@@ -216,7 +216,7 @@ WHERE ((users.id)::text =
        current_setting(
            'principal.var'::text));
 
-alter table my_user
+alter table user_my
   owner to postgres;
 
 create view org_users as
@@ -236,7 +236,7 @@ WHERE (users.orgid =
        (current_setting(
            'role.var'::text))::smallint);
 
-alter table org_users
+alter table custs_pt
   owner to postgres;
 
 create view all_orgs as
@@ -252,7 +252,7 @@ SELECT orgs.id,
        orgs.status
 FROM orgs;
 
-alter table all_orgs
+alter table orgs_of
   owner to postgres;
 
 create function get_item_icon(id smallint) returns bytea

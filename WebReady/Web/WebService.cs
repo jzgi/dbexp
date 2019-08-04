@@ -17,10 +17,14 @@ namespace WebReady.Web
     /// <summary>
     /// An embedded web server that wraps around the kestrel HTTP engine.
     /// </summary>
-    public abstract class WebService : WebDirectory, IHttpApplication<HttpContext>
+    public abstract class WebService : WebWork, IHttpApplication<HttpContext>
     {
-        string _name;
+        // subscopes of the service
+        private Map<string, WebScope> _scopes;
 
+
+        //
+        // http implementation
 
         string[] addrs;
 
@@ -41,7 +45,6 @@ namespace WebReady.Web
 
         internal void Initialize(string name, JObj cfg)
         {
-            _name = name;
 
             // retrieve config settings
             cfg.Get(nameof(addrs), ref addrs);
@@ -72,9 +75,23 @@ namespace WebReady.Web
             }
         }
 
+        public Map<string, WebScope> Scopes => _scopes;
+
+        public void LoadFromDb(string dbname)
+        {
+            using (var dc = Framework.NewDbContext(dbname))
+            {
+                // load views
+
+                // load functions
+            }
+        }
+
         protected internal virtual void Authenticate(WebContext wc)
         {
         }
+        
+        
 
         /// <summary>
         /// To asynchronously process the request.
@@ -131,7 +148,7 @@ namespace WebReady.Web
                 return;
             }
 
-            string path = Path.Join(_name, filename);
+            string path = Path.Join(Name, filename);
             if (!File.Exists(path))
             {
                 wc.Give(404); // not found
@@ -195,7 +212,7 @@ namespace WebReady.Web
         {
             await _server.StartAsync(this, token);
 
-            Console.WriteLine(_name + " started at " + addrs[0]);
+            Console.WriteLine(Name + " started at " + addrs[0]);
 
             // create and start the cleaner thread
             if (_cache != null)

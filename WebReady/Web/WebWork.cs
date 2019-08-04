@@ -1,29 +1,56 @@
 using System;
+using System.Reflection;
 using System.Security.Authentication;
+using System.Threading.Tasks;
 
 namespace WebReady.Web
 {
     /// <summary>
     /// An executable work object for logic processing.
     /// </summary>
-    public abstract class WebWork
+    public abstract class WebWork : WebScope
     {
-        static readonly Exception NotImplemented = new NotImplementedException();
+        readonly Map<string, WebAction> _actions = new Map<string, WebAction>(32);
 
-        string key;
-
-        // granted roles
-        string[] roles;
-
-        public WebDirectory Directory { get; internal set; }
-
-        protected internal virtual void OnInitialize()
+        string[] _roles;
+        
+        protected void  Initialize(string name)
         {
+            var type = GetType();
+
+            // gather method-based actions
+            //
+
+            foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            {
+                // verify the return type
+                Type ret = mi.ReturnType;
+                bool async;
+                if (ret == typeof(Task)) async = true;
+                else if (ret == typeof(void)) async = false;
+                else continue;
+
+                ParameterInfo[] pis = mi.GetParameters();
+                WebAction act;
+                if (pis.Length == 1 && pis[0].ParameterType == typeof(WebContext))
+                {
+                    act = new WebMethodAction(this, mi, async, null);
+                }
+                else if (pis.Length == 2 && pis[0].ParameterType == typeof(WebContext) && pis[1].ParameterType == typeof(string))
+                {
+                    act = new WebMethodAction(this, mi, async, pis[1].Name);
+                }
+                else continue;
+
+                _actions.Add("", act);
+            }
         }
 
-        internal bool DoAuthorize(WebContext wc)
+        public Map<string, WebAction> Actions => _actions;
+
+        public override bool Authorize(WebContext wc)
         {
-            if (roles == null) return true;
+            if (_roles == null) return true;
 
             var prin = wc.Principal;
             if (prin == null)
@@ -31,26 +58,17 @@ namespace WebReady.Web
                 throw new AuthenticationException();
             }
 
-            for (int i = 0; i < roles.Length; i++)
+            for (int i = 0; i < _roles.Length; i++)
             {
-                if (prin.IsRole(roles[i])) return true;
+                if (prin.IsRole(_roles[i])) return true;
             }
 
             return false;
         }
 
-        internal void ProcessRequest(WebContext wc)
+        protected override Task HandleAsync(string rsc, WebContext wc)
         {
-        }
-
-        public virtual void GET(WebContext wc)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void POST(WebContext wc)
-        {
-            throw NotImplemented;
+            throw new NotImplementedException();
         }
     }
 }

@@ -4,115 +4,33 @@ using System.Threading.Tasks;
 namespace WebReady.Web
 {
     /// <summary>
-    /// A web resource folder that may contain child folders and actors.
+    /// A resource containing scope.
     /// </summary>
-    public abstract class WebDirectory
+    public abstract class WebScope
     {
-        static readonly Exception NotImplemented = new NotImplementedException();
+        // the parent scope, null if this is the root.
+        WebScope _parent;
 
+        string _name;
 
-        // sub-directories
-        Map<string, WebDirectory> _dirs;
+        public WebScope Parent => _parent;
 
-        // runnable tasks 
-        public Map<string, WebWork> _works;
+        public string Name => _name;
 
-        Exception except = new Exception();
-
-        public WebDirectory Parent { get; internal set; }
+        internal void Initialize(WebScope parent, string name)
+        {
+            _parent = parent;
+            _name = name;
+        }
 
         protected internal virtual void OnInitialize()
         {
         }
 
-        public void MakeDirectory<T>(string name) where T : WebDirectory, new()
-        {
-            T dir = new T {Parent = this};
+        public abstract bool Authorize(WebContext wc);
 
-            dir.OnInitialize();
+        protected abstract Task HandleAsync(string rsc, WebContext wc);
 
-            if (_dirs == null)
-            {
-                _dirs = new Map<string, WebDirectory>(8);
-            }
-
-            _dirs.Add(name, dir);
-        }
-
-        public void MakeWork<T>(string name) where T : WebWork, new()
-        {
-            T wrk = new T {Directory = this};
-
-            wrk.OnInitialize();
-
-            if (_works == null)
-            {
-                _works = new Map<string, WebWork>(8);
-            }
-
-            _works.Add(name, wrk);
-        }
-
-        public void MakeSubFromDb(string dbname)
-        {
-            using (var dc = Framework.NewDbContext(dbname))
-            {
-                // load views
-
-                // load functions
-            }
-        }
-
-        internal async Task HandleAsync(string rsc, WebContext wc)
-        {
-            try
-            {
-                int slash = rsc.IndexOf('/');
-                // determine sub-dicrectory or end action
-                if (slash != -1)
-                {
-                    string key = rsc.Substring(0, slash);
-                    if (_dirs != null && _dirs.TryGet(key, out var wrk))
-                    {
-                        await wrk.HandleAsync(rsc.Substring(slash + 1), wc);
-                    }
-                    else
-                    {
-                        var run = _works[rsc];
-                        if (run == null)
-                        {
-                            wc.Give(404, "action not found", true, 12);
-                            return;
-                        }
-
-                        wc.Work = run;
-                    }
-                }
-            }
-            finally
-            {
-            }
-        }
-
-        public virtual void Get(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void Post(WebContext wc)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void Put(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void Delete(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
 
         //
         // local object provider, for Attach() and Obtain() operations

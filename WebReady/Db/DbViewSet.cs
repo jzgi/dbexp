@@ -2,15 +2,15 @@ using WebReady.Web;
 
 namespace WebReady.Db
 {
-    public class DbViewDirectory : WebDirectory
+    public class DbViewSet : WebSet
     {
-        Map<string, DbCol> cols;
+        // columns in the view
+        Map<string, DbCol> _cols;
 
-        private bool insertable;
+        bool insertable;
 
-        private bool updatable;
-        
-        
+        bool updatable;
+
 
         public override void Get(WebContext wc, string subscript)
         {

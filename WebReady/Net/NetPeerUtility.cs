@@ -6,7 +6,7 @@ using WebReady;
 
 namespace WebReady.Web
 {
-    public static class WebClientUtility
+    public static class NetPeerUtility
     {
         public static string GetValue(this HttpHeaders headers, string name)
         {

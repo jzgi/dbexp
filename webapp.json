@@ -8,11 +8,12 @@
     }
   },
   "DB": {
-    "postgres": {
-      "host": "/tmp",
+    "samp": {
+      "host": "144000.tv",
       "port": 5432,
-      "username": "",
-      "password": ""
+      "database": "samp",
+      "username": "postgres",
+      "password": "721004"
     }
   },
   "NET": {

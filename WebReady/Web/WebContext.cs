@@ -12,7 +12,10 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Primitives;
 using static WebReady.DataUtility;
+#pragma warning disable 618
 using AuthenticationManager = Microsoft.AspNetCore.Http.Authentication.AuthenticationManager;
+
+#pragma warning restore 618
 
 namespace WebReady.Web
 {
@@ -45,9 +48,7 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebScope Directory { get; internal set; }
-
-        public WebWork Work { get; internal set; }
+        public WebScope Scope { get; internal set; }
 
         public string Subscript { get; internal set; }
 

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using WebReady.Db;
 
 namespace WebReady.Web
 {
@@ -42,12 +43,12 @@ namespace WebReady.Web
         public Map<string, WebScope> Scopes => _scopes;
 
 
-        internal JObj Config 
+        internal JObj Config
         {
             set
             {
                 var cfg = value;
-                
+
                 // retrieve config settings
                 cfg.Get(nameof(addrs), ref addrs);
                 if (addrs == null)
@@ -80,21 +81,63 @@ namespace WebReady.Web
 
         public T AddScope<T>(string name) where T : WebScope, new()
         {
-            var wrk = new T()
+            var scp = new T()
             {
                 Parent = this,
                 Name = name
             };
 
-            _scopes.Add(name, wrk);
+            _scopes.Add(name, scp);
 
             // applevel init
-            wrk.OnInitialize();
+            scp.OnInitialize();
 
-            return wrk;
+            return scp;
         }
 
-        public void LoadFromDb(string source)
+        public T AddScope<T>(T scope) where T : WebScope
+        {
+            _scopes.Add(scope.Name, scope);
+            scope.Parent = this;
+
+            // applevel init
+            scope.OnInitialize();
+
+            return scope;
+        }
+
+        public void LoadScopesFromDb(string source)
+        {
+            var src = Framework.GetDbSource(source);
+
+            using (var dc = src.NewDbContext())
+            {
+                // load views under the public schema
+                dc.Query("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
+                while (dc.Next())
+                {
+                    string table_name = null;
+                    dc.Get(nameof(table_name), ref table_name);
+                    string view_definition = null;
+                    dc.Get(nameof(view_definition), ref view_definition);
+                    string check_option = null;
+                    dc.Get(nameof(check_option), ref check_option);
+                    bool is_updateable = false;
+                    dc.Get(nameof(is_updateable), ref is_updateable);
+                    bool is_insertable_into = false;
+                    dc.Get(nameof(is_insertable_into), ref is_insertable_into);
+
+                    var vset = new DbViewSet(table_name, view_definition, check_option, is_updateable, is_insertable_into)
+                    {
+                        Name = table_name,
+                        Source = src
+                    };
+                    AddScope(vset);
+                }
+            }
+        }
+
+        public void LoadActionsFromDb(string source)
         {
             using (var dc = Framework.NewDbContext(source))
             {

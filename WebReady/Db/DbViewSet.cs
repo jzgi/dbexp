@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using WebReady.Web;
 
@@ -7,13 +6,28 @@ namespace WebReady.Db
     public class DbViewSet : WebSet
     {
         // columns in the view
-        Map<string, DbCol> _cols;
+        public DbSource Source { get; internal set; }
 
-        string source;
+        string _name;
 
-        bool insertable;
+        string _definition;
 
-        bool updatable;
+        string _check_option;
+
+        bool _updatable;
+
+        bool _insertable;
+
+        Map<string, DbCol> _cols = new Map<string, DbCol>(64);
+
+        internal DbViewSet(string name, string definition, string checkOption, bool updatable, bool insertable)
+        {
+            _name = name;
+            _definition = definition;
+            _check_option = checkOption;
+            _updatable = updatable;
+            _insertable = insertable;
+        }
 
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
@@ -22,7 +36,7 @@ namespace WebReady.Db
             {
                 var sql = new DbSql("SELECT * FROM ").T(Name);
 
-                using (var dc = Framework.NewDbContext(source))
+                using (var dc = Source.NewDbContext())
                 {
                     await dc.QueryAsync();
                 }

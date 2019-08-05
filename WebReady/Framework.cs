@@ -136,7 +136,7 @@ namespace WebReady
             }
         }
 
-        public static T AddService<T>(string name) where T : WebService, new()
+        public static T CreateService<T>(string name) where T : WebService, new()
         {
             JObj web = Config["WEB"];
             if (web == null)
@@ -155,25 +155,23 @@ namespace WebReady
                 Name = name, Config = cfg
             };
             services.Add(name, svc);
+
+            svc.OnInitialize();
+
             return svc;
         }
 
+        public static DbSource GetDbSource(string name) => sources[name];
 
-        public static DbContext NewDbContext(string name, IsolationLevel? level = null)
+        public static DbContext NewDbContext(string source, IsolationLevel? level = null)
         {
-            var src = sources[name];
+            var src = sources[source];
             if (src == null)
             {
-                throw new FrameworkException("missing DB '" + name + "' in " + WEPAPP_JSON);
+                throw new FrameworkException("missing DB '" + source + "' in " + WEPAPP_JSON);
             }
 
-            var dc = new DbContext(src);
-            if (level != null)
-            {
-                dc.Begin(level.Value);
-            }
-
-            return dc;
+            return src.NewDbContext(level);
         }
 
 

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text;
 
 namespace WebReady.Db
@@ -51,5 +52,16 @@ namespace WebReady.Db
         public string Key => _name;
 
         public string ConnectionString => _connstr;
+
+        public DbContext NewDbContext(IsolationLevel? level = null)
+        {
+            var dc = new DbContext(this);
+            if (level != null)
+            {
+                dc.Begin(level.Value);
+            }
+
+            return dc;
+        }
     }
 }

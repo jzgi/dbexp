@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace WebReady.Web
@@ -10,27 +9,30 @@ namespace WebReady.Web
     public abstract class WebSet : WebScope
     {
         // subscoping variables
-        VarDef[] _vars;
+        VarDesc[] _vars;
 
         // supported method operations
-        OpDef[] _ops;
+        OpDesc[] _ops;
 
 
-        internal new void Initialize(WebScope parent, string name)
-        {
-            base.Initialize(parent, name);
-        }
+        public VarDesc[] Vars => _vars;
 
-        public VarDef[] Vars => _vars;
-
-        public OpDef[] Ops => _ops;
+        public OpDesc[] Ops => _ops;
 
         public void AddVar(string name, string[] grents)
         {
+            _vars = _vars.AddOf(new VarDesc
+            {
+                Name = name
+            });
         }
 
         public void AddOp(string method, string[] grents)
         {
+            _ops = _ops.AddOf(new OpDesc
+            {
+                Method = method, Roles = grents
+            });
         }
 
         public override bool Authorize(WebContext wc)
@@ -48,38 +50,18 @@ namespace WebReady.Web
         //
         readonly Exception NotImplemented = new NotImplementedException();
 
-        public virtual void Get(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void Post(WebContext wc)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void Put(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
-
-        public virtual void Delete(WebContext wc, string subscript)
-        {
-            throw NotImplemented;
-        }
+        public abstract Task OperateAsync(WebContext wc, string method, string[] vars, string subscript);
     }
 
-    public struct VarDef
+    public class VarDesc
     {
-        string name;
-
-        string[] grants;
+        public string Name { get; internal set; }
     }
 
-    public struct OpDef
+    public struct OpDesc
     {
-        string method;
+        public string Method { get; internal set; }
 
-        string[] grants;
+        public string[] Roles { get; internal set; }
     }
 }

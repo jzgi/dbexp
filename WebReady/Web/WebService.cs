@@ -20,8 +20,7 @@ namespace WebReady.Web
     public abstract class WebService : WebWork, IHttpApplication<HttpContext>
     {
         // subscopes of the service
-        private Map<string, WebScope> _scopes;
-
+        readonly Map<string, WebScope> _scopes = new Map<string, WebScope>(64);
 
         //
         // http implementation
@@ -40,42 +39,60 @@ namespace WebReady.Web
         // the response cache cleaner thread
         Thread _cleaner;
 
-        // dbset operation areas keyed by service id
-        //        readonly ConcurrentDictionary<string, DbArea> areas;
+        public Map<string, WebScope> Scopes => _scopes;
 
-        internal void Initialize(string name, JObj cfg)
+
+        internal JObj Config 
         {
-
-            // retrieve config settings
-            cfg.Get(nameof(addrs), ref addrs);
-            if (addrs == null)
+            set
             {
-                throw new FrameworkException("Missing 'addrs' configuration");
-            }
+                var cfg = value;
+                
+                // retrieve config settings
+                cfg.Get(nameof(addrs), ref addrs);
+                if (addrs == null)
+                {
+                    throw new FrameworkException("Missing 'addrs' configuration");
+                }
 
-            cfg.Get(nameof(cache), ref cache);
-            if (cache)
-            {
-                int factor = (int) Math.Log(Environment.ProcessorCount, 2) + 1;
-                // create the response cache
-                _cache = new ConcurrentDictionary<string, Response>(factor * 4, 1024);
-            }
+                cfg.Get(nameof(cache), ref cache);
+                if (cache)
+                {
+                    int factor = (int) Math.Log(Environment.ProcessorCount, 2) + 1;
+                    // create the response cache
+                    _cache = new ConcurrentDictionary<string, Response>(factor * 4, 1024);
+                }
 
-            // create the HTTP embedded server
-            //
-            var opts = new KestrelServerOptions();
-            var logf = new LoggerFactory();
-            logf.AddProvider(Framework.Logger);
-            _server = new KestrelServer(Options.Create(opts), Framework.TransportFactory, logf);
+                // create the HTTP embedded server
+                //
+                var opts = new KestrelServerOptions();
+                var logf = new LoggerFactory();
+                logf.AddProvider(Framework.Logger);
+                _server = new KestrelServer(Options.Create(opts), Framework.TransportFactory, logf);
 
-            var coll = _server.Features.Get<IServerAddressesFeature>().Addresses;
-            foreach (string a in addrs)
-            {
-                coll.Add(a.Trim());
+                var coll = _server.Features.Get<IServerAddressesFeature>().Addresses;
+                foreach (string a in addrs)
+                {
+                    coll.Add(a.Trim());
+                }
             }
         }
 
-        public Map<string, WebScope> Scopes => _scopes;
+        public T AddScope<T>(string name) where T : WebScope, new()
+        {
+            var wrk = new T()
+            {
+                Parent = this,
+                Name = name
+            };
+
+            _scopes.Add(name, wrk);
+
+            // applevel init
+            wrk.OnInitialize();
+
+            return wrk;
+        }
 
         public void LoadFromDb(string dbname)
         {
@@ -87,23 +104,19 @@ namespace WebReady.Web
             }
         }
 
-        protected internal virtual void Authenticate(WebContext wc)
-        {
-        }
-        
-        
 
         /// <summary>
         /// To asynchronously process the request.
         /// </summary>
         public async Task ProcessRequestAsync(HttpContext context)
         {
-            WebContext wc = (WebContext) context;
+            var wc = (WebContext) context;
 
             string path = wc.Path;
-            int dot = path.LastIndexOf('.');
 
             // determine it is file or action content
+            //
+            int dot = path.LastIndexOf('.');
             if (dot != -1)
             {
                 // try to give file content from cache or file system

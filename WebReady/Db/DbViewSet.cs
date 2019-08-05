@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using WebReady.Web;
 
 namespace WebReady.Db
@@ -7,25 +9,27 @@ namespace WebReady.Db
         // columns in the view
         Map<string, DbCol> _cols;
 
+        string source;
+
         bool insertable;
 
         bool updatable;
 
 
-        public override void Get(WebContext wc, string subscript)
+        public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
         {
-        }
+            if (method == "GET")
+            {
+                var sql = new DbSql("SELECT * FROM ").T(Name);
 
-        public override void Post(WebContext wc)
-        {
-        }
-
-        public override void Put(WebContext wc, string subscript)
-        {
-        }
-
-        public override void Delete(WebContext wc, string subscript)
-        {
+                using (var dc = Framework.NewDbContext(source))
+                {
+                    await dc.QueryAsync();
+                }
+            }
+            else if (method == "POST")
+            {
+            }
         }
     }
 }

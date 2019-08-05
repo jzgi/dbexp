@@ -8,20 +8,16 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebScope
     {
-        // the parent scope, null if this is the root.
-        WebScope _parent;
+        /// <summary>
+        /// The parent scope, null if this is the root.
+        /// </summary>
+        public WebScope Parent { get; internal set; }
 
-        string _name;
+        /// <summary>
+        /// The unique name of the scope.
+        /// </summary>
+        public string Name { get; internal set; }
 
-        public WebScope Parent => _parent;
-
-        public string Name => _name;
-
-        internal void Initialize(WebScope parent, string name)
-        {
-            _parent = parent;
-            _name = name;
-        }
 
         protected internal virtual void OnInitialize()
         {

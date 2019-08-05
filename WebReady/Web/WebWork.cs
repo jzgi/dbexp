@@ -1,4 +1,3 @@
-using System;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Threading.Tasks;
@@ -6,43 +5,44 @@ using System.Threading.Tasks;
 namespace WebReady.Web
 {
     /// <summary>
-    /// An executable work object for logic processing.
+    /// An executable work object for logic processing, it consists of a number of actions.
     /// </summary>
     public abstract class WebWork : WebScope
     {
         readonly Map<string, WebAction> _actions = new Map<string, WebAction>(32);
 
         string[] _roles;
-        
-        protected void  Initialize(string name)
+
+        protected WebWork()
         {
             var type = GetType();
 
             // gather method-based actions
             //
-
-            foreach (MethodInfo mi in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var mi in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
                 // verify the return type
-                Type ret = mi.ReturnType;
+                var ret = mi.ReturnType;
                 bool async;
-                if (ret == typeof(Task)) async = true;
-                else if (ret == typeof(void)) async = false;
+                if (ret == typeof(Task))
+                {
+                    async = true;
+                }
+                else if (ret == typeof(void))
+                {
+                    async = false;
+                }
                 else continue;
 
-                ParameterInfo[] pis = mi.GetParameters();
+                var pis = mi.GetParameters();
                 WebAction act;
                 if (pis.Length == 1 && pis[0].ParameterType == typeof(WebContext))
                 {
                     act = new WebMethodAction(this, mi, async, null);
                 }
-                else if (pis.Length == 2 && pis[0].ParameterType == typeof(WebContext) && pis[1].ParameterType == typeof(string))
-                {
-                    act = new WebMethodAction(this, mi, async, pis[1].Name);
-                }
                 else continue;
 
-                _actions.Add("", act);
+                _actions.Add(act.Name, act);
             }
         }
 
@@ -66,9 +66,33 @@ namespace WebReady.Web
             return false;
         }
 
-        protected override Task HandleAsync(string rsc, WebContext wc)
+        protected override async Task HandleAsync(string rsc, WebContext wc)
         {
-            throw new NotImplementedException();
+            // resolve the resource
+            string name = rsc;
+            string subscpt = null;
+            int dash = rsc.LastIndexOf('-');
+            if (dash != -1)
+            {
+                name = rsc.Substring(0, dash);
+                wc.Subscript = subscpt = rsc.Substring(dash + 1);
+            }
+
+            var act = _actions[name];
+            if (act == null)
+            {
+                wc.Give(404, "action not found", true, 12);
+                return;
+            }
+
+            if (!((WebService) Parent).TryGiveFromCache(wc))
+            {
+                // invoke action method 
+                if (act.IsAsync) await act.DoAsync(wc, subscpt);
+                else act.Do(wc, subscpt);
+
+                ((WebService) Parent).TryAddToCache(wc);
+            }
         }
     }
 }

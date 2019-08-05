@@ -132,22 +132,24 @@ namespace WebReady
             }
         }
 
-        public static T MakeService<T>(string name) where T : WebService, new()
+        public static T AddService<T>(string name) where T : WebService, new()
         {
-            JObj cfggrp = Config["WEB"];
-            if (cfggrp == null)
+            JObj web = Config["WEB"];
+            if (web == null)
             {
                 throw new WebException("missing 'WEB' in " + WEPAPP_JSON);
             }
 
-            JObj cfg = cfggrp[name];
+            JObj cfg = web[name];
             if (cfg == null)
             {
                 throw new WebException("missing '" + name + "' service in " + WEPAPP_JSON);
             }
 
-            var svc = new T();
-            svc.Initialize(name, cfg);
+            var svc = new T
+            {
+                Name = name, Config = cfg
+            };
             services.Add(name, svc);
             return svc;
         }

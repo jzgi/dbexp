@@ -165,9 +165,8 @@ namespace WebReady.Db
 
         public void ConstructForWeb(WebScope dir)
         {
-            
         }
-        
+
         public bool Query(Action<IParams> p = null, bool prepare = true)
         {
             return Query(_sql.ToString(), p, prepare);

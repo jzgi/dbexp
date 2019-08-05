@@ -289,7 +289,7 @@ namespace WebReady
 
             public override string ToString()
             {
-                return value.ToString();
+                return key.ToString();
             }
 
             public K Key => key;

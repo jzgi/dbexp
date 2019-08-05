@@ -8,27 +8,34 @@ namespace WebReady.Db
         // columns in the view
         public DbSource Source { get; internal set; }
 
-        string _name;
+        internal readonly string table_name;
 
-        string _definition;
+        readonly string view_definition;
 
-        string _check_option;
+        readonly string check_option;
 
-        bool _updatable;
+        readonly bool is_updateable;
 
-        bool _insertable;
+        readonly bool is_insertable_into;
 
-        Map<string, DbCol> _cols = new Map<string, DbCol>(64);
+        readonly Map<string, DbCol> _cols = new Map<string, DbCol>(64);
 
-        internal DbViewSet(string name, string definition, string checkOption, bool updatable, bool insertable)
+        internal DbViewSet(ISource s)
         {
-            _name = name;
-            _definition = definition;
-            _check_option = checkOption;
-            _updatable = updatable;
-            _insertable = insertable;
+            s.Get(nameof(table_name), ref table_name);
+
+            Name = table_name;
+
+            s.Get(nameof(view_definition), ref view_definition);
+            s.Get(nameof(check_option), ref check_option);
+            s.Get(nameof(is_updateable), ref is_updateable);
+            s.Get(nameof(is_insertable_into), ref is_insertable_into);
         }
 
+        internal void AddCol(DbCol col)
+        {
+            _cols.Add(col.Key, col);
+        }
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
         {

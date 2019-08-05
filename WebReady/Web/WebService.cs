@@ -116,23 +116,20 @@ namespace WebReady.Web
                 dc.Query("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
                 while (dc.Next())
                 {
-                    string table_name = null;
-                    dc.Get(nameof(table_name), ref table_name);
-                    string view_definition = null;
-                    dc.Get(nameof(view_definition), ref view_definition);
-                    string check_option = null;
-                    dc.Get(nameof(check_option), ref check_option);
-                    bool is_updateable = false;
-                    dc.Get(nameof(is_updateable), ref is_updateable);
-                    bool is_insertable_into = false;
-                    dc.Get(nameof(is_insertable_into), ref is_insertable_into);
-
-                    var vset = new DbViewSet(table_name, view_definition, check_option, is_updateable, is_insertable_into)
+                    var vset = new DbViewSet(dc)
                     {
-                        Name = table_name,
                         Source = src
                     };
                     AddScope(vset);
+
+                    using (var ndc = src.NewDbContext())
+                    {
+                        ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' and table_name = @1", p => p.Set(vset.Name));
+                        while (ndc.Next())
+                        {
+                            vset.AddCol(new DbCol(ndc));
+                        }
+                    }
                 }
             }
         }

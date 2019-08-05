@@ -94,9 +94,9 @@ namespace WebReady.Web
             return wrk;
         }
 
-        public void LoadFromDb(string dbname)
+        public void LoadFromDb(string source)
         {
-            using (var dc = Framework.NewDbContext(dbname))
+            using (var dc = Framework.NewDbContext(source))
             {
                 // load views
 

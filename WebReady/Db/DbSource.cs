@@ -2,8 +2,10 @@ using System.Text;
 
 namespace WebReady.Db
 {
-    public class DbSource
+    public class DbSource : IKeyable<string>
     {
+        readonly string _name;
+
         // IP host or unix domain socket
         readonly string host;
 
@@ -17,10 +19,12 @@ namespace WebReady.Db
 
         readonly string password;
 
-        readonly string connstr;
+        readonly string _connstr;
 
-        internal DbSource(JObj s)
+        internal DbSource(string name, JObj s)
         {
+            _name = name;
+
             s.Get(nameof(host), ref host);
             s.Get(nameof(port), ref port);
             s.Get(nameof(database), ref database);
@@ -39,9 +43,13 @@ namespace WebReady.Db
             sb.Append(";Write Buffer Size=").Append(1024 * 32);
             sb.Append(";No Reset On Close=").Append(true);
 
-            connstr = sb.ToString();
+            _connstr = sb.ToString();
         }
 
-        public string ConnectionString => connstr;
+        public string Name => _name;
+
+        public string Key => _name;
+
+        public string ConnectionString => _connstr;
     }
 }

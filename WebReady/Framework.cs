@@ -37,7 +37,7 @@ namespace WebReady
 
         public static readonly JObj Config;
 
-        public static readonly JObj ConfigWeb, ConfigDb, ConfigNet, ConfigExt;
+        public static readonly JObj Web, Db, Net, Ext;
 
         // logging level
         internal static int logging = 3;
@@ -84,26 +84,30 @@ namespace WebReady
                 return;
             }
 
-            ConfigWeb = Config["WEB"];
-            ConfigDb = Config["DB"];
-            ConfigNet = Config["NET"];
-            ConfigExt = Config["EXT"];
+            Web = Config["WEB"];
+            Db = Config["DB"];
+            Net = Config["NET"];
+            Ext = Config["EXT"];
 
             // references
-            if (ConfigNet != null)
+            if (Net != null)
             {
-                for (int i = 0; i < ConfigNet.Count; i++)
+                for (var i = 0; i < Net.Count; i++)
                 {
-                    var e = ConfigNet.EntryAt(i);
-                    if (peers == null)
-                    {
-                        peers = new Map<string, NetPeer>(16);
-                    }
-
+                    var e = Net.EntryAt(i);
                     peers.Add(new NetPeer(e.Key, e.Value)
                     {
                         Clustered = true
                     });
+                }
+            }
+
+            if (Db != null)
+            {
+                for (var i = 0; i < Db.Count; i++)
+                {
+                    var e = Db.EntryAt(i);
+                    sources.Add(new DbSource(e.Key, e.Value));
                 }
             }
 
@@ -300,7 +304,7 @@ namespace WebReady
 
         public static string Encrypt(string v)
         {
-            byte[] bytebuf = Encoding.ASCII.GetBytes(v);
+            var bytebuf = Encoding.ASCII.GetBytes(v);
             int count = bytebuf.Length;
             int mask = sign;
             int[] masks = {(mask >> 24) & 0xff, (mask >> 16) & 0xff, (mask >> 8) & 0xff, mask & 0xff};
@@ -323,7 +327,7 @@ namespace WebReady
 
         public static string Encrypt<P>(P prin, byte proj) where P : IData
         {
-            JsonContent cnt = new JsonContent(true, 4096);
+            var cnt = new JsonContent(true, 4096);
             try
             {
                 cnt.Put(null, prin, proj);

@@ -21,7 +21,7 @@ namespace WebReady.Web
     public abstract class WebService : WebWork, IHttpApplication<HttpContext>
     {
         // subscopes of the service
-        readonly Map<string, WebScope> _scopes = new Map<string, WebScope>(64);
+        readonly Map<string, WebScope> scopes = new Map<string, WebScope>(64);
 
         //
         // http implementation
@@ -40,7 +40,7 @@ namespace WebReady.Web
         // the response cache cleaner thread
         Thread _cleaner;
 
-        public Map<string, WebScope> Scopes => _scopes;
+        public Map<string, WebScope> Scopes => scopes;
 
 
         internal JObj Config
@@ -87,7 +87,7 @@ namespace WebReady.Web
                 Name = name
             };
 
-            _scopes.Add(name, scp);
+            scopes.Add(name, scp);
 
             // applevel init
             scp.OnInitialize();
@@ -97,7 +97,7 @@ namespace WebReady.Web
 
         public T AddScope<T>(T scope) where T : WebScope
         {
-            _scopes.Add(scope.Name, scope);
+            scopes.Add(scope.Name, scope);
             scope.Parent = this;
 
             // applevel init
@@ -124,7 +124,7 @@ namespace WebReady.Web
 
                     using (var ndc = src.NewDbContext())
                     {
-                        ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' and table_name = @1", p => p.Set(vset.Name));
+                        ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(vset.Name));
                         while (ndc.Next())
                         {
                             vset.AddCol(new DbCol(ndc));

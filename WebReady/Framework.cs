@@ -76,8 +76,10 @@ namespace WebReady
             // setup logger first
             //
             string file = DateTime.Now.ToString("yyyyMM") + ".log";
-            Logger = new FrameworkLogger(file);
-            Logger.Level = logging;
+            Logger = new FrameworkLogger(file)
+            {
+                Level = logging
+            };
             if (!File.Exists(WEPAPP_JSON))
             {
                 Logger.Log(LogLevel.Error, WEPAPP_JSON + " not found");
@@ -107,7 +109,10 @@ namespace WebReady
                 for (var i = 0; i < Db.Count; i++)
                 {
                     var e = Db.EntryAt(i);
-                    sources.Add(new DbSource(e.Key, e.Value));
+                    sources.Add(new DbSource(e.Value)
+                    {
+                        Name = e.Key
+                    });
                 }
             }
 

@@ -9,19 +9,19 @@ namespace WebReady.Web
     public abstract class WebSet : WebScope
     {
         // subscoping variables
-        VarDesc[] _vars;
+        Var[] vars;
 
         // supported method operations
-        OpDesc[] _ops;
+        Op[] ops;
 
 
-        public VarDesc[] Vars => _vars;
+        public Var[] Vars => vars;
 
-        public OpDesc[] Ops => _ops;
+        public Op[] Ops => ops;
 
-        public void AddVar(string name, string[] grents)
+        public void AddVar(string name)
         {
-            _vars = _vars.AddOf(new VarDesc
+            vars = vars.AddOf(new Var
             {
                 Name = name
             });
@@ -29,7 +29,7 @@ namespace WebReady.Web
 
         public void AddOp(string method, string[] grents)
         {
-            _ops = _ops.AddOf(new OpDesc
+            ops = ops.AddOf(new Op
             {
                 Method = method, Roles = grents
             });
@@ -53,12 +53,12 @@ namespace WebReady.Web
         public abstract Task OperateAsync(WebContext wc, string method, string[] vars, string subscript);
     }
 
-    public class VarDesc
+    public struct Var
     {
         public string Name { get; internal set; }
     }
 
-    public struct OpDesc
+    public struct Op
     {
         public string Method { get; internal set; }
 

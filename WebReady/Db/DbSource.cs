@@ -5,8 +5,6 @@ namespace WebReady.Db
 {
     public class DbSource : IKeyable<string>
     {
-        readonly string _name;
-
         // IP host or unix domain socket
         readonly string host;
 
@@ -22,10 +20,8 @@ namespace WebReady.Db
 
         readonly string _connstr;
 
-        internal DbSource(string name, JObj s)
+        internal DbSource(JObj s)
         {
-            _name = name;
-
             s.Get(nameof(host), ref host);
             s.Get(nameof(port), ref port);
             s.Get(nameof(database), ref database);
@@ -47,9 +43,9 @@ namespace WebReady.Db
             _connstr = sb.ToString();
         }
 
-        public string Name => _name;
+        public string Name { get; internal set; }
 
-        public string Key => _name;
+        public string Key => Name;
 
         public string ConnectionString => _connstr;
 

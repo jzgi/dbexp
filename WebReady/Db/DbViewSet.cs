@@ -21,7 +21,7 @@ namespace WebReady.Db
 
         readonly bool is_insertable_into;
 
-        readonly Map<string, DbCol> cols = new Map<string, DbCol>(64);
+        readonly Map<string, DbCol> columns = new Map<string, DbCol>(64);
 
         internal DbViewSet(ISource s)
         {
@@ -52,16 +52,25 @@ namespace WebReady.Db
             s.Get(nameof(is_insertable_into), ref is_insertable_into);
         }
 
-        internal void AddCol(DbCol col)
+        internal void AddColumn(DbCol col)
         {
-            cols.Add(col.Key, col);
+            columns.Add(col);
         }
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
         {
+            var sql = new DbSql("");
+
+            // set vars as session variables
+            for (int i = 0; i < Vars?.Length; i++)
+            {
+                var v = Vars[i];
+                sql.T("SET ").T(v.Name).T(" = @").T(vars[i]).T(";");
+            }
+
             if (method == "GET")
             {
-                var sql = new DbSql("SELECT * FROM ").T(Name);
+                sql.T("SELECT * FROM ").T(Name);
 
                 using (var dc = Source.NewDbContext())
                 {
@@ -70,6 +79,23 @@ namespace WebReady.Db
             }
             else if (method == "POST")
             {
+//                sql.T("INSERT INTO ").T(Name);
+//                sql._VALUES_()
+                JObj f = await wc.ReadAsync<JObj>();
+            }
+            else if (method == "PUT")
+            {
+                sql.T("UPDATE ").T(Name).T(" SET ");
+//                sql._VALUES_()
+            }
+            else if (method == "DELETE")
+            {
+                sql.T("DELETE FROM ").T(Name);
+//                sql._VALUES_()
+                using (var dc = Source.NewDbContext())
+                {
+                    await dc.QueryAsync();
+                }
             }
         }
     }

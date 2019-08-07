@@ -127,7 +127,7 @@ namespace WebReady.Web
                         ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(vset.Name));
                         while (ndc.Next())
                         {
-                            vset.AddCol(new DbCol(ndc));
+                            vset.AddColumn(new DbCol(ndc));
                         }
                     }
                 }

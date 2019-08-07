@@ -154,8 +154,7 @@ namespace WebReady.Web
 
             string path = wc.Path;
 
-            // determine it is file or action content
-            //
+            // determine it is static file
             int dot = path.LastIndexOf('.');
             if (dot != -1)
             {
@@ -175,10 +174,25 @@ namespace WebReady.Web
                 {
                 }
 
+                // a subscope
+                string rsc = path.Substring(1);
 
-                await HandleAsync(path.Substring(1), wc);
+                int slash = rsc.IndexOf('/');
+                if (slash != -1)
+                {
+                    string name = rsc.Substring(0, slash);
+                    var subscp = scopes[name];
+                    if (subscp != null)
+                    {
+                        await subscp.HandleAsync(rsc.Substring(slash + 1), wc);
+                    }
+                }
+                else
+                {
+                    // work actions
+                    await HandleAsync(rsc, wc);
+                }
 
-                wc.Give(404, "not found");
                 return;
             }
 

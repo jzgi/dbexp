@@ -38,7 +38,7 @@ namespace WebReady.Web
                 WebAction act;
                 if (pis.Length == 1 && pis[0].ParameterType == typeof(WebContext))
                 {
-                    act = new WebMethodAction(this, mi, async, null);
+                    act = new MethodAction(this, mi, async, null);
                 }
                 else continue;
 
@@ -66,7 +66,7 @@ namespace WebReady.Web
             return false;
         }
 
-        protected override async Task HandleAsync(string rsc, WebContext wc)
+        protected internal override async Task HandleAsync(string rsc, WebContext wc)
         {
             // resolve the resource
             string name = rsc;

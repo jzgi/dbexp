@@ -7,7 +7,7 @@ namespace WebReady.Web
     /// <summary>
     /// A class method-based action.
     /// </summary>
-    public class WebMethodAction : WebAction
+    public class MethodAction : WebAction
     {
          bool _async;
 
@@ -15,7 +15,7 @@ namespace WebReady.Web
          
          Action<WebContext> _do;
 
-        internal WebMethodAction(WebWork work, MethodInfo mi, bool async, string subscript)
+        internal MethodAction(WebWork work, MethodInfo mi, bool async, string subscript)
         {
             _async = async;
 

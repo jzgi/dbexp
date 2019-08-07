@@ -25,7 +25,7 @@ namespace WebReady.Web
 
         public abstract bool Authorize(WebContext wc);
 
-        protected abstract Task HandleAsync(string rsc, WebContext wc);
+        protected internal abstract Task HandleAsync(string rsc, WebContext wc);
 
 
         //

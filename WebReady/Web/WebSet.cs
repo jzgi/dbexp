@@ -9,19 +9,19 @@ namespace WebReady.Web
     public abstract class WebSet : WebScope
     {
         // subscoping variables
-        Var[] vars;
+        Var[] _vars;
 
         // supported method operations
-        Op[] ops;
+        Op[] _ops;
 
 
-        public Var[] Vars => vars;
+        public Var[] Vars => _vars;
 
-        public Op[] Ops => ops;
+        public Op[] Ops => _ops;
 
         public void AddVar(string name)
         {
-            vars = vars.AddOf(new Var
+            _vars = _vars.AddOf(new Var
             {
                 Name = name
             });
@@ -29,7 +29,7 @@ namespace WebReady.Web
 
         public void AddOp(string method, string[] grents)
         {
-            ops = ops.AddOf(new Op
+            _ops = _ops.AddOf(new Op
             {
                 Method = method, Roles = grents
             });
@@ -40,16 +40,30 @@ namespace WebReady.Web
             throw new NotImplementedException();
         }
 
-        protected override Task HandleAsync(string rsc, WebContext wc)
+        protected internal override async Task HandleAsync(string rsc, WebContext wc)
         {
-            throw new NotImplementedException();
+            string[] vars = null;
+            if (_vars != null)
+            {
+                vars = new string[_vars.Length];
+                // get vars from rsc path
+                int slash = 0;
+                int p = 0;
+                int level = 0;
+                while ((slash = rsc.IndexOf('/')) != -1)
+                {
+                    vars[level] = rsc.Substring(p, slash - p);
+                    level++;
+                    p = slash + 1;
+                }
+            }
+
+            await OperateAsync(wc, wc.Method, vars, null);
         }
 
         //
         // restful methods
         //
-        readonly Exception NotImplemented = new NotImplementedException();
-
         public abstract Task OperateAsync(WebContext wc, string method, string[] vars, string subscript);
     }
 

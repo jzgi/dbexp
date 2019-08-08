@@ -61,16 +61,18 @@ namespace WebReady
 
         public static M StringTo<M>(string v) where M : class, ISource
         {
-            Type t = typeof(M);
+            var t = typeof(M);
             if (t == typeof(JArr) || t == typeof(JObj))
             {
                 return new JsonParser(v).Parse() as M;
             }
-            else if (t == typeof(XElem))
+
+            if (t == typeof(XElem))
             {
                 return new XmlParser(v).Parse() as M;
             }
-            else if (t == typeof(Form))
+
+            if (t == typeof(Form))
             {
                 return new FormParser(v).Parse() as M;
             }
@@ -80,19 +82,19 @@ namespace WebReady
 
         public static D StringToObject<D>(string v, byte proj = 0x0f) where D : IData, new()
         {
-            JObj jo = (JObj) new JsonParser(v).Parse();
+            var jo = (JObj) new JsonParser(v).Parse();
             return jo.ToObject<D>(proj);
         }
 
         public static D[] StringToArray<D>(string v, byte proj = 0x0f) where D : IData, new()
         {
-            JArr ja = (JArr) new JsonParser(v).Parse();
+            var ja = (JArr) new JsonParser(v).Parse();
             return ja.ToArray<D>(proj);
         }
 
         public static string ToString<D>(D v, byte proj = 0x0f) where D : IData
         {
-            JsonContent cnt = new JsonContent(false, 4 * 1024);
+            var cnt = new JsonContent(false, 4 * 1024);
             try
             {
                 cnt.Put(null, v, proj);
@@ -106,7 +108,7 @@ namespace WebReady
 
         public static string ToString<D>(D[] v, byte proj = 0x0f) where D : IData
         {
-            JsonContent cnt = new JsonContent(false, 4 * 1024);
+            var cnt = new JsonContent(false, 4 * 1024);
             try
             {
                 cnt.Put(null, v, proj);
@@ -120,7 +122,7 @@ namespace WebReady
 
         public static string ToString<D>(List<D> v, byte proj = 0x0f) where D : IData
         {
-            JsonContent cnt = new JsonContent(false, 4 * 1024);
+            var cnt = new JsonContent(false, 4 * 1024);
             try
             {
                 cnt.Put(null, v, proj);

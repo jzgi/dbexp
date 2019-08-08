@@ -40,7 +40,7 @@ namespace WebReady.Db
         bool _disposing;
 
         // current parameter index
-        int _index;
+        int _paramidx;
 
         internal DbContext(DbSource db)
         {
@@ -63,7 +63,7 @@ namespace WebReady.Db
             ordinal = 0;
             // command parameter reset
             _command.Parameters.Clear();
-            _index = 0;
+            _paramidx = 0;
         }
 
         public void Dispose()
@@ -1663,61 +1663,61 @@ namespace WebReady.Db
 
         public IParams SetNull()
         {
-            PutNull(PARAMS[_index++]);
+            PutNull(PARAMS[_paramidx++]);
             return this;
         }
 
         public IParams Set(bool v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(char v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(short v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(int v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(long v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(double v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(decimal v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(JNumber v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(DateTime v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
@@ -1728,43 +1728,43 @@ namespace WebReady.Db
                 v = null;
             }
 
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(ArraySegment<byte> v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(byte[] v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(short[] v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(int[] v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(long[] v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
         public IParams Set(string[] v)
         {
-            Put(PARAMS[_index++], v);
+            Put(PARAMS[_paramidx++], v);
             return this;
         }
 
@@ -1780,13 +1780,13 @@ namespace WebReady.Db
 
         public IParams Set(IData v, byte proj = 0x0f)
         {
-            Put(PARAMS[_index++], v, proj);
+            Put(PARAMS[_paramidx++], v, proj);
             return this;
         }
 
         public IParams Set<D>(D[] v, byte proj = 0x0f) where D : IData
         {
-            Put(PARAMS[_index++], v, proj);
+            Put(PARAMS[_paramidx++], v, proj);
             return this;
         }
 

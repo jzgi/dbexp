@@ -50,6 +50,8 @@ namespace WebReady.Web
 
         public WebScope Scope { get; internal set; }
 
+        public string Role { get; internal set; }
+
         public string Subscript { get; internal set; }
 
         public Exception Exception { get; set; }

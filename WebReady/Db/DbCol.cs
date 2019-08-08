@@ -17,6 +17,8 @@ namespace WebReady.Db
 
         readonly bool is_updatable;
 
+        bool arguable;
+
         internal DbCol(ISource s)
         {
             s.Get(nameof(column_name), ref column_name);

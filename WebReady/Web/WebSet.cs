@@ -8,32 +8,52 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebSet : WebScope
     {
+        public const string GET = "GET", POST = "POST", PUT = "PUT", DELETE = "DELETE";
+
         // subscoping variables
-        Var[] _vars;
+        WebVar[] _vars;
 
         // supported method operations
-        Op[] _ops;
+        readonly WebOp[] _ops =
+        {
+            new WebOp(GET),
+            new WebOp(POST),
+            new WebOp(PUT),
+            new WebOp(DELETE),
+        };
 
+        public WebVar[] Vars => _vars;
 
-        public Var[] Vars => _vars;
-
-        public Op[] Ops => _ops;
+        public WebOp[] Ops => _ops;
 
         public void AddVar(string name)
         {
-            _vars = _vars.AddOf(new Var
+            _vars = _vars.AddOf(new WebVar
             {
                 Name = name
             });
         }
 
-        public void AddOp(string method, string[] grents)
+        public void AddOp(string opname, string role)
         {
-            _ops = _ops.AddOf(new Op
+            if (opname == GET || opname == "SELECT")
             {
-                Method = method, Roles = grents
-            });
+                _ops[0].AddRole(role);
+            }
+            else if (opname == POST || opname == "INSERT")
+            {
+                _ops[1].AddRole(role);
+            }
+            else if (opname == POST || opname == "UPDATE")
+            {
+                _ops[2].AddRole(role);
+            }
+            else if (opname == DELETE)
+            {
+                _ops[3].AddRole(role);
+            }
         }
+
 
         public override bool Authorize(WebContext wc)
         {
@@ -46,17 +66,35 @@ namespace WebReady.Web
             if (_vars != null)
             {
                 vars = new string[_vars.Length];
-                // get vars from rsc path
-                int slash = 0;
+
                 int p = 0;
-                int level = 0;
-                while ((slash = rsc.IndexOf('/')) != -1)
+                int slash = 0;
+                for (int i = 0; i < _vars.Length; i++)
                 {
-                    vars[level] = rsc.Substring(p, slash - p);
-                    level++;
+                    slash = slash = rsc.IndexOf('/', slash);
+                    if (slash == -1) break;
+                    vars[i] = rsc.Substring(p, slash - p);
+
                     p = slash + 1;
                 }
             }
+
+            // determine current role
+            var prin = wc.Principal;
+
+            foreach (var op in _ops)
+            {
+                foreach (var r in op.Roles)
+                {
+//                    if (prin.IsRole(r))
+//                    {
+//                        wc.Role = r;
+//                        goto Handle;
+//                    }
+                }
+            }
+
+            Handle:
 
             await OperateAsync(wc, wc.Method, vars, null);
         }
@@ -65,17 +103,5 @@ namespace WebReady.Web
         // restful methods
         //
         public abstract Task OperateAsync(WebContext wc, string method, string[] vars, string subscript);
-    }
-
-    public struct Var
-    {
-        public string Name { get; internal set; }
-    }
-
-    public struct Op
-    {
-        public string Method { get; internal set; }
-
-        public string[] Roles { get; internal set; }
     }
 }

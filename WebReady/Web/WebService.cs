@@ -116,18 +116,33 @@ namespace WebReady.Web
                 dc.Query("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
                 while (dc.Next())
                 {
-                    var vset = new DbViewSet(dc)
+                    var view = new DbViewSet(dc)
                     {
                         Source = src
                     };
-                    AddScope(vset);
+                    AddScope(view);
 
                     using (var ndc = src.NewDbContext())
                     {
-                        ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(vset.Name));
+                        ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(view.Name));
                         while (ndc.Next())
                         {
-                            vset.AddColumn(new DbCol(ndc));
+                            view.AddColumn(new DbCol(ndc));
+                        }
+                    }
+
+                    using (var ndc = src.NewDbContext())
+                    {
+                        ndc.Query("SELECT * FROM information_schema.role_table_grants WHERE table_name = @1", p => p.Set(view.Name));
+                        while (ndc.Next())
+                        {
+                            string privilege_type = null;
+                            ndc.Get(nameof(privilege_type), ref privilege_type);
+
+                            string grantee = null;
+                            ndc.Get(nameof(grantee), ref grantee);
+
+                            view.AddOp(privilege_type, grantee);
                         }
                     }
                 }

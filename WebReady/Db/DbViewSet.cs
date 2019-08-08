@@ -21,7 +21,7 @@ namespace WebReady.Db
 
         readonly bool is_insertable_into;
 
-        readonly Map<string, DbCol> columns = new Map<string, DbCol>(64);
+        readonly Map<string, DbCol> _cols = new Map<string, DbCol>(64);
 
         internal DbViewSet(ISource s)
         {
@@ -54,7 +54,7 @@ namespace WebReady.Db
 
         internal void AddColumn(DbCol col)
         {
-            columns.Add(col);
+            _cols.Add(col);
         }
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
@@ -75,6 +75,8 @@ namespace WebReady.Db
                 using (var dc = Source.NewDbContext())
                 {
                     await dc.QueryAsync();
+                    var cnt = dc.Dump();
+                    wc.Give(200, cnt);
                 }
             }
             else if (method == "POST")

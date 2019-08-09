@@ -146,13 +146,13 @@ namespace WebReady
             JObj web = Config["WEB"];
             if (web == null)
             {
-                throw new WebException("missing 'WEB' in " + WEPAPP_JSON);
+                throw new FrameworkException("Missing 'WEB' in " + WEPAPP_JSON);
             }
 
             JObj cfg = web[name];
             if (cfg == null)
             {
-                throw new WebException("missing '" + name + "' service in " + WEPAPP_JSON);
+                throw new FrameworkException("missing '" + name + "' service in " + WEPAPP_JSON);
             }
 
             var svc = new T

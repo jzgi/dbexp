@@ -55,7 +55,7 @@ namespace WebReady.Web
         }
 
 
-        public override bool Authorize(WebContext wc)
+        bool Authorize(WebContext wc)
         {
             throw new NotImplementedException();
         }

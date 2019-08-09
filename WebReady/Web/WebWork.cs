@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 
 namespace WebReady.Web
@@ -9,19 +8,22 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebWork : WebController
     {
-        readonly Map<string, WebAction> _actions = new Map<string, WebAction>(32);
+        readonly string[] _roles;
 
-        string[] _roles;
+        readonly Map<string, WebAction> _actions = new Map<string, WebAction>(32);
 
         protected WebWork()
         {
-            var type = GetType();
+            var typ = GetType();
 
-            // gather method-based actions
+            _roles = ((RolesAttribute) typ.GetCustomAttribute(typeof(RolesAttribute), true))?.Roles;
+
+
+            // Gather method-based actions
             //
-            foreach (var mi in type.GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var mi in typ.GetMethods(BindingFlags.Public | BindingFlags.Instance))
             {
-                // verify the return type
+                // Verify the return type
                 var ret = mi.ReturnType;
                 bool async;
                 if (ret == typeof(Task))
@@ -46,16 +48,21 @@ namespace WebReady.Web
             }
         }
 
+        public string[] Roles => _roles;
+
         public Map<string, WebAction> Actions => _actions;
 
-        public override bool Authorize(WebContext wc)
+
+        bool DoAuthorize(WebContext wc, out int code)
         {
+            code = 0;
             if (_roles == null) return true;
 
             var prin = wc.Principal;
             if (prin == null)
             {
-                throw new AuthenticationException();
+                code = 401; // Unauthorized
+                return false;
             }
 
             for (int i = 0; i < _roles.Length; i++)
@@ -63,11 +70,20 @@ namespace WebReady.Web
                 if (prin.IsRole(_roles[i])) return true;
             }
 
+            code = 403; // Forbidden
             return false;
         }
 
         protected internal override async Task HandleAsync(string rsc, WebContext wc)
         {
+            if (!DoAuthorize(wc, out var code))
+            {
+                throw new WebException
+                {
+                    Code = code
+                };
+            }
+
             // resolve the resource
             string name = rsc;
             var act = _actions[name];

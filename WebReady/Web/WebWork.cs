@@ -53,36 +53,28 @@ namespace WebReady.Web
         public Map<string, WebAction> Actions => _actions;
 
 
-        bool DoAuthorize(WebContext wc, out int code)
-        {
-            code = 0;
-            if (_roles == null) return true;
-
-            var prin = wc.Principal;
-            if (prin == null)
-            {
-                code = 401; // Unauthorized
-                return false;
-            }
-
-            for (int i = 0; i < _roles.Length; i++)
-            {
-                if (prin.IsRole(_roles[i])) return true;
-            }
-
-            code = 403; // Forbidden
-            return false;
-        }
-
         protected internal override async Task HandleAsync(string rsc, WebContext wc)
         {
-            if (!DoAuthorize(wc, out var code))
+            // do access check
+            //
+
+            if (_roles != null)
             {
-                throw new WebException
+                var prin = wc.Principal;
+                if (prin == null)
                 {
-                    Code = code
-                };
+                    throw new WebException {Code = 401}; // Unauthorized
+                }
+
+                for (int i = 0; i < _roles.Length; i++)
+                {
+                    if (prin.IsRole(_roles[i])) goto Okay;
+                }
+
+                throw new WebException {Code = 403}; // Forbidden
             }
+
+            Okay:
 
             // resolve the resource
             string name = rsc;

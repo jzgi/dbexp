@@ -113,6 +113,7 @@ namespace WebReady.Web
             using (var dc = src.NewDbContext())
             {
                 // load views under the public schema
+                
                 dc.Query("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
                 while (dc.Next())
                 {
@@ -153,9 +154,11 @@ namespace WebReady.Web
         {
             using (var dc = Framework.NewDbContext(source))
             {
-                // load views
-
                 // load functions
+                dc.Query("SELECT * FROM information_schema.routines WHERE routine_schema = 'public' AND routine_type = 'FUNCTION'", prepare: false);
+                while (dc.Next())
+                {
+                }
             }
         }
 

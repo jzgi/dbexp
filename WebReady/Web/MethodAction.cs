@@ -9,17 +9,16 @@ namespace WebReady.Web
     /// </summary>
     public class MethodAction : WebAction
     {
-         bool _async;
+        // 2 possible forms of action methods
+        //
+        
+        Action<WebContext> _do;
+        
+        Func<WebContext, Task> _doAsync;
 
-         private Func<WebContext, Task> _doAsync;
-         
-         Action<WebContext> _do;
-
-        internal MethodAction(WebWork work, MethodInfo mi, bool async, string subscript)
+        internal MethodAction(WebWork work, MethodInfo mi, bool async) : base(work, mi.Name, async)
         {
-            _async = async;
-
-         // create a doer delegate
+            // create a doer delegate
             if (async)
             {
                 _doAsync = (Func<WebContext, Task>) mi.CreateDelegate(typeof(Func<WebContext, Task>), work);
@@ -30,5 +29,16 @@ namespace WebReady.Web
             }
         }
 
+        internal override async Task ExecuteAsync(WebContext wc)
+        {
+            if (IsAsync)
+            {
+                await _doAsync(wc);
+            }
+            else
+            {
+                _do(wc);
+            }
+        }
     }
 }

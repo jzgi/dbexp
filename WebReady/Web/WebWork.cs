@@ -7,7 +7,7 @@ namespace WebReady.Web
     /// <summary>
     /// An executable work object for logic processing, it consists of a number of actions.
     /// </summary>
-    public abstract class WebWork : WebScope
+    public abstract class WebWork : WebController
     {
         readonly Map<string, WebAction> _actions = new Map<string, WebAction>(32);
 
@@ -35,14 +35,14 @@ namespace WebReady.Web
                 else continue;
 
                 var pis = mi.GetParameters();
-                WebAction act;
+                WebAction action;
                 if (pis.Length == 1 && pis[0].ParameterType == typeof(WebContext))
                 {
-                    act = new MethodAction(this, mi, async, null);
+                    action = new MethodAction(this, mi, async);
                 }
                 else continue;
 
-                _actions.Add(act.Name, act);
+                _actions.Add(action.Name, action);
             }
         }
 
@@ -70,26 +70,17 @@ namespace WebReady.Web
         {
             // resolve the resource
             string name = rsc;
-            string subscpt = null;
-            int dash = rsc.LastIndexOf('-');
-            if (dash != -1)
-            {
-                name = rsc.Substring(0, dash);
-                wc.Subscript = subscpt = rsc.Substring(dash + 1);
-            }
-
             var act = _actions[name];
             if (act == null)
             {
-                wc.Give(404, "action not found", true, 12);
+                wc.Give(404, "Action not found: " + name, shared: true, maxage: 12);
                 return;
             }
 
             if (!((WebService) Parent).TryGiveFromCache(wc))
             {
                 // invoke action method 
-                if (act.IsAsync) await act.DoAsync(wc, subscpt);
-                else act.Do(wc, subscpt);
+                await act.ExecuteAsync(wc);
 
                 ((WebService) Parent).TryAddToCache(wc);
             }

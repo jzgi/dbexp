@@ -48,7 +48,7 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebScope Scope { get; internal set; }
+        public WebController Scope { get; internal set; }
 
         public string Role { get; internal set; }
 

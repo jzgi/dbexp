@@ -20,8 +20,8 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebService : WebWork, IHttpApplication<HttpContext>
     {
-        // subscopes of the service
-        readonly Map<string, WebScope> scopes = new Map<string, WebScope>(64);
+        // sub-controllers of the service
+        readonly Map<string, WebController> _controllers = new Map<string, WebController>(64);
 
         //
         // http implementation
@@ -40,7 +40,7 @@ namespace WebReady.Web
         // the response cache cleaner thread
         Thread _cleaner;
 
-        public Map<string, WebScope> Scopes => scopes;
+        public Map<string, WebController> Scopes => _controllers;
 
 
         internal JObj Config
@@ -79,34 +79,34 @@ namespace WebReady.Web
             }
         }
 
-        public T AddScope<T>(string name) where T : WebScope, new()
+        public T AddController<T>(string name) where T : WebController, new()
         {
-            var scp = new T()
+            var ctr = new T()
             {
                 Parent = this,
                 Name = name
             };
 
-            scopes.Add(name, scp);
+            _controllers.Add(name, ctr);
 
             // applevel init
-            scp.OnInitialize();
+            ctr.OnInitialize();
 
-            return scp;
+            return ctr;
         }
 
-        public T AddScope<T>(T scope) where T : WebScope
+        public T AddController<T>(T ctr) where T : WebController
         {
-            scopes.Add(scope.Name, scope);
-            scope.Parent = this;
+            _controllers.Add(ctr.Name, ctr);
+            ctr.Parent = this;
 
             // applevel init
-            scope.OnInitialize();
+            ctr.OnInitialize();
 
-            return scope;
+            return ctr;
         }
 
-        public void LoadScopesFromDb(string source)
+        public void LoadSetsFromDb(string source)
         {
             var src = Framework.GetDbSource(source);
 
@@ -120,7 +120,7 @@ namespace WebReady.Web
                     {
                         Source = src
                     };
-                    AddScope(view);
+                    AddController(view);
 
                     using (var ndc = src.NewDbContext())
                     {
@@ -182,12 +182,15 @@ namespace WebReady.Web
             }
             else
             {
-                // authenticate
-                var prin = wc.Principal;
-                string h = wc.Header("Authorization");
-                if (h != null)
+                // do authentication since it is dynamic 
+                if (this is IAuthenticateAsync  authAsync)
                 {
+                    await authAsync.DoAuthenticateAsync(wc);
+                } else if (this is IAuthenticate auth)
+                {
+                    auth.DoAuthenticate(wc);
                 }
+                
 
                 // a subscope
                 string rsc = path.Substring(1);
@@ -196,15 +199,15 @@ namespace WebReady.Web
                 if (slash != -1)
                 {
                     string name = rsc.Substring(0, slash);
-                    var subscp = scopes[name];
-                    if (subscp != null)
+                    var ctr = _controllers[name];
+                    if (ctr != null)
                     {
-                        await subscp.HandleAsync(rsc.Substring(slash + 1), wc);
+                        await ctr.HandleAsync(rsc.Substring(slash + 1), wc);
                     }
                 }
                 else
                 {
-                    // work actions
+                    // it is an action
                     await HandleAsync(rsc, wc);
                 }
 

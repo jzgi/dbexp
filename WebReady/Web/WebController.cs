@@ -4,17 +4,17 @@ using System.Threading.Tasks;
 namespace WebReady.Web
 {
     /// <summary>
-    /// A resource containing scope.
+    /// A resource controller that represents a scope of processing.
     /// </summary>
-    public abstract class WebScope
+    public abstract class WebController
     {
         /// <summary>
-        /// The parent scope, null if this is the root.
+        /// The parent controller, null if this is the root.
         /// </summary>
-        public WebScope Parent { get; internal set; }
+        public WebController Parent { get; internal set; }
 
         /// <summary>
-        /// The unique name of the scope.
+        /// The unique name of the controller.
         /// </summary>
         public string Name { get; internal set; }
 
@@ -32,38 +32,38 @@ namespace WebReady.Web
         // local object provider, for Attach() and Obtain() operations
         //
 
-        Hold[] _holds;
+        Cell[] _cells;
 
         int _size;
 
         public void Attach(object value, byte flag = 0)
         {
-            if (_holds == null)
+            if (_cells == null)
             {
-                _holds = new Hold[16];
+                _cells = new Cell[16];
             }
 
-            _holds[_size++] = new Hold(value, flag);
+            _cells[_size++] = new Cell(value, flag);
         }
 
         public void Attach<V>(Func<V> fetch, int maxage = 60, byte flag = 0) where V : class
         {
-            if (_holds == null)
+            if (_cells == null)
             {
-                _holds = new Hold[8];
+                _cells = new Cell[8];
             }
 
-            _holds[_size++] = new Hold(typeof(V), fetch, maxage, flag);
+            _cells[_size++] = new Cell(typeof(V), fetch, maxage, flag);
         }
 
         public void Attach<V>(Func<Task<V>> fetchAsync, int maxage = 60, byte flag = 0) where V : class
         {
-            if (_holds == null)
+            if (_cells == null)
             {
-                _holds = new Hold[8];
+                _cells = new Cell[8];
             }
 
-            _holds[_size++] = new Hold(typeof(V), fetchAsync, maxage, flag);
+            _cells[_size++] = new Cell(typeof(V), fetchAsync, maxage, flag);
         }
 
         /// <summary>
@@ -73,11 +73,11 @@ namespace WebReady.Web
         /// <returns>the result object or null</returns>
         public T Obtain<T>(byte flag = 0) where T : class
         {
-            if (_holds != null)
+            if (_cells != null)
             {
                 for (int i = 0; i < _size; i++)
                 {
-                    var h = _holds[i];
+                    var h = _cells[i];
                     if (h.Flag == 0 || (h.Flag & flag) > 0)
                     {
                         if (!h.IsAsync && typeof(T).IsAssignableFrom(h.Typ))
@@ -93,11 +93,11 @@ namespace WebReady.Web
 
         public async Task<T> ObtainAsync<T>(byte flag = 0) where T : class
         {
-            if (_holds != null)
+            if (_cells != null)
             {
                 for (int i = 0; i < _size; i++)
                 {
-                    var cell = _holds[i];
+                    var cell = _cells[i];
                     if (cell.Flag == 0 || (cell.Flag & flag) > 0)
                     {
                         if (cell.IsAsync && typeof(T).IsAssignableFrom(cell.Typ))
@@ -118,9 +118,9 @@ namespace WebReady.Web
 
 
         /// <summary>
-        /// A object holder in registry.
+        /// A object holding cell in registry.
         /// </summary>
-        class Hold
+        class Cell
         {
             readonly Type _typ;
 
@@ -137,14 +137,14 @@ namespace WebReady.Web
 
             readonly byte _flag;
 
-            internal Hold(object value, byte flag)
+            internal Cell(object value, byte flag)
             {
                 _typ = value.GetType();
                 _value = value;
                 _flag = flag;
             }
 
-            internal Hold(Type typ, Func<object> fetch, int maxage, byte flag)
+            internal Cell(Type typ, Func<object> fetch, int maxage, byte flag)
             {
                 _typ = typ;
                 _flag = flag;

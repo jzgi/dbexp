@@ -163,7 +163,7 @@ namespace WebReady.Db
             return _sql;
         }
 
-        public void ConstructForWeb(WebScope dir)
+        public void ConstructForWeb(WebController dir)
         {
         }
 

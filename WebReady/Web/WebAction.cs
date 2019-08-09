@@ -1,60 +1,35 @@
-using System;
 using System.Threading.Tasks;
 
 namespace WebReady.Web
 {
     /// <summary>
-    /// A handler action based on declared methods in work class.
+    /// A handler action.
     /// </summary>
     public abstract class WebAction
     {
-        private WebWork _work;
+        readonly WebWork _work;
 
-        private bool _get; // GET or POST
+        readonly string _name;
 
-        private Map<string, WebParam> _params;
+        readonly bool _async;
 
-        readonly string _subscript;
-
-
-        // 4 possible forms of the action method
-        readonly Action<WebContext> @do;
-        readonly Func<WebContext, Task> doAsync;
-        readonly Action<WebContext, string> do2;
-        readonly Func<WebContext, string, Task> do2Async;
-
-
-        public string Name { get; internal set; }
-
-        public bool IsAsync { get; internal set; }
+        protected WebAction(WebWork work, string name, bool async)
+        {
+            _work = work;
+            _name = name;
+            _async = async;
+        }
 
         public WebWork Work => _work;
 
-        public bool HasSubscript => _subscript != null;
+        public string Name => _name;
 
-        internal void Do(WebContext wc, string subscript)
-        {
-            if (HasSubscript)
-            {
-                do2(wc, subscript);
-            }
-            else
-            {
-                @do(wc);
-            }
-        }
+        public bool IsAsync => _async;
 
-        // invoke the right method
-        internal async Task DoAsync(WebContext wc, string subscript)
-        {
-            if (HasSubscript)
-            {
-                await do2Async(wc, subscript);
-            }
-            else
-            {
-                await doAsync(wc);
-            }
-        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal abstract Task ExecuteAsync(WebContext wc);
     }
 }

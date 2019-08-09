@@ -6,7 +6,7 @@ namespace WebReady.Web
     /// <summary>
     /// A collection of resources, implementing RESTful method handling.
     /// </summary>
-    public abstract class WebSet : WebScope
+    public abstract class WebSet : WebController
     {
         public const string GET = "GET", POST = "POST", PUT = "PUT", DELETE = "DELETE";
 

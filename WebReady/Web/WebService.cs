@@ -113,8 +113,8 @@ namespace WebReady.Web
             using (var dc = src.NewDbContext())
             {
                 // load views under the public schema
-                
-                dc.Query("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
+
+                dc.QueryAll("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
                 while (dc.Next())
                 {
                     var view = new DbViewSet(dc)
@@ -125,7 +125,7 @@ namespace WebReady.Web
 
                     using (var ndc = src.NewDbContext())
                     {
-                        ndc.Query("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(view.Name));
+                        ndc.QueryAll("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(view.Name));
                         while (ndc.Next())
                         {
                             view.AddColumn(new DbCol(ndc));
@@ -134,7 +134,7 @@ namespace WebReady.Web
 
                     using (var ndc = src.NewDbContext())
                     {
-                        ndc.Query("SELECT * FROM information_schema.role_table_grants WHERE table_name = @1", p => p.Set(view.Name));
+                        ndc.QueryAll("SELECT * FROM information_schema.role_table_grants WHERE table_name = @1", p => p.Set(view.Name));
                         while (ndc.Next())
                         {
                             string privilege_type = null;
@@ -152,12 +152,27 @@ namespace WebReady.Web
 
         public void LoadActionsFromDb(string source)
         {
-            using (var dc = Framework.NewDbContext(source))
+            var src = Framework.GetDbSource(source);
+
+            using (var dc = src.NewDbContext())
             {
                 // load functions
-                dc.Query("SELECT * FROM information_schema.routines WHERE routine_schema = 'public' AND routine_type = 'FUNCTION'", prepare: false);
+                dc.QueryAll("SELECT * FROM information_schema.routines WHERE routine_schema = 'public' AND routine_type = 'FUNCTION'", prepare: false);
                 while (dc.Next())
                 {
+                    string routine_name = null;
+                    dc.Get(nameof(routine_name), ref routine_name);
+                    var action = new DbFunctionAction(this, routine_name, dc);
+                    Actions.Add(action);
+
+                    using (var ndc = src.NewDbContext())
+                    {
+                        ndc.QueryAll("SELECT * FROM information_schema.parameters WHERE specific_schema = 'public' AND specific_name = @1", p => p.Set(action.SpecificName));
+                        while (ndc.Next())
+                        {
+                            action.AddArg(new DbArg(ndc));
+                        }
+                    }
                 }
             }
         }
@@ -186,14 +201,15 @@ namespace WebReady.Web
             else
             {
                 // do authentication since it is dynamic 
-                if (this is IAuthenticateAsync  authAsync)
+                if (this is IAuthenticateAsync authAsync)
                 {
                     await authAsync.DoAuthenticateAsync(wc);
-                } else if (this is IAuthenticate auth)
+                }
+                else if (this is IAuthenticate auth)
                 {
                     auth.DoAuthenticate(wc);
                 }
-                
+
 
                 // a subscope
                 string rsc = path.Substring(1);

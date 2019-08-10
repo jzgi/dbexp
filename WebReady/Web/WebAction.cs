@@ -5,7 +5,7 @@ namespace WebReady.Web
     /// <summary>
     /// A handler action.
     /// </summary>
-    public abstract class WebAction
+    public abstract class WebAction : IKeyable<string>
     {
         readonly WebWork _work;
 
@@ -31,5 +31,7 @@ namespace WebReady.Web
         /// 
         /// </summary>
         internal abstract Task ExecuteAsync(WebContext wc);
+
+        public string Key => _name;
     }
 }

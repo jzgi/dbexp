@@ -8,6 +8,8 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebController
     {
+        public WebService Service => (WebService) (Parent ?? this);
+
         /// <summary>
         /// The parent controller, null if this is the root.
         /// </summary>
@@ -26,6 +28,8 @@ namespace WebReady.Web
 
         protected internal abstract Task HandleAsync(string rsc, WebContext wc);
 
+
+        internal abstract void Describe(HtmlContent h);
 
         //
         // local object provider, for Attach() and Obtain() operations

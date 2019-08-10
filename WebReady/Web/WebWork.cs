@@ -85,12 +85,24 @@ namespace WebReady.Web
                 return;
             }
 
-            if (!((WebService) Parent).TryGiveFromCache(wc))
+            if (!Service.TryGiveFromCache(wc))
             {
                 // invoke action method 
                 await act.ExecuteAsync(wc);
 
-                ((WebService) Parent).TryAddToCache(wc);
+                Service.TryAddToCache(wc);
+            }
+        }
+
+        internal override void Describe(HtmlContent h)
+        {
+            for (int i = 0; i < _actions.Count; i++)
+            {
+                var a = _actions.ValueAt(i);
+                h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
+                h.T("<h3><code>").TT(a.Name).T("</code></h3>");
+                h.HR();
+                h.T("</article>");
             }
         }
     }

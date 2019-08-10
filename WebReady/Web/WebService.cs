@@ -397,6 +397,30 @@ namespace WebReady.Web
             return false;
         }
 
+        public void @ref(WebContext wc)
+        {
+            var h = new HtmlContent(wc, true);
+            h.T("<html><head>");
+            h.T("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            h.T("<style>pre {overflow-x: scroll; background-color: #f2f2f2; padding: 8px;} pre::-webkit-scrollbar {display: none;}</style>");
+            h.T("</head><body>");
+            h.H3(Name.ToUpper());
+            h.T("<main style=\"display: grid;; grid-template-columns: repeat(auto-fit, minmax(20rem, 36rem)); grid-gap: 12px;\">");
+
+            // controlers
+            for (int i = 0; i < _controllers.Count; i++)
+            {
+                var ctr = _controllers.ValueAt(i);
+                ctr.Describe(h);
+            }
+
+            // describe this work 
+            Describe(h);
+
+            h.T("</main>");
+            h.T("</body></html>");
+            wc.Give(200, h, true, 720);
+        }
 
         /// <summary>
         /// A prior response for caching that might be cleared but not removed, for better reusability. 

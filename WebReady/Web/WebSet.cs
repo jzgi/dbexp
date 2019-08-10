@@ -103,5 +103,13 @@ namespace WebReady.Web
         // restful methods
         //
         public abstract Task OperateAsync(WebContext wc, string method, string[] vars, string subscript);
+
+        internal override void Describe(HtmlContent h)
+        {
+            h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
+            h.T("<h3><code>").TT(Name).T("</code></h3>");
+            h.HR();
+            h.T("</article>");
+        }
     }
 }

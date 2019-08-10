@@ -162,7 +162,10 @@ namespace WebReady.Web
                 {
                     string routine_name = null;
                     dc.Get(nameof(routine_name), ref routine_name);
-                    var action = new DbFunctionAction(this, routine_name, dc);
+                    var action = new DbFunctionAction(this, routine_name, dc)
+                    {
+                        Source = src
+                    };
                     Actions.Add(action);
 
                     using (var ndc = src.NewDbContext())
@@ -188,59 +191,68 @@ namespace WebReady.Web
             string path = wc.Path;
 
             // determine it is static file
-            int dot = path.LastIndexOf('.');
-            if (dot != -1)
+            try
             {
-                // try to give file content from cache or file system
-                if (!TryGiveFromCache(wc))
+                int dot = path.LastIndexOf('.');
+                if (dot != -1)
                 {
-                    GiveStaticFile(path, path.Substring(dot), wc);
-                    TryAddToCache(wc);
-                }
-            }
-            else
-            {
-                // do authentication since it is dynamic 
-                if (this is IAuthenticateAsync authAsync)
-                {
-                    await authAsync.DoAuthenticateAsync(wc);
-                }
-                else if (this is IAuthenticate auth)
-                {
-                    auth.DoAuthenticate(wc);
-                }
-
-
-                // a subscope
-                string rsc = path.Substring(1);
-
-                int slash = rsc.IndexOf('/');
-                if (slash != -1)
-                {
-                    string name = rsc.Substring(0, slash);
-                    var ctr = _controllers[name];
-                    if (ctr != null)
+                    // try to give file content from cache or file system
+                    if (!TryGiveFromCache(wc))
                     {
-                        await ctr.HandleAsync(rsc.Substring(slash + 1), wc);
+                        GiveStaticFile(path, path.Substring(dot), wc);
+                        TryAddToCache(wc);
                     }
                 }
                 else
                 {
-                    // it is an action
-                    await HandleAsync(rsc, wc);
+                    // do authentication since it is dynamic 
+                    if (this is IAuthenticateAsync authAsync)
+                    {
+                        await authAsync.DoAuthenticateAsync(wc);
+                    }
+                    else if (this is IAuthenticate auth)
+                    {
+                        auth.DoAuthenticate(wc);
+                    }
+
+
+                    // a sub controller
+
+                    string rsc = path.Substring(1);
+
+                    int slash = rsc.IndexOf('/');
+                    if (slash != -1)
+                    {
+                        string name = rsc.Substring(0, slash);
+                        var ctr = _controllers[name];
+                        if (ctr == null)
+                        {
+                            throw new WebException("Controller not found: " + name)
+                            {
+                                Code = 404 // Not Found
+                            };
+                        }
+
+                        await ctr.HandleAsync(rsc.Substring(slash + 1), wc);
+                    }
+                    else
+                    {
+                        // it is an action
+                        await HandleAsync(rsc, wc);
+                    }
                 }
-
-                return;
             }
-
-            // sending
-            try
+            catch (WebException e)
             {
-                await wc.SendAsync();
+                wc.Give(e.Code, e.Message);
             }
             catch (Exception e)
             {
                 wc.Give(500, e.Message);
+            }
+            finally
+            {
+                await wc.SendAsync();
             }
         }
 
@@ -392,25 +404,25 @@ namespace WebReady.Web
         public class Response
         {
             // response status, 0 means cleared, otherwise one of the cacheable status
-            short code;
+            int _code;
 
             // can be set to null
-            IContent content;
+            IContent _content;
 
             // maxage in seconds
-            int maxage;
+            int _maxage;
 
             // time ticks when entered or cleared
-            int stamp;
+            int _stamp;
 
-            int hits;
+            int _hits;
 
-            internal Response(short code, IContent content, int maxage, int stamp)
+            internal Response(int code, IContent content, int maxage, int stamp)
             {
-                this.code = code;
-                this.content = content;
-                this.maxage = maxage;
-                this.stamp = stamp;
+                _code = code;
+                _content = content;
+                _maxage = maxage;
+                _stamp = stamp;
             }
 
             /// <summary>
@@ -421,9 +433,9 @@ namespace WebReady.Web
                 return code == 200 || code == 203 || code == 204 || code == 206 || code == 300 || code == 301 || code == 404 || code == 405 || code == 410 || code == 414 || code == 501;
             }
 
-            public int Hits => hits;
+            public int Hits => _hits;
 
-            public bool IsCleared => code == 0;
+            public bool IsCleared => _code == 0;
 
             /// <summary>
             /// 
@@ -434,16 +446,16 @@ namespace WebReady.Web
             {
                 lock (this)
                 {
-                    int pass = now - (stamp + maxage * 1000);
+                    int pass = now - (_stamp + _maxage * 1000);
 
-                    if (code == 0) return pass < 900 * 1000; // 15 minutes
+                    if (_code == 0) return pass < 900 * 1000; // 15 minutes
 
                     if (pass >= 0) // to clear this reply
                     {
-                        code = 0; // set to cleared
-                        content = null; // NOTE: the buffer won't return to the pool
-                        maxage = 0;
-                        stamp = now; // time being cleared
+                        _code = 0; // set to cleared
+                        _content = null; // NOTE: the buffer won't return to the pool
+                        _maxage = 0;
+                        _stamp = now; // time being cleared
                     }
 
                     return true;
@@ -454,17 +466,17 @@ namespace WebReady.Web
             {
                 lock (this)
                 {
-                    if (code == 0)
+                    if (_code == 0)
                     {
                         return false;
                     }
 
-                    short remain = (short) (((stamp + maxage * 1000) - now) / 1000); // remaining in seconds
+                    short remain = (short) (((_stamp + _maxage * 1000) - now) / 1000); // remaining in seconds
                     if (remain > 0)
                     {
                         wc.IsInCache = true;
-                        wc.Give(code, content, true, remain);
-                        Interlocked.Increment(ref hits);
+                        wc.Give(_code, _content, true, remain);
+                        Interlocked.Increment(ref _hits);
                         return true;
                     }
 
@@ -474,7 +486,7 @@ namespace WebReady.Web
 
             internal Response MergeWith(Response old)
             {
-                Interlocked.Add(ref hits, old.Hits);
+                Interlocked.Add(ref _hits, old.Hits);
                 return this;
             }
         }

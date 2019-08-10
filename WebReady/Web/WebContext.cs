@@ -48,11 +48,9 @@ namespace WebReady.Web
 
         public WebService Service { get; internal set; }
 
-        public WebController Scope { get; internal set; }
+        public WebController Controller { get; internal set; }
 
         public string Role { get; internal set; }
-
-        public string Subscript { get; internal set; }
 
         public Exception Exception { get; set; }
 
@@ -433,9 +431,9 @@ namespace WebReady.Web
 
         public bool IsInCache { get; internal set; }
 
-        public short StatusCode
+        public int StatusCode
         {
-            get => (short) fResponse.StatusCode;
+            get => fResponse.StatusCode;
             set => fResponse.StatusCode = value;
         }
 
@@ -447,40 +445,39 @@ namespace WebReady.Web
         /// the cached response is to be considered stale after its age is greater than the specified number of seconds.
         public short MaxAge { get; internal set; }
 
-        public void Give(short statusCode, IContent cnt = null, bool? shared = null, short maxage = 12)
+        public void Give(int status, IContent cnt = null, bool? shared = null, short maxage = 12)
         {
-            StatusCode = statusCode;
+            StatusCode = status;
             Content = cnt;
             Shared = shared;
             MaxAge = maxage;
         }
 
-        public void Give(short statusCode, string text, bool? shared = null, short maxage = 12)
+        public void Give(int status, string text, bool? shared = null, short maxage = 12)
         {
-            TextContent cnt = new TextContent(true, 1024);
+            var cnt = new TextContent(true, 1024);
             cnt.Add(text);
-            StatusCode = statusCode;
+            StatusCode = status;
             Content = cnt;
             Shared = shared;
             MaxAge = maxage;
         }
 
-        public void Give(short statusCode, IData obj, byte proj = 0x0f, bool? shared = null, short maxAge = 12)
+        public void Give(int status, IData obj, byte proj = 0x0f, bool? shared = null, short maxAge = 12)
         {
-            JsonContent cnt = new JsonContent(true, 8192);
+            var cnt = new JsonContent(true, 8192);
             cnt.Put(null, obj, proj);
-            StatusCode = statusCode;
+            StatusCode = status;
             Content = cnt;
             Shared = shared;
             MaxAge = maxAge;
         }
 
-        public void Give<D>(short statusCode, D[] arr, byte proj = 0x0f, bool? shared = null, short maxAge = 12)
-            where D : IData
+        public void Give<D>(int status, D[] arr, byte proj = 0x0f, bool? shared = null, short maxAge = 12) where D : IData
         {
-            JsonContent cnt = new JsonContent(true, 8192);
+            var cnt = new JsonContent(true, 8192);
             cnt.Put(null, arr, proj);
-            StatusCode = statusCode;
+            StatusCode = status;
             Content = cnt;
             Shared = shared;
             MaxAge = maxAge;

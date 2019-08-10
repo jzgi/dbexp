@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using WebReady.Web;
 
@@ -6,6 +5,8 @@ namespace WebReady.Db
 {
     public class DbFunctionAction : WebAction
     {
+        public DbSource Source { get; internal set; }
+
         int rettype;
 
         readonly string specific_name; // for overloadied
@@ -23,7 +24,7 @@ namespace WebReady.Db
         Map<string, DbCol> _cols;
 
 
-        public DbFunctionAction(WebWork work, string name, DbContext s) : base(work, name, true)
+        internal DbFunctionAction(WebWork work, string name, ISource s) : base(work, name, true)
         {
             s.Get(nameof(specific_name), ref specific_name);
             s.Get(nameof(data_type), ref data_type);
@@ -37,9 +38,27 @@ namespace WebReady.Db
             _args.Add(arg);
         }
 
-        internal override Task ExecuteAsync(WebContext wc)
+        internal override async Task ExecuteAsync(WebContext wc)
         {
-            throw new NotImplementedException();
+            ISource src = null;
+            if (wc.IsGet)
+            {
+                src = wc.Query;
+            }
+            else
+            {
+                src = await wc.ReadAsync<JObj>();
+            }
+
+            using (var dc = Source.NewDbContext())
+            {
+                dc.Sql("SELECT ").T(Name).T("(");
+                for (int i = 0; i < _args.Count; i++)
+                {
+                    var arg = _args.ValueAt(i);
+                    arg.ImportArg(src);
+                }
+            }
         }
 
         public string SpecificName => specific_name;

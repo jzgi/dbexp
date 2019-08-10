@@ -19,5 +19,10 @@ namespace WebReady.Db
             s.Get(nameof(data_type), ref data_type);
             s.Get(nameof(parameter_default), ref parameter_default);
         }
+
+        internal void ImportArg(ISource s)
+        {
+            
+        }
     }
 }

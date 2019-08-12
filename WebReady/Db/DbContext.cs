@@ -10,7 +10,7 @@ namespace WebReady.Db
     /// <summary>
     /// An environment for database operations. It provides strong-typed reads/writes and lightweight O/R mapping.
     /// </summary>
-    public sealed class DbContext : ISource, IParams, IDisposable
+    public sealed class DbContext : ISource, ISqlParams, IDisposable
     {
         static readonly string[] PARAMS =
         {
@@ -167,12 +167,12 @@ namespace WebReady.Db
         {
         }
 
-        public bool Query(Action<IParams> p = null, bool prepare = true)
+        public bool Query(Action<ISqlParams> p = null, bool prepare = true)
         {
             return Query(_sql.ToString(), p, prepare);
         }
 
-        public bool Query(string sql, Action<IParams> p = null, bool prepare = true)
+        public bool Query(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -193,7 +193,7 @@ namespace WebReady.Db
             return _reader.Read();
         }
 
-        public async Task<bool> QueryAsync(Action<IParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAsync(Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -214,7 +214,7 @@ namespace WebReady.Db
             return _reader.Read();
         }
 
-        public async Task<bool> QueryAsync(string sql, Action<IParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -235,7 +235,7 @@ namespace WebReady.Db
             return _reader.Read();
         }
 
-        public D Query<D>(Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D Query<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (Query(p, prepare))
             {
@@ -245,7 +245,7 @@ namespace WebReady.Db
             return default;
         }
 
-        public D Query<D>(string sql, Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D Query<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (Query(sql, p, prepare))
             {
@@ -255,7 +255,7 @@ namespace WebReady.Db
             return default;
         }
 
-        public async Task<D> QueryAsync<D>(Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D> QueryAsync<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAsync(p, prepare))
             {
@@ -265,7 +265,7 @@ namespace WebReady.Db
             return default;
         }
 
-        public async Task<D> QueryAsync<D>(string sql, Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D> QueryAsync<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAsync(sql, p, prepare))
             {
@@ -275,12 +275,12 @@ namespace WebReady.Db
             return default;
         }
 
-        public bool QueryAll(Action<IParams> p = null, bool prepare = true)
+        public bool QueryAll(Action<ISqlParams> p = null, bool prepare = true)
         {
             return QueryAll(_sql.ToString(), p, prepare);
         }
 
-        public bool QueryAll(string sql, Action<IParams> p = null, bool prepare = true)
+        public bool QueryAll(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -301,7 +301,7 @@ namespace WebReady.Db
             return _reader.HasRows;
         }
 
-        public async Task<bool> QueryAllAsync(Action<IParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAllAsync(Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -322,7 +322,7 @@ namespace WebReady.Db
             return _reader.HasRows;
         }
 
-        public async Task<bool> QueryAllAsync(string sql, Action<IParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAllAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -343,7 +343,7 @@ namespace WebReady.Db
             return _reader.HasRows;
         }
 
-        public D[] QueryAll<D>(Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D[] QueryAll<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(p, prepare))
             {
@@ -353,7 +353,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public D[] QueryAll<D>(string sql, Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D[] QueryAll<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(sql, p, prepare))
             {
@@ -363,7 +363,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<D[]> QueryAllAsync<D>(Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D[]> QueryAllAsync<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(p, prepare))
             {
@@ -373,7 +373,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<D[]> QueryAllAsync<D>(string sql, Action<IParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D[]> QueryAllAsync<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(sql, p, prepare))
             {
@@ -383,7 +383,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public Map<K, D> QueryAll<K, D>(Action<IParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public Map<K, D> QueryAll<K, D>(Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(p, prepare))
             {
@@ -393,7 +393,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public Map<K, D> QueryAll<K, D>(string sql, Action<IParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public Map<K, D> QueryAll<K, D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(sql, p, prepare))
             {
@@ -403,7 +403,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<Map<K, D>> QueryAllAsync<K, D>(Action<IParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public async Task<Map<K, D>> QueryAllAsync<K, D>(Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(p, prepare))
             {
@@ -413,7 +413,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<Map<K, D>> QueryAllAsync<K, D>(string sql, Action<IParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public async Task<Map<K, D>> QueryAllAsync<K, D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(sql, p, prepare))
             {
@@ -436,12 +436,12 @@ namespace WebReady.Db
             }
         }
 
-        public int Execute(Action<IParams> p = null, bool prepare = true)
+        public int Execute(Action<ISqlParams> p = null, bool prepare = true)
         {
             return Execute(_sql.ToString(), p, prepare);
         }
 
-        public int Execute(string sql, Action<IParams> p = null, bool prepare = true)
+        public int Execute(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -460,7 +460,7 @@ namespace WebReady.Db
             return _command.ExecuteNonQuery();
         }
 
-        public async Task<int> ExecuteAsync(Action<IParams> p = null, bool prepare = true)
+        public async Task<int> ExecuteAsync(Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -479,7 +479,7 @@ namespace WebReady.Db
             return await _command.ExecuteNonQueryAsync();
         }
 
-        public async Task<int> ExecuteAsync(string sql, Action<IParams> p = null, bool prepare = true)
+        public async Task<int> ExecuteAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -498,12 +498,12 @@ namespace WebReady.Db
             return await _command.ExecuteNonQueryAsync();
         }
 
-        public object Scalar(Action<IParams> p = null, bool prepare = true)
+        public object Scalar(Action<ISqlParams> p = null, bool prepare = true)
         {
             return Scalar(_sql.ToString(), p, prepare);
         }
 
-        public object Scalar(string sql, Action<IParams> p = null, bool prepare = true)
+        public object Scalar(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -523,7 +523,7 @@ namespace WebReady.Db
             return res == DBNull.Value ? null : res;
         }
 
-        public async Task<object> ScalarAsync(Action<IParams> p = null, bool prepare = true)
+        public async Task<object> ScalarAsync(Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -542,7 +542,7 @@ namespace WebReady.Db
             return await _command.ExecuteScalarAsync();
         }
 
-        public async Task<object> ScalarAsync(string sql, Action<IParams> p = null, bool prepare = true)
+        public async Task<object> ScalarAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -659,6 +659,24 @@ namespace WebReady.Db
                 if (!_reader.IsDBNull(ord))
                 {
                     v = _reader.GetInt16(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Get(string name, ref uint v)
+        {
+            try
+            {
+                int ord = _reader.GetOrdinal(name);
+                if (!_reader.IsDBNull(ord))
+                {
+                    v = _reader.GetFieldValue<uint>(ord);
                     return true;
                 }
             }
@@ -1341,7 +1359,7 @@ namespace WebReady.Db
                 if (!_reader.IsDBNull(ord))
                 {
                     string str = _reader.GetString(ord);
-                    JsonParser parser = new JsonParser(str);
+                    var parser = new JsonParser(str);
                     JArr ja = (JArr) parser.Parse();
                     int len = ja.Count;
                     v = new D[len];
@@ -1481,6 +1499,14 @@ namespace WebReady.Db
         public void Put(string name, short v)
         {
             _command.Parameters.Add(new NpgsqlParameter<short>(name, NpgsqlDbType.Smallint)
+            {
+                TypedValue = v
+            });
+        }
+
+        public void Put(string name, uint v)
+        {
+            _command.Parameters.Add(new NpgsqlParameter<uint>(name, NpgsqlDbType.Oid)
             {
                 TypedValue = v
             });
@@ -1661,67 +1687,73 @@ namespace WebReady.Db
         // positional
         //
 
-        public IParams SetNull()
+        public ISqlParams SetNull()
         {
             PutNull(PARAMS[_paramidx++]);
             return this;
         }
 
-        public IParams Set(bool v)
+        public ISqlParams Set(bool v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(char v)
+        public ISqlParams Set(char v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(short v)
+        public ISqlParams Set(short v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(int v)
+        public ISqlParams Set(uint v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(long v)
+        public ISqlParams Set(int v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(double v)
+        public ISqlParams Set(long v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(decimal v)
+        public ISqlParams Set(double v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(JNumber v)
+        public ISqlParams Set(decimal v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(DateTime v)
+        public ISqlParams Set(JNumber v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(string v)
+        public ISqlParams Set(DateTime v)
+        {
+            Put(PARAMS[_paramidx++], v);
+            return this;
+        }
+
+        public ISqlParams Set(string v)
         {
             if (v == string.Empty)
             {
@@ -1732,65 +1764,65 @@ namespace WebReady.Db
             return this;
         }
 
-        public IParams Set(ArraySegment<byte> v)
+        public ISqlParams Set(ArraySegment<byte> v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(byte[] v)
+        public ISqlParams Set(byte[] v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(short[] v)
+        public ISqlParams Set(short[] v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(int[] v)
+        public ISqlParams Set(int[] v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(long[] v)
+        public ISqlParams Set(long[] v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(string[] v)
+        public ISqlParams Set(string[] v)
         {
             Put(PARAMS[_paramidx++], v);
             return this;
         }
 
-        public IParams Set(JObj v)
+        public ISqlParams Set(JObj v)
         {
             throw new NotImplementedException();
         }
 
-        public IParams Set(JArr v)
+        public ISqlParams Set(JArr v)
         {
             throw new NotImplementedException();
         }
 
-        public IParams Set(IData v, byte proj = 0x0f)
+        public ISqlParams Set(IData v, byte proj = 0x0f)
         {
             Put(PARAMS[_paramidx++], v, proj);
             return this;
         }
 
-        public IParams Set<D>(D[] v, byte proj = 0x0f) where D : IData
+        public ISqlParams Set<D>(D[] v, byte proj = 0x0f) where D : IData
         {
             Put(PARAMS[_paramidx++], v, proj);
             return this;
         }
 
-        public IParams SetIn(string[] v)
+        public ISqlParams SetIn(string[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {
@@ -1800,7 +1832,7 @@ namespace WebReady.Db
             return this;
         }
 
-        public IParams SetIn(short[] v)
+        public ISqlParams SetIn(short[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {
@@ -1810,7 +1842,7 @@ namespace WebReady.Db
             return this;
         }
 
-        public IParams SetIn(int[] v)
+        public ISqlParams SetIn(int[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {
@@ -1820,7 +1852,7 @@ namespace WebReady.Db
             return this;
         }
 
-        public IParams SetIn(long[] v)
+        public ISqlParams SetIn(long[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {

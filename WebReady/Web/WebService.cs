@@ -114,7 +114,9 @@ namespace WebReady.Web
             {
                 // load views under the public schema
 
-                dc.QueryAll("SELECT * FROM information_schema.views WHERE table_schema = 'public'", prepare: false);
+                var nsp = (uint) dc.Scalar("SELECT oid FROM pg_namespace WHERE nspname = 'public'", prepare: false);
+
+                dc.QueryAll("SELECT relname AS name, pg_get_viewdef(oid) AS definition, (pg_relation_is_updatable(oid::regclass, false) & 20) = 20 AS updatable, (pg_relation_is_updatable(oid::regclass, false) & 8) = 8 AS insertable FROM pg_class WHERE relnamespace = " + nsp + " AND relkind = 'v'", prepare: false);
                 while (dc.Next())
                 {
                     var view = new DbViewSet(dc)
@@ -125,7 +127,7 @@ namespace WebReady.Web
 
                     using (var ndc = src.NewDbContext())
                     {
-                        ndc.QueryAll("SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = @1", p => p.Set(view.Name));
+                        ndc.QueryAll("SELECT attname AS name, atttypid AS typoid, atthasdef AS def, attnotnull AS notnull FROM pg_attribute WHERE attrelid = @1", p => p.Set(view.Oid));
                         while (ndc.Next())
                         {
                             view.AddColumn(new DbCol(ndc));
@@ -156,13 +158,15 @@ namespace WebReady.Web
 
             using (var dc = src.NewDbContext())
             {
+                var nsp = (uint) dc.Scalar("SELECT oid FROM pg_namespace WHERE nspname = 'public'", prepare: false);
+
                 // load functions
-                dc.QueryAll("SELECT * FROM information_schema.routines WHERE routine_schema = 'public' AND routine_type = 'FUNCTION'", prepare: false);
+                dc.QueryAll("SELECT proname	 AS name, provolatile AS volatile, prorettype AS rettype FROM pg_proc WHERE pronamespace = " + nsp, prepare: false);
                 while (dc.Next())
                 {
-                    string routine_name = null;
-                    dc.Get(nameof(routine_name), ref routine_name);
-                    var action = new DbFunctionAction(this, routine_name, dc)
+                    string name = null;
+                    dc.Get(nameof(name), ref name);
+                    var action = new DbFunctionAction(this, name, dc)
                     {
                         Source = src
                     };

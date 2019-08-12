@@ -5,6 +5,8 @@ It helps building performant, seure, transaction-oriented cloud applications.
 
 WebReady is based on the high-performance [Kestral HTTP server](https://github.com/aspnet/AspNetCore/tree/master/src/Servers/Kestrel) that is built in ASP.NET Core, as well as the [Npgsql data access library](https://www.npgsql.org/).
 
+The sample program is a real-world business application that has adequate complexity, serving as a starting template for your new projects.
+
 The best practics of database design are strictly followed:
 * views -- database views are exposed as folders that support GET, POST, PUT and DELETE methods acccording to whether a view is updatable
 * functions -- database functions are exposed as executable object that support GET, or POST, or both. A function has a number of parameters, that are naturally mapped to HTTP request parameters.

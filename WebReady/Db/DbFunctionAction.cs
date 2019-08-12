@@ -1,13 +1,16 @@
+using System;
 using System.Threading.Tasks;
 using WebReady.Web;
 
 namespace WebReady.Db
 {
-    public class DbFunctionAction : WebAction
+    public class DbFunctionAction : WebAction, IDatum
     {
         public DbSource Source { get; internal set; }
 
-        int rettype;
+        public Type Type { get; }
+
+        readonly uint oid;
 
         readonly string specific_name; // for overloadied
 
@@ -24,19 +27,23 @@ namespace WebReady.Db
         Map<string, DbCol> _cols;
 
 
-        internal DbFunctionAction(WebWork work, string name, ISource s) : base(work, name, true)
+        internal DbFunctionAction(WebWork work, string name, DbContext s) : base(work, name, true)
         {
+            s.Get(nameof(oid), ref oid);
             s.Get(nameof(specific_name), ref specific_name);
             s.Get(nameof(data_type), ref data_type);
             s.Get(nameof(type_udt_name), ref type_udt_name);
             s.Get(nameof(is_deterministic), ref is_deterministic);
             s.Get(nameof(security_type), ref security_type);
+
+            Type = DbUtility.GetType(data_type);
         }
 
         internal void AddArg(DbArg arg)
         {
             _args.Add(arg);
         }
+
 
         internal override async Task ExecuteAsync(WebContext wc)
         {
@@ -52,12 +59,23 @@ namespace WebReady.Db
 
             using (var dc = Source.NewDbContext())
             {
-                dc.Sql("SELECT ").T(Name).T("(");
+                var sql = dc.Sql("SELECT ").T(Name).T("(");
                 for (int i = 0; i < _args.Count; i++)
                 {
                     var arg = _args.ValueAt(i);
                     arg.ImportArg(src);
                 }
+
+                sql.T(");");
+
+                // set parameters
+                for (int i = 0; i < _args.Count; i++)
+                {
+                    var arg = _args.ValueAt(i);
+                    arg.SqlParam(src, dc);
+                }
+
+                await dc.ExecuteAsync();
             }
         }
 

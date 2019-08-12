@@ -11,36 +11,39 @@ namespace WebReady.Db
         /// </summary>
         public DbSource Source { get; internal set; }
 
-        internal readonly string table_name;
+        readonly uint oid;
 
-        readonly string view_definition;
+        readonly string name;
+
+        readonly string definition;
 
         readonly string check_option;
 
-        readonly bool is_updatable;
+        readonly bool updatable;
 
-        readonly bool is_insertable_into;
+        readonly bool insertable;
 
         readonly Map<string, DbCol> _cols = new Map<string, DbCol>(64);
 
-        internal DbViewSet(ISource s)
+        internal DbViewSet(DbContext s)
         {
-            s.Get(nameof(table_name), ref table_name);
+            s.Get(nameof(oid), ref oid);
+            s.Get(nameof(name), ref name);
 
-            Name = table_name;
+            Name = name;
 
-            s.Get(nameof(view_definition), ref view_definition);
+            s.Get(nameof(definition), ref definition);
 
             const string BEGIN = "current_setting('";
             const string END = "'";
             int p = 0;
             for (;;)
             {
-                p = view_definition.IndexOf(BEGIN, p, StringComparison.CurrentCultureIgnoreCase);
+                p = definition.IndexOf(BEGIN, p, StringComparison.CurrentCultureIgnoreCase);
                 if (p == -1) break;
-                int p2 = view_definition.IndexOf(END, p + BEGIN.Length, StringComparison.CurrentCultureIgnoreCase);
+                int p2 = definition.IndexOf(END, p + BEGIN.Length, StringComparison.CurrentCultureIgnoreCase);
                 if (p2 == -1) break;
-                string var_name = view_definition.Substring(p + BEGIN.Length, p2 - p - BEGIN.Length);
+                string var_name = definition.Substring(p + BEGIN.Length, p2 - p - BEGIN.Length);
                 // create a variable
                 AddVar(var_name);
                 // adjust position
@@ -48,9 +51,11 @@ namespace WebReady.Db
             }
 
             s.Get(nameof(check_option), ref check_option);
-            s.Get(nameof(is_updatable), ref is_updatable);
-            s.Get(nameof(is_insertable_into), ref is_insertable_into);
+            s.Get(nameof(updatable), ref updatable);
+            s.Get(nameof(insertable), ref insertable);
         }
+
+        public uint Oid => oid;
 
         internal void AddColumn(DbCol col)
         {

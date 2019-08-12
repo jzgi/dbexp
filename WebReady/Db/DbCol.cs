@@ -1,39 +1,37 @@
+using System;
+
 namespace WebReady.Db
 {
     /// <summary>
     /// An argument for database object such as function and procedure.
     /// </summary>
-    public class DbCol : IKeyable<string>
+    public class DbCol : IKeyable<string>, IDatum
     {
-        readonly string column_name;
+        public Type Type { get; }
 
-        readonly string ordinal_position;
+        readonly string name;
 
-        readonly string column_default;
+        readonly uint typoid;
 
-        readonly bool is_nullable;
+        readonly bool def;
 
-        readonly string data_type;
-
-        readonly bool is_updatable;
+        readonly bool notnull;
 
         bool arguable;
 
-        internal DbCol(ISource s)
+        internal DbCol(DbContext s)
         {
-            s.Get(nameof(column_name), ref column_name);
+            s.Get(nameof(name), ref name);
 
-            s.Get(nameof(ordinal_position), ref ordinal_position);
+            s.Get(nameof(typoid), ref typoid);
 
-            s.Get(nameof(column_default), ref column_default);
+            s.Get(nameof(def), ref def);
 
-            s.Get(nameof(is_nullable), ref is_nullable);
-
-            s.Get(nameof(data_type), ref data_type);
-
-            s.Get(nameof(is_updatable), ref is_updatable);
+            s.Get(nameof(notnull), ref notnull);
         }
 
-        public string Key => column_name;
+        public string Key => name;
+
+        public string Name => name;
     }
 }

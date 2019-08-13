@@ -132,7 +132,7 @@ namespace WebReady.Web
                         ndc.QueryAll("SELECT attname AS name, atttypid AS typoid, atthasdef AS def, attnotnull AS notnull FROM pg_attribute WHERE attrelid = @1", p => p.Set(view.Oid));
                         while (ndc.Next())
                         {
-                            view.AddColumn(new DbCol(ndc));
+                            view.AddColumn(new DbField(ndc));
                         }
                     }
 

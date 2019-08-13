@@ -18,9 +18,11 @@ namespace WebReady.Db
         readonly bool retset;
 
 
-        readonly Map<string, DbArg> _args = new Map<string, DbArg>(16);
+        // IN args
+        readonly Map<string, DbField> _inArgs = new Map<string, DbField>(16);
 
-        Map<string, DbCol> _cols;
+        // TABLE args
+        Map<string, DbField> _tableArgs;
 
 
         internal DbFunctionAction(WebWork work, string name, DbContext s) : base(work, name, true)
@@ -43,13 +45,13 @@ namespace WebReady.Db
 
             for (int i = 0; i < proargnames?.Length; i++)
             {
-                var arg = new DbArg(
+                var arg = new DbField(
                     proargmodes?[i] ?? 'i',
                     proargnames[i],
                     proargtypes[i],
-                    proargdefs?[i]
+                    proargdefs?[i] != null
                 );
-                _args.Add(arg);
+                _inArgs.Add(arg);
             }
         }
 
@@ -69,18 +71,18 @@ namespace WebReady.Db
             using (var dc = Source.NewDbContext())
             {
                 var sql = dc.Sql("SELECT ").T(Name).T("(");
-                for (int i = 0; i < _args.Count; i++)
+                for (int i = 0; i < _inArgs.Count; i++)
                 {
-                    var arg = _args.ValueAt(i);
-                    arg.ImportArg(src);
+                    var arg = _inArgs.ValueAt(i);
+                    arg.Convert(src, dc);
                 }
 
                 sql.T(");");
 
                 // set parameters
-                for (int i = 0; i < _args.Count; i++)
+                for (int i = 0; i < _inArgs.Count; i++)
                 {
-                    var arg = _args.ValueAt(i);
+                    var arg = _inArgs.ValueAt(i);
 //                    arg.SqlParam(src, dc);
                 }
 

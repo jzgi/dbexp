@@ -7,6 +7,6 @@ namespace WebReady.Db
     /// </summary>
     public class DbProcedure : WebWork
     {
-        readonly Map<string, DbCol> args;
+        readonly Map<string, DbField> args;
     }
 }

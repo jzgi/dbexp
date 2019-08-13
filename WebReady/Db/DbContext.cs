@@ -51,6 +51,8 @@ namespace WebReady.Db
             };
         }
 
+        public bool IsMultiple => _multi;
+
         void Clear()
         {
             // reader reset

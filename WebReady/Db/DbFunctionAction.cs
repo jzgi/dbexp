@@ -40,18 +40,30 @@ namespace WebReady.Db
             uint[] proargtypes = null;
             s.Get(nameof(proargtypes), ref proargtypes);
 
+            uint[] proallargtypes = null;
+            s.Get(nameof(proallargtypes), ref proallargtypes);
+
             string[] proargdefs = null;
             s.Get(nameof(proargdefs), ref proargdefs);
 
-            for (int i = 0; i < proargnames?.Length; i++)
+            var argtypes = proallargtypes ?? proargtypes; // the value of proallargtypes can be null
+            for (int i = 0; i < argtypes?.Length; i++)
             {
-                var arg = new DbField(
-                    proargmodes?[i] ?? 'i',
-                    proargnames[i],
-                    proargtypes[i],
-                    proargdefs?[i] != null
-                );
-                _inArgs.Add(arg);
+                if (proargmodes == null || proargmodes[i] == 'i')
+                {
+                    var arg = new DbField(
+                        'i', proargnames[i], argtypes[i], proargdefs?[i] != null
+                    );
+                    _inArgs.Add(arg);
+                }
+                else
+                {
+                    var arg = new DbField(
+                        't', proargnames[i], argtypes[i], proargdefs?[i] != null
+                    );
+                    if (_tableArgs == null) _tableArgs = new Map<string, DbField>(32);
+                    _tableArgs.Add(arg);
+                }
             }
         }
 

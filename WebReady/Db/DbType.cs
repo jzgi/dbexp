@@ -4,6 +4,9 @@ namespace WebReady.Db
 {
     public class DbType : IKeyable<uint>
     {
+        // system base types
+        //
+
         public static readonly Map<uint, DbType> BASE = new Map<uint, DbType>()
         {
             new DbType(16, "bool")

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using WebReady.Web;
 
@@ -64,23 +65,23 @@ namespace WebReady.Db
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
         {
-            var sql = new DbSql("");
+            var sql = new StringBuilder();
 
             // set vars as session variables
             for (int i = 0; i < Vars?.Length; i++)
             {
                 var v = Vars[i];
-                sql.T("SET ").T(v.Name).T(" = @").T(vars[i]).T(";");
+                sql.Append("SET ").Append(v.Name).Append(" = @").Append(vars[i]).Append(";");
             }
 
             if (method == "GET")
             {
-                sql.T("SELECT * FROM ").T(Name);
+                sql.Append("SELECT * FROM ").Append(Name);
 
                 using (var dc = Source.NewDbContext())
                 {
-                    await dc.QueryAsync();
-                    var cnt = dc.Dump();
+                    await dc.QueryAsync(sql.ToString());
+                    var cnt = Dump(dc, false);
                     wc.Give(200, cnt);
                 }
             }
@@ -92,18 +93,53 @@ namespace WebReady.Db
             }
             else if (method == "PUT")
             {
-                sql.T("UPDATE ").T(Name).T(" SET ");
+                sql.Append("UPDATE ").Append(Name).Append(" SET ");
 //                sql._VALUES_()
             }
             else if (method == "DELETE")
             {
-                sql.T("DELETE FROM ").T(Name);
+                sql.Append("DELETE FROM ").Append(Name);
 //                sql._VALUES_()
                 using (var dc = Source.NewDbContext())
                 {
                     await dc.QueryAsync();
                 }
             }
+        }
+
+        JsonContent Dump(DbContext dc, bool single)
+        {
+            var cnt = new JsonContent(false, 8192);
+            if (single)
+            {
+                cnt.OBJ_();
+                for (int i = 0; i < _columns.Count; i++)
+                {
+                    var col = _columns.ValueAt(i);
+                    col.Convert(dc, cnt);
+                }
+
+                cnt._OBJ();
+            }
+            else
+            {
+                cnt.ARR_();
+                while (dc.Next())
+                {
+                    cnt.OBJ_();
+                    for (int i = 0; i < _columns.Count; i++)
+                    {
+                        var col = _columns.ValueAt(i);
+                        col.Convert(dc, cnt);
+                    }
+
+                    cnt._OBJ();
+                }
+
+                cnt._ARR();
+            }
+
+            return cnt;
         }
     }
 }

@@ -34,21 +34,21 @@ namespace WebReady.Web
             });
         }
 
-        public void AddOp(string opname, string role)
+        public void AddOp(string optype, string role)
         {
-            if (opname == GET || opname == "SELECT")
+            if (optype == GET || optype == "SELECT")
             {
                 _ops[0].AddRole(role);
             }
-            else if (opname == POST || opname == "INSERT")
+            else if (optype == POST || optype == "INSERT")
             {
                 _ops[1].AddRole(role);
             }
-            else if (opname == POST || opname == "UPDATE")
+            else if (optype == POST || optype == "UPDATE")
             {
                 _ops[2].AddRole(role);
             }
-            else if (opname == DELETE)
+            else if (optype == DELETE)
             {
                 _ops[3].AddRole(role);
             }

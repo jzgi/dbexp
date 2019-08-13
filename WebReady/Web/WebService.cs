@@ -109,7 +109,7 @@ namespace WebReady.Web
         public void LoadSetsFromDb(string source)
         {
             // load db types
-            
+
             var src = Framework.GetDbSource(source);
 
             using (var dc = src.NewDbContext())
@@ -135,20 +135,24 @@ namespace WebReady.Web
                             view.AddColumn(new DbField(ndc));
                         }
                     }
+                }
 
-                    using (var ndc = src.NewDbContext())
+                using (var dcb = src.NewDbContext())
+                {
+                    dcb.QueryAll("SELECT c.relname, c.optype, r.rolname FROM (SELECT oid, relname, (aclexplode(COALESCE(pg_class.relacl, acldefault('r'::\"char\", pg_class.relowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_class.relacl, acldefault('r'::\"char\", pg_class.relowner)))).privilege_type AS optype FROM pg_class WHERE relnamespace = " + nsp + " AND relkind = 'v') c, pg_roles r WHERE c.grantee = r.oid; ");
+                    while (dcb.Next())
                     {
-                        ndc.QueryAll("SELECT * FROM information_schema.role_table_grants WHERE table_name = @1", p => p.Set(view.Name));
-                        while (ndc.Next())
-                        {
-                            string privilege_type = null;
-                            ndc.Get(nameof(privilege_type), ref privilege_type);
+                        string relname = null;
+                        dcb.Get(nameof(relname), ref relname);
 
-                            string grantee = null;
-                            ndc.Get(nameof(grantee), ref grantee);
+                        string optype = null;
+                        dcb.Get(nameof(optype), ref optype);
 
-                            view.AddOp(privilege_type, grantee);
-                        }
+                        string rolname = null;
+                        dcb.Get(nameof(rolname), ref rolname);
+
+                        var ctr = _controllers[relname];
+                        ((DbViewSet) ctr)?.AddOp(optype, rolname);
                     }
                 }
             }
@@ -177,6 +181,25 @@ namespace WebReady.Web
                         Source = src
                     };
                     Actions.Add(action);
+                }
+
+                using (var dcb = src.NewDbContext())
+                {
+                    dcb.QueryAll("SELECT p.proname, p.optype, r.rolname from (SELECT pg_proc.oid, pg_proc.proname, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).privilege_type AS optype FROM pg_proc WHERE pronamespace = " + nsp + ") p, pg_roles r WHERE p.grantee = r.oid;");
+                    while (dcb.Next())
+                    {
+                        string proname = null;
+                        dcb.Get(nameof(proname), ref proname);
+
+                        string optype = null;
+                        dcb.Get(nameof(optype), ref optype);
+
+                        string rolname = null;
+                        dcb.Get(nameof(rolname), ref rolname);
+
+                        var ctr = Actions[proname];
+                        ((DbFunctionAction) ctr)?.AddOp(optype, rolname);
+                    }
                 }
             }
         }

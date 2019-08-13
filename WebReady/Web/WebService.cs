@@ -118,7 +118,7 @@ namespace WebReady.Web
 
                 var nsp = (uint) dc.Scalar("SELECT oid FROM pg_namespace WHERE nspname = 'public'", prepare: false);
 
-                dc.QueryAll("SELECT relname AS name, pg_get_viewdef(oid) AS definition, (pg_relation_is_updatable(oid::regclass, false) & 20) = 20 AS updatable, (pg_relation_is_updatable(oid::regclass, false) & 8) = 8 AS insertable FROM pg_class WHERE relnamespace = " + nsp + " AND relkind = 'v'", prepare: false);
+                dc.QueryAll("SELECT oid, relname AS name, pg_get_viewdef(oid) AS definition, (pg_relation_is_updatable(oid::regclass, false) & 20) = 20 AS updatable, (pg_relation_is_updatable(oid::regclass, false) & 8) = 8 AS insertable FROM pg_class WHERE relnamespace = " + nsp + " AND relkind = 'v'", prepare: false);
                 while (dc.Next())
                 {
                     var view = new DbViewSet(dc)

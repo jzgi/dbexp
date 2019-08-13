@@ -49,7 +49,7 @@ namespace WebReady.Db
 
         public void Convert(ISource src, ISink snk)
         {
-            type.Converter(name, src, snk);
+            type?.Converter(name, src, snk);
         }
     }
 }

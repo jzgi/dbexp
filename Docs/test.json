@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "name": "阳明路厨房",
+    "addr": "东湖区阳明锦城",
+    "x": 0,
+    "y": 0,
+    "ispt": true,
+    "isctr": true,
+    "mgr": null,
+    "mgrwx": null,
+    "status": 1
+  }
+]

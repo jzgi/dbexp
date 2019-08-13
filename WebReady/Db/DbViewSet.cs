@@ -109,7 +109,7 @@ namespace WebReady.Db
 
         JsonContent Dump(DbContext dc, bool single)
         {
-            var cnt = new JsonContent(false, 8192);
+            var cnt = new JsonContent(true, 8192);
             if (single)
             {
                 cnt.OBJ_();

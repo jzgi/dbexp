@@ -99,6 +99,15 @@ namespace WebReady.Db
                     snk.Put(name, v);
                 }
             },
+            new DbType(701, "float8")
+            {
+                Converter = (name, src, snk) =>
+                {
+                    double v = 0;
+                    src.Get(name, ref v);
+                    snk.Put(name, v);
+                }
+            },
             new DbType(1043, "varchar")
             {
                 Converter = (name, src, snk) =>

@@ -108,6 +108,8 @@ namespace WebReady.Web
 
         public void LoadSetsFromDb(string source)
         {
+            // load db types
+            
             var src = Framework.GetDbSource(source);
 
             using (var dc = src.NewDbContext())
@@ -161,9 +163,13 @@ namespace WebReady.Web
                 var nsp = (uint) dc.Scalar("SELECT oid FROM pg_namespace WHERE nspname = 'public'", prepare: false);
 
                 // load functions
-                dc.QueryAll("SELECT proname	 AS name, provolatile AS volatile, prorettype AS rettype FROM pg_proc WHERE pronamespace = " + nsp, prepare: false);
+                dc.QueryAll("SELECT NOT (proisagg OR proiswindow) AS callable, oid, proname AS name, provolatile AS volatile, prorettype AS rettype, proretset AS retset, proargmodes, proargnames, proargtypes, proargdefaults FROM pg_proc WHERE pronamespace = " + nsp, prepare: false);
                 while (dc.Next())
                 {
+                    bool callable = false;
+                    dc.Get(nameof(callable), ref callable);
+                    if (!callable) continue;
+
                     string name = null;
                     dc.Get(nameof(name), ref name);
                     var action = new DbFunctionAction(this, name, dc)
@@ -171,15 +177,6 @@ namespace WebReady.Web
                         Source = src
                     };
                     Actions.Add(action);
-
-                    using (var ndc = src.NewDbContext())
-                    {
-                        ndc.QueryAll("SELECT * FROM information_schema.parameters WHERE specific_schema = 'public' AND specific_name = @1", p => p.Set(action.SpecificName));
-                        while (ndc.Next())
-                        {
-                            action.AddArg(new DbArg(ndc));
-                        }
-                    }
                 }
             }
         }

@@ -61,12 +61,14 @@ namespace WebReady
                     Add('"');
                 }
             }
+
             Add('>');
 
             if (elem.Text != null)
             {
                 AddEsc(elem.Text);
             }
+
             if (elem.Count > 0)
             {
                 for (int i = 0; i < elem.Count; i++)
@@ -74,6 +76,7 @@ namespace WebReady
                     ELEM(elem[i]);
                 }
             }
+
             Add("</");
             Add(elem.Tag);
             Add('>');
@@ -85,7 +88,7 @@ namespace WebReady
         // PUT
         //
 
-        public XmlContent ELEM(string name, System.Action attrs, System.Action children)
+        public XmlContent ELEM(string name, Action attrs, Action children)
         {
             Add('<');
             Add(name);
@@ -290,6 +293,10 @@ namespace WebReady
         }
 
         public void Put(string name, ArraySegment<byte> v)
+        {
+        }
+
+        public void Put(string name, Guid v)
         {
         }
 

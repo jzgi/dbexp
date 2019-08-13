@@ -3,11 +3,11 @@ using System;
 namespace WebReady.Db
 {
     /// <summary>
-    /// An argument for database object such as function and procedure.
+    /// A database column or argument field. 
     /// </summary>
-    public class DbCol : IKeyable<string>, IDatum
+    public class DbCol : IKeyable<string>
     {
-        public Type Type { get; }
+        public DbType Type { get; }
 
         readonly string name;
 

@@ -106,6 +106,10 @@ namespace WebReady
         {
         }
 
+        public void Put(string name, Guid v)
+        {
+        }
+
         public void Put(string name, byte[] v)
         {
         }

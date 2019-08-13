@@ -27,6 +27,8 @@ namespace WebReady
 
         bool Get(string name, ref ArraySegment<byte> v);
 
+        bool Get(string name, ref Guid v);
+
         bool Get(string name, ref byte[] v);
 
         bool Get(string name, ref short[] v);
@@ -64,6 +66,8 @@ namespace WebReady
         ISource Let(out string v);
 
         ISource Let(out ArraySegment<byte> v);
+
+        ISource Let(out Guid v);
 
         ISource Let(out short[] v);
 

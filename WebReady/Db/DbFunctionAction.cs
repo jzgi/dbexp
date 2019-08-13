@@ -1,26 +1,22 @@
-using System;
 using System.Threading.Tasks;
 using WebReady.Web;
 
 namespace WebReady.Db
 {
-    public class DbFunctionAction : WebAction, IDatum
+    public class DbFunctionAction : WebAction
     {
         public DbSource Source { get; internal set; }
 
-        public Type Type { get; }
+        public DbType Type { get; }
 
         readonly uint oid;
 
-        readonly string specific_name; // for overloadied
+        readonly bool @volatile;
 
-        readonly string data_type;
+        readonly uint rettype;
 
-        readonly string type_udt_name;
+        readonly bool retset;
 
-        readonly bool is_deterministic;
-
-        readonly string security_type;
 
         readonly Map<string, DbArg> _args = new Map<string, DbArg>(16);
 
@@ -30,18 +26,31 @@ namespace WebReady.Db
         internal DbFunctionAction(WebWork work, string name, DbContext s) : base(work, name, true)
         {
             s.Get(nameof(oid), ref oid);
-            s.Get(nameof(specific_name), ref specific_name);
-            s.Get(nameof(data_type), ref data_type);
-            s.Get(nameof(type_udt_name), ref type_udt_name);
-            s.Get(nameof(is_deterministic), ref is_deterministic);
-            s.Get(nameof(security_type), ref security_type);
+            s.Get(nameof(rettype), ref rettype);
+            s.Get(nameof(retset), ref retset);
 
-            Type = DbUtility.GetType(data_type);
-        }
+            string proargmodes = null;
+            s.Get(nameof(proargmodes), ref proargmodes);
 
-        internal void AddArg(DbArg arg)
-        {
-            _args.Add(arg);
+            string[] proargnames = null;
+            s.Get(nameof(proargnames), ref proargnames);
+
+            uint[] proargtypes = null;
+            s.Get(nameof(proargtypes), ref proargtypes);
+
+            string[] proargdefs = null;
+            s.Get(nameof(proargdefs), ref proargdefs);
+
+            for (int i = 0; i < proargnames?.Length; i++)
+            {
+                var arg = new DbArg(
+                    proargmodes?[i] ?? 'i',
+                    proargnames[i],
+                    proargtypes[i],
+                    proargdefs?[i]
+                );
+                _args.Add(arg);
+            }
         }
 
 
@@ -72,13 +81,11 @@ namespace WebReady.Db
                 for (int i = 0; i < _args.Count; i++)
                 {
                     var arg = _args.ValueAt(i);
-                    arg.SqlParam(src, dc);
+//                    arg.SqlParam(src, dc);
                 }
 
                 await dc.ExecuteAsync();
             }
         }
-
-        public string SpecificName => specific_name;
     }
 }

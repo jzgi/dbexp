@@ -23,7 +23,7 @@ namespace WebReady.Db
 
         readonly bool insertable;
 
-        readonly Map<string, DbCol> _cols = new Map<string, DbCol>(64);
+        readonly Map<string, DbCol> _columns = new Map<string, DbCol>(64);
 
         internal DbViewSet(DbContext s)
         {
@@ -59,7 +59,7 @@ namespace WebReady.Db
 
         internal void AddColumn(DbCol col)
         {
-            _cols.Add(col);
+            _columns.Add(col);
         }
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)

@@ -31,6 +31,8 @@ namespace WebReady
 
         void Put(string name, ArraySegment<byte> v);
 
+        void Put(string name, Guid v);
+
         void Put(string name, byte[] v);
 
         void Put(string name, short[] v);

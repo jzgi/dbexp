@@ -669,24 +669,6 @@ namespace WebReady.Db
             return false;
         }
 
-        public bool Get(string name, ref uint v)
-        {
-            try
-            {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
-                {
-                    v = _reader.GetFieldValue<uint>(ord);
-                    return true;
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
         public bool Get(string name, ref int v)
         {
             try
@@ -795,6 +777,24 @@ namespace WebReady.Db
             return false;
         }
 
+        public bool Get(string name, ref Guid v)
+        {
+            try
+            {
+                int ord = _reader.GetOrdinal(name);
+                if (!_reader.IsDBNull(ord))
+                {
+                    v = _reader.GetGuid(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
         public bool Get(string name, ref byte[] v)
         {
             try
@@ -833,6 +833,42 @@ namespace WebReady.Db
                         v = new ArraySegment<byte>(buf, 0, len);
                         return true;
                     }
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Get(string name, ref uint v)
+        {
+            try
+            {
+                int ord = _reader.GetOrdinal(name);
+                if (!_reader.IsDBNull(ord))
+                {
+                    v = _reader.GetFieldValue<uint>(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Get(string name, ref uint[] v)
+        {
+            try
+            {
+                int ord = _reader.GetOrdinal(name);
+                if (!_reader.IsDBNull(ord))
+                {
+                    v = _reader.GetFieldValue<uint[]>(ord);
+                    return true;
                 }
             }
             catch
@@ -1189,6 +1225,26 @@ namespace WebReady.Db
             }
 
             v = null;
+            return this;
+        }
+
+
+        public ISource Let(out Guid v)
+        {
+            try
+            {
+                int ord = ordinal++;
+                if (!_reader.IsDBNull(ord))
+                {
+                    v = _reader.GetGuid(ord);
+                    return this;
+                }
+            }
+            catch
+            {
+            }
+
+            v = default;
             return this;
         }
 
@@ -1567,6 +1623,14 @@ namespace WebReady.Db
             _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Bytea, v.Count)
             {
                 Value = (v.Array != null) ? (object) v : DBNull.Value
+            });
+        }
+
+        public void Put(string name, Guid v)
+        {
+            _command.Parameters.Add(new NpgsqlParameter<Guid>(name, NpgsqlDbType.Uuid)
+            {
+                TypedValue = v
             });
         }
 

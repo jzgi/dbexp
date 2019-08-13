@@ -2,31 +2,30 @@ using System;
 
 namespace WebReady.Db
 {
-    public class DbArg : IKeyable<string>, IDatum
+    public class DbArg : IKeyable<string>
     {
         public Type Type { get; }
 
-        readonly string parameter_mode;
+        public DbType DbType { get; }
 
-        readonly string parameter_name;
+        readonly char _mode;
 
-        readonly string data_type;
+        readonly string _name;
 
-        readonly string parameter_default;
+        readonly uint _type;
 
-        public string Key => parameter_name;
+        readonly string _def;
 
-        public string Name => parameter_name;
+        public string Key => _name;
 
-        internal DbArg(ISource s)
+        public DbArg(char mode, string name, uint type, string def)
         {
-            s.Get(nameof(parameter_mode), ref parameter_mode);
-            s.Get(nameof(parameter_name), ref parameter_name);
-            s.Get(nameof(data_type), ref data_type);
-            s.Get(nameof(parameter_default), ref parameter_default);
-
-            Type = DbUtility.GetType(data_type);
+            _mode = mode;
+            _name = name;
+            _type = type;
+            _def = def;
         }
+
 
         internal void ImportArg(ISource s)
         {

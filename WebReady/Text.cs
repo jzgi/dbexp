@@ -137,6 +137,11 @@ namespace WebReady
             throw new NotImplementedException();
         }
 
+        public bool Get(string name, ref Guid v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref byte[] v)
         {
             throw new NotImplementedException();
@@ -232,6 +237,11 @@ namespace WebReady
         }
 
         public ISource Let(out ArraySegment<byte> v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ISource Let(out Guid v)
         {
             throw new NotImplementedException();
         }

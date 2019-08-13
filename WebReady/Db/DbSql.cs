@@ -423,6 +423,11 @@ namespace WebReady.Db
             Build(name);
         }
 
+        public void Put(string name, Guid v)
+        {
+            Build(name);
+        }
+
         public void Put(string name, byte[] v)
         {
             Build(name);

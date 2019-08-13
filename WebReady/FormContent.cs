@@ -225,6 +225,10 @@ namespace WebReady
             AddEsc(v);
         }
 
+        public void Put(string name, Guid v)
+        {
+        }
+
         public void Put(string name, ArraySegment<byte> v)
         {
         }

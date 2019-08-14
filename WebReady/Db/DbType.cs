@@ -191,18 +191,18 @@ namespace WebReady.Db
             },
         };
 
-        readonly uint _oid;
+        readonly uint oid;
 
-        readonly string _name;
+        readonly string name;
 
         internal DbType(uint oid, string name)
         {
-            _oid = oid;
-            _name = name;
+            this.oid = oid;
+            this.name = name;
         }
 
         public Action<string, ISource, ISink> Converter { get; private set; }
 
-        public uint Key => _oid;
+        public uint Key => oid;
     }
 }

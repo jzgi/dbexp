@@ -19,10 +19,10 @@ namespace WebReady.Db
 
 
         // IN args
-        readonly Map<string, DbField> _inArgs = new Map<string, DbField>(16);
+        readonly Map<string, DbField> inargs = new Map<string, DbField>(16);
 
         // TABLE args
-        Map<string, DbField> _tableArgs;
+        Map<string, DbField> tableargs;
 
 
         internal DbFunctionAction(WebWork work, string name, DbContext s) : base(work, name, true)
@@ -54,15 +54,15 @@ namespace WebReady.Db
                     var arg = new DbField(
                         'i', proargnames[i], argtypes[i], proargdefs?[i] != null
                     );
-                    _inArgs.Add(arg);
+                    inargs.Add(arg);
                 }
                 else
                 {
                     var arg = new DbField(
                         't', proargnames[i], argtypes[i], proargdefs?[i] != null
                     );
-                    if (_tableArgs == null) _tableArgs = new Map<string, DbField>(32);
-                    _tableArgs.Add(arg);
+                    if (tableargs == null) tableargs = new Map<string, DbField>(32);
+                    tableargs.Add(arg);
                 }
             }
         }
@@ -82,18 +82,18 @@ namespace WebReady.Db
             using (var dc = Source.NewDbContext())
             {
                 var sql = dc.Sql("SELECT ").T(Name).T("(");
-                for (int i = 0; i < _inArgs.Count; i++)
+                for (int i = 0; i < inargs.Count; i++)
                 {
-                    var arg = _inArgs.ValueAt(i);
+                    var arg = inargs.ValueAt(i);
                     arg.Convert(src, dc);
                 }
 
                 sql.T(");");
 
                 // set parameters
-                for (int i = 0; i < _inArgs.Count; i++)
+                for (int i = 0; i < inargs.Count; i++)
                 {
-                    var arg = _inArgs.ValueAt(i);
+                    var arg = inargs.ValueAt(i);
 //                    arg.SqlParam(src, dc);
                 }
 

@@ -47,43 +47,43 @@ namespace WebReady
 
         bool Get<D>(string name, ref D[] v, byte proj = 0x0f) where D : IData, new();
 
-        ISource Let(out bool v);
+        void Let(out bool v);
 
-        ISource Let(out char v);
+        void Let(out char v);
 
-        ISource Let(out short v);
+        void Let(out short v);
 
-        ISource Let(out int v);
+        void Let(out int v);
 
-        ISource Let(out long v);
+        void Let(out long v);
 
-        ISource Let(out double v);
+        void Let(out double v);
 
-        ISource Let(out decimal v);
+        void Let(out decimal v);
 
-        ISource Let(out DateTime v);
+        void Let(out DateTime v);
 
-        ISource Let(out string v);
+        void Let(out string v);
 
-        ISource Let(out ArraySegment<byte> v);
+        void Let(out ArraySegment<byte> v);
 
-        ISource Let(out Guid v);
+        void Let(out Guid v);
 
-        ISource Let(out short[] v);
+        void Let(out short[] v);
 
-        ISource Let(out int[] v);
+        void Let(out int[] v);
 
-        ISource Let(out long[] v);
+        void Let(out long[] v);
 
-        ISource Let(out string[] v);
+        void Let(out string[] v);
 
-        ISource Let(out JObj v);
+        void Let(out JObj v);
 
-        ISource Let(out JArr v);
+        void Let(out JArr v);
 
-        ISource Let<D>(out D v, byte proj = 0x0f) where D : IData, new();
+        void Let<D>(out D v, byte proj = 0x0f) where D : IData, new();
 
-        ISource Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new();
+        void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new();
 
         D ToObject<D>(byte proj = 0x0f) where D : IData, new();
 

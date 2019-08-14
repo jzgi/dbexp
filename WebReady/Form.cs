@@ -236,193 +236,157 @@ namespace WebReady
         // LET
         //
 
-        public ISource Let(out bool v)
+        public void Let(out bool v)
         {
-            int ord = ordinal++;
-            if (ord < Count)
-            {
-                v = ValueAt(ord);
-                return this;
-            }
-
             v = false;
-            return this;
-        }
-
-        public ISource Let(out char v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out char v)
+        {
             v = '\0';
-            return this;
-        }
-
-        public ISource Let(out short v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out short v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out int v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out int v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out long v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out long v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out double v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out double v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out decimal v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out decimal v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out DateTime v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out DateTime v)
+        {
             v = default;
-            return this;
-        }
-
-        public ISource Let(out string v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out string v)
+        {
             v = null;
-            return this;
-        }
-
-        public ISource Let(out ArraySegment<byte> v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISource Let(out Guid v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISource Let(out short[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISource Let(out int[] v)
-        {
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
-
-            v = null;
-            return this;
         }
 
-        public ISource Let(out long[] v)
+        public void Let(out ArraySegment<byte> v)
         {
+            throw new NotImplementedException();
+        }
+
+        public void Let(out Guid v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Let(out short[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Let(out int[] v)
+        {
+            v = null;
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
-
-            v = null;
-            return this;
         }
 
-        public ISource Let(out string[] v)
+        public void Let(out long[] v)
         {
+            v = null;
             int ord = ordinal++;
             if (ord < Count)
             {
                 v = ValueAt(ord);
-                return this;
             }
+        }
 
+        public void Let(out string[] v)
+        {
             v = null;
-            return this;
+            int ord = ordinal++;
+            if (ord < Count)
+            {
+                v = ValueAt(ord);
+            }
         }
 
-        public ISource Let(out JObj v)
+        public void Let(out JObj v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JArr v)
+        public void Let(out JArr v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }

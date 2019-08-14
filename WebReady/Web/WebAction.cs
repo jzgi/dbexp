@@ -8,19 +8,19 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebAction : IKeyable<string>
     {
-        readonly WebWork _work;
+        readonly WebWork work;
 
-        readonly string _name;
+        readonly string name;
 
-        readonly bool _async;
+        readonly bool async;
 
         readonly List<string> _roles = new List<string>(8);
 
         protected WebAction(WebWork work, string name, bool async)
         {
-            _work = work;
-            _name = name;
-            _async = async;
+            this.work = work;
+            this.name = name;
+            this.async = async;
         }
 
         internal void AddOp(string optype, string role)
@@ -28,11 +28,11 @@ namespace WebReady.Web
             _roles.Add(role);
         }
 
-        public WebWork Work => _work;
+        public WebWork Work => work;
 
-        public string Name => _name;
+        public string Name => name;
 
-        public bool IsAsync => _async;
+        public bool IsAsync => async;
 
 
         /// <summary>
@@ -40,6 +40,6 @@ namespace WebReady.Web
         /// </summary>
         internal abstract Task ExecuteAsync(WebContext wc);
 
-        public string Key => _name;
+        public string Key => name;
     }
 }

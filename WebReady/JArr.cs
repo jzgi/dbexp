@@ -39,6 +39,7 @@ namespace WebReady
                 Array.Copy(elements, 0, alloc, 0, len);
                 elements = alloc;
             }
+
             elements[count++] = elem;
         }
 
@@ -183,106 +184,97 @@ namespace WebReady
         // LET
         //
 
-        public ISource Let(out bool v)
+        public void Let(out bool v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out char v)
+        public void Let(out char v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out short v)
+        public void Let(out short v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out int v)
+        public void Let(out int v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out long v)
+        public void Let(out long v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out double v)
+        public void Let(out double v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out decimal v)
+        public void Let(out decimal v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out DateTime v)
+        public void Let(out DateTime v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out string v)
+        public void Let(out string v)
         {
             v = elements[current];
-            return this;
         }
 
-        public ISource Let(out ArraySegment<byte> v)
+        public void Let(out ArraySegment<byte> v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out Guid v)
+        public void Let(out Guid v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out short[] v)
+        public void Let(out short[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out int[] v)
+        public void Let(out int[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out long[] v)
+        public void Let(out long[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out string[] v)
+        public void Let(out string[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JObj v)
+        public void Let(out JObj v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JArr v)
+        public void Let(out JArr v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }
@@ -307,6 +299,7 @@ namespace WebReady
                 obj.Read((JObj) elements[i], proj);
                 arr[i] = obj;
             }
+
             return arr;
         }
 
@@ -326,8 +319,10 @@ namespace WebReady
                 {
                     key = mappable.Key;
                 }
+
                 map.Add(key, obj);
             }
+
             return map;
         }
 
@@ -408,6 +403,7 @@ namespace WebReady
             {
                 arr[i] = v[i];
             }
+
             return arr;
         }
     }

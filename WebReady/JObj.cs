@@ -303,97 +303,97 @@ namespace WebReady
         }
 
 
-        public ISource Let(out bool v)
+        public void Let(out bool v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out char v)
+        public void Let(out char v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out short v)
+        public void Let(out short v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out int v)
+        public void Let(out int v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out long v)
+        public void Let(out long v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out double v)
+        public void Let(out double v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out decimal v)
+        public void Let(out decimal v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out DateTime v)
+        public void Let(out DateTime v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out string v)
+        public void Let(out string v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out ArraySegment<byte> v)
+        public void Let(out ArraySegment<byte> v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out Guid v)
+        public void Let(out Guid v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out short[] v)
+        public void Let(out short[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out int[] v)
+        public void Let(out int[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out long[] v)
+        public void Let(out long[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out string[] v)
+        public void Let(out string[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JObj v)
+        public void Let(out JObj v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JArr v)
+        public void Let(out JArr v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }

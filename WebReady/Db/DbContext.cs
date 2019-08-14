@@ -26,65 +26,65 @@ namespace WebReady.Db
 
         readonly NpgsqlConnection _connection;
 
-        readonly NpgsqlCommand _command;
+        readonly NpgsqlCommand command;
 
         // generator of sql string, can be null
         DbSql _sql;
 
-        NpgsqlTransaction _transact;
+        NpgsqlTransaction transact;
 
-        NpgsqlDataReader _reader;
+        NpgsqlDataReader reader;
 
-        bool _multi;
+        bool multiple;
 
-        bool _disposing;
+        bool disposing;
 
         // current parameter index
-        int _paramidx;
+        int paramidx;
 
         internal DbContext(DbSource db)
         {
             _connection = new NpgsqlConnection(db.ConnectionString);
-            _command = new NpgsqlCommand
+            command = new NpgsqlCommand
             {
                 Connection = _connection
             };
         }
 
-        public bool IsMultiple => _multi;
+        public bool IsMultiple => multiple;
 
         void Clear()
         {
             // reader reset
-            if (_reader != null)
+            if (reader != null)
             {
-                _reader.Close();
-                _reader = null;
+                reader.Close();
+                reader = null;
             }
 
             ordinal = 0;
             // command parameter reset
-            _command.Parameters.Clear();
-            _paramidx = 0;
+            command.Parameters.Clear();
+            paramidx = 0;
         }
 
         public void Dispose()
         {
-            if (!_disposing)
+            if (!disposing)
             {
                 // indicate disposing the instance 
-                _disposing = true;
+                disposing = true;
                 // return to chars pool
                 if (_sql != null) BufferUtility.Return(_sql);
                 // commit ongoing transaction
-                if (_transact != null && !_transact.IsCompleted)
+                if (transact != null && !transact.IsCompleted)
                 {
                     Clear();
-                    _transact.Commit();
+                    transact.Commit();
                 }
 
-                _reader?.Close();
-                _command.Transaction = null;
+                reader?.Close();
+                command.Transaction = null;
                 _connection.Close();
             }
         }
@@ -96,58 +96,58 @@ namespace WebReady.Db
                 _connection.Open();
             }
 
-            if (_transact == null)
+            if (transact == null)
             {
-                _transact = _connection.BeginTransaction(level);
-                _command.Transaction = _transact;
+                transact = _connection.BeginTransaction(level);
+                command.Transaction = transact;
             }
         }
 
         public void Commit()
         {
-            if (_transact != null)
+            if (transact != null)
             {
-                _transact.Commit();
-                _command.Transaction = null;
-                _transact = null;
+                transact.Commit();
+                command.Transaction = null;
+                transact = null;
             }
         }
 
         public void Rollback()
         {
-            if (_transact != null && !_transact.IsCompleted)
+            if (transact != null && !transact.IsCompleted)
             {
                 // indicate disposing the instance 
                 Clear();
-                _transact.Rollback();
-                _command.Transaction = null;
-                _transact = null;
+                transact.Rollback();
+                command.Transaction = null;
+                transact = null;
             }
         }
 
-        public bool DataSet => _multi;
+        public bool DataSet => multiple;
 
         public bool NextResult()
         {
             ordinal = 0; // reset column ordinal
-            if (_reader == null)
+            if (reader == null)
             {
                 return false;
             }
 
-            return _reader.NextResult();
+            return reader.NextResult();
         }
 
         public bool Next()
         {
             ordinal = 0; // reset column ordinal
 
-            if (_reader == null)
+            if (reader == null)
             {
                 return false;
             }
 
-            return _reader.Read();
+            return reader.Read();
         }
 
         public DbSql Sql(string str)
@@ -182,17 +182,17 @@ namespace WebReady.Db
             }
 
             Clear();
-            _multi = false;
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            multiple = false;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            _reader = _command.ExecuteReader();
-            return _reader.Read();
+            reader = command.ExecuteReader();
+            return reader.Read();
         }
 
         public async Task<bool> QueryAsync(Action<ISqlParams> p = null, bool prepare = true)
@@ -203,17 +203,17 @@ namespace WebReady.Db
             }
 
             Clear();
-            _multi = false;
-            _command.CommandText = _sql.ToString();
-            _command.CommandType = CommandType.Text;
+            multiple = false;
+            command.CommandText = _sql.ToString();
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            _reader = (NpgsqlDataReader) await _command.ExecuteReaderAsync();
-            return _reader.Read();
+            reader = (NpgsqlDataReader) await command.ExecuteReaderAsync();
+            return reader.Read();
         }
 
         public async Task<bool> QueryAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
@@ -224,17 +224,17 @@ namespace WebReady.Db
             }
 
             Clear();
-            _multi = false;
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            multiple = false;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            _reader = (NpgsqlDataReader) await _command.ExecuteReaderAsync();
-            return _reader.Read();
+            reader = (NpgsqlDataReader) await command.ExecuteReaderAsync();
+            return reader.Read();
         }
 
         public D Query<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
@@ -290,17 +290,17 @@ namespace WebReady.Db
             }
 
             Clear();
-            _multi = true;
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            multiple = true;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            _reader = _command.ExecuteReader();
-            return _reader.HasRows;
+            reader = command.ExecuteReader();
+            return reader.HasRows;
         }
 
         public async Task<bool> QueryAllAsync(Action<ISqlParams> p = null, bool prepare = true)
@@ -311,17 +311,17 @@ namespace WebReady.Db
             }
 
             Clear();
-            _multi = true;
-            _command.CommandText = _sql.ToString();
-            _command.CommandType = CommandType.Text;
+            multiple = true;
+            command.CommandText = _sql.ToString();
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            _reader = (NpgsqlDataReader) await _command.ExecuteReaderAsync();
-            return _reader.HasRows;
+            reader = (NpgsqlDataReader) await command.ExecuteReaderAsync();
+            return reader.HasRows;
         }
 
         public async Task<bool> QueryAllAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
@@ -332,17 +332,17 @@ namespace WebReady.Db
             }
 
             Clear();
-            _multi = true;
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            multiple = true;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            _reader = (NpgsqlDataReader) await _command.ExecuteReaderAsync();
-            return _reader.HasRows;
+            reader = (NpgsqlDataReader) await command.ExecuteReaderAsync();
+            return reader.HasRows;
         }
 
         public D[] QueryAll<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
@@ -429,12 +429,12 @@ namespace WebReady.Db
         {
             get
             {
-                if (_reader == null)
+                if (reader == null)
                 {
                     return false;
                 }
 
-                return _reader.HasRows;
+                return reader.HasRows;
             }
         }
 
@@ -451,15 +451,15 @@ namespace WebReady.Db
             }
 
             Clear();
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            return _command.ExecuteNonQuery();
+            return command.ExecuteNonQuery();
         }
 
         public async Task<int> ExecuteAsync(Action<ISqlParams> p = null, bool prepare = true)
@@ -470,15 +470,15 @@ namespace WebReady.Db
             }
 
             Clear();
-            _command.CommandText = _sql.ToString();
-            _command.CommandType = CommandType.Text;
+            command.CommandText = _sql.ToString();
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            return await _command.ExecuteNonQueryAsync();
+            return await command.ExecuteNonQueryAsync();
         }
 
         public async Task<int> ExecuteAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
@@ -489,15 +489,15 @@ namespace WebReady.Db
             }
 
             Clear();
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            return await _command.ExecuteNonQueryAsync();
+            return await command.ExecuteNonQueryAsync();
         }
 
         public object Scalar(Action<ISqlParams> p = null, bool prepare = true)
@@ -513,15 +513,15 @@ namespace WebReady.Db
             }
 
             Clear();
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            object res = _command.ExecuteScalar();
+            object res = command.ExecuteScalar();
             return res == DBNull.Value ? null : res;
         }
 
@@ -533,15 +533,15 @@ namespace WebReady.Db
             }
 
             Clear();
-            _command.CommandText = _sql.ToString();
-            _command.CommandType = CommandType.Text;
+            command.CommandText = _sql.ToString();
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            return await _command.ExecuteScalarAsync();
+            return await command.ExecuteScalarAsync();
         }
 
         public async Task<object> ScalarAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
@@ -552,15 +552,15 @@ namespace WebReady.Db
             }
 
             Clear();
-            _command.CommandText = sql;
-            _command.CommandType = CommandType.Text;
+            command.CommandText = sql;
+            command.CommandType = CommandType.Text;
             if (p != null)
             {
                 p(this);
-                if (prepare) _command.Prepare();
+                if (prepare) command.Prepare();
             }
 
-            return await _command.ExecuteScalarAsync();
+            return await command.ExecuteScalarAsync();
         }
 
         //
@@ -621,10 +621,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetBoolean(ord);
+                    v = reader.GetBoolean(ord);
                     return true;
                 }
             }
@@ -639,10 +639,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetChar(ord);
+                    v = reader.GetChar(ord);
                     return true;
                 }
             }
@@ -657,10 +657,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetInt16(ord);
+                    v = reader.GetInt16(ord);
                     return true;
                 }
             }
@@ -675,10 +675,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetInt32(ord);
+                    v = reader.GetInt32(ord);
                     return true;
                 }
             }
@@ -693,10 +693,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetInt64(ord);
+                    v = reader.GetInt64(ord);
                     return true;
                 }
             }
@@ -711,10 +711,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetDouble(ord);
+                    v = reader.GetDouble(ord);
                     return true;
                 }
             }
@@ -729,10 +729,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetDecimal(ord);
+                    v = reader.GetDecimal(ord);
                     return true;
                 }
             }
@@ -747,10 +747,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetDateTime(ord);
+                    v = reader.GetDateTime(ord);
                     return true;
                 }
             }
@@ -765,10 +765,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetString(ord);
+                    v = reader.GetString(ord);
                     return true;
                 }
             }
@@ -783,10 +783,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetGuid(ord);
+                    v = reader.GetGuid(ord);
                     return true;
                 }
             }
@@ -801,14 +801,14 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
                     int len;
-                    if ((len = (int) _reader.GetBytes(ord, 0, null, 0, 0)) > 0)
+                    if ((len = (int) reader.GetBytes(ord, 0, null, 0, 0)) > 0)
                     {
                         v = new byte[len];
-                        _reader.GetBytes(ord, 0, v, 0, len); // read data into the buffer
+                        reader.GetBytes(ord, 0, v, 0, len); // read data into the buffer
                         return true;
                     }
                 }
@@ -824,14 +824,14 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
                     int len;
-                    if ((len = (int) _reader.GetBytes(ord, 0, null, 0, 0)) > 0)
+                    if ((len = (int) reader.GetBytes(ord, 0, null, 0, 0)) > 0)
                     {
                         byte[] buf = new byte[len];
-                        _reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
+                        reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
                         v = new ArraySegment<byte>(buf, 0, len);
                         return true;
                     }
@@ -848,10 +848,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<uint>(ord);
+                    v = reader.GetFieldValue<uint>(ord);
                     return true;
                 }
             }
@@ -866,10 +866,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<uint[]>(ord);
+                    v = reader.GetFieldValue<uint[]>(ord);
                     return true;
                 }
             }
@@ -889,10 +889,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    string str = _reader.GetString(ord);
+                    string str = reader.GetString(ord);
                     JsonParser p = new JsonParser(str);
                     JObj jo = (JObj) p.Parse();
                     v = new D();
@@ -911,10 +911,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    string str = _reader.GetString(ord);
+                    string str = reader.GetString(ord);
                     JsonParser p = new JsonParser(str);
                     v = (JObj) p.Parse();
                     return true;
@@ -931,10 +931,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    string str = _reader.GetString(ord);
+                    string str = reader.GetString(ord);
                     JsonParser parser = new JsonParser(str);
                     v = (JArr) parser.Parse();
                     return true;
@@ -956,10 +956,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<short[]>(ord);
+                    v = reader.GetFieldValue<short[]>(ord);
                     return true;
                 }
             }
@@ -974,10 +974,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<int[]>(ord);
+                    v = reader.GetFieldValue<int[]>(ord);
                     return true;
                 }
             }
@@ -992,10 +992,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<long[]>(ord);
+                    v = reader.GetFieldValue<long[]>(ord);
                     return true;
                 }
             }
@@ -1010,10 +1010,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<string[]>(ord);
+                    v = reader.GetFieldValue<string[]>(ord);
                     return true;
                 }
             }
@@ -1028,10 +1028,10 @@ namespace WebReady.Db
         {
             try
             {
-                int ord = _reader.GetOrdinal(name);
-                if (!_reader.IsDBNull(ord))
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
                 {
-                    string str = _reader.GetString(ord);
+                    string str = reader.GetString(ord);
                     JsonParser parser = new JsonParser(str);
                     JArr ja = (JArr) parser.Parse();
                     int len = ja.Count;
@@ -1059,385 +1059,332 @@ namespace WebReady.Db
         // LET
         //
 
-        public ISource Let(out bool v)
+        public void Let(out bool v)
         {
-            try
-            {
-                int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
-                {
-                    v = _reader.GetBoolean(ord);
-                    return this;
-                }
-            }
-            catch
-            {
-            }
-
             v = false;
-            return this;
-        }
-
-        public ISource Let(out char v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetChar(ord);
-                    return this;
+                    v = reader.GetBoolean(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out char v)
+        {
             v = '\0';
-            return this;
-        }
-
-        public ISource Let(out short v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetInt16(ord);
-                    return this;
+                    v = reader.GetChar(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out short v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out uint v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<uint>(ord);
-                    return this;
+                    v = reader.GetInt16(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out uint v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out int v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetInt32(ord);
-                    return this;
+                    v = reader.GetFieldValue<uint>(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out int v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out long v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetInt64(ord);
-                    return this;
+                    v = reader.GetInt32(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out long v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out double v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetDouble(ord);
-                    return this;
+                    v = reader.GetInt64(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out double v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out decimal v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetDecimal(ord);
-                    return this;
+                    v = reader.GetDouble(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out decimal v)
+        {
             v = 0;
-            return this;
-        }
-
-        public ISource Let(out DateTime v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetDateTime(ord);
-                    return this;
+                    v = reader.GetDecimal(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out DateTime v)
+        {
             v = default;
-            return this;
-        }
-
-        public ISource Let(out string v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetString(ord);
-                    return this;
+                    v = reader.GetDateTime(ord);
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out string v)
+        {
             v = null;
-            return this;
-        }
-
-
-        public ISource Let(out Guid v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetGuid(ord);
-                    return this;
+                    v = reader.GetString(ord);
                 }
             }
             catch
             {
             }
-
-            v = default;
-            return this;
         }
 
-        public ISource Let(out ArraySegment<byte> v)
+
+        public void Let(out Guid v)
         {
+            v = default;
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetGuid(ord);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Let(out ArraySegment<byte> v)
+        {
+            v = default;
+            try
+            {
+                int ord = ordinal++;
+                if (!reader.IsDBNull(ord))
                 {
                     int len;
-                    if ((len = (int) _reader.GetBytes(ord, 0, null, 0, 0)) > 0)
+                    if ((len = (int) reader.GetBytes(ord, 0, null, 0, 0)) > 0)
                     {
                         byte[] buf = new byte[len];
-                        _reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
+                        reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
                         v = new ArraySegment<byte>(buf, 0, len);
-                        return this;
                     }
                 }
             }
             catch
             {
             }
-
-            v = default;
-            return this;
         }
 
-        public ISource Let(out byte[] v)
+        public void Let(out byte[] v)
         {
+            v = default;
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
                     int len;
-                    if ((len = (int) _reader.GetBytes(ord, 0, null, 0, 0)) > 0)
+                    if ((len = (int) reader.GetBytes(ord, 0, null, 0, 0)) > 0)
                     {
                         byte[] buf = new byte[len];
-                        _reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
+                        reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
                         v = buf;
-                        return this;
                     }
                 }
             }
             catch
             {
             }
+        }
 
+        public void Let(out short[] v)
+        {
+            v = null;
+            try
+            {
+                int ord = ordinal++;
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<short[]>(ord);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Let(out int[] v)
+        {
+            v = null;
+            try
+            {
+                int ord = ordinal++;
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<int[]>(ord);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Let(out long[] v)
+        {
+            v = null;
+            try
+            {
+                int ord = ordinal++;
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<long[]>(ord);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Let(out string[] v)
+        {
+            v = null;
+            try
+            {
+                int ord = ordinal++;
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<string[]>(ord);
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Let(out JObj v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Let(out JArr v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
+        {
             v = default;
-            return this;
-        }
-
-        public ISource Let(out short[] v)
-        {
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    v = _reader.GetFieldValue<short[]>(ord);
-                    return this;
-                }
-            }
-            catch
-            {
-            }
-
-            v = null;
-            return this;
-        }
-
-        public ISource Let(out int[] v)
-        {
-            try
-            {
-                int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
-                {
-                    v = _reader.GetFieldValue<int[]>(ord);
-                    return this;
-                }
-            }
-            catch
-            {
-            }
-
-            v = null;
-            return this;
-        }
-
-        public ISource Let(out long[] v)
-        {
-            try
-            {
-                int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
-                {
-                    v = _reader.GetFieldValue<long[]>(ord);
-                    return this;
-                }
-            }
-            catch
-            {
-            }
-
-            v = null;
-            return this;
-        }
-
-        public ISource Let(out string[] v)
-        {
-            try
-            {
-                int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
-                {
-                    v = _reader.GetFieldValue<string[]>(ord);
-                    return this;
-                }
-            }
-            catch
-            {
-            }
-
-            v = null;
-            return this;
-        }
-
-        public ISource Let(out JObj v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISource Let(out JArr v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ISource Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
-        {
-            try
-            {
-                int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
-                {
-                    string str = _reader.GetString(ord);
-                    JsonParser p = new JsonParser(str);
-                    JObj jo = (JObj) p.Parse();
+                    string str = reader.GetString(ord);
+                    var p = new JsonParser(str);
+                    var jo = (JObj) p.Parse();
                     v = new D();
                     v.Read(jo, proj);
-                    return this;
                 }
             }
             catch
             {
             }
-
-            v = default;
-            return this;
         }
 
-        public ISource Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
         {
+            v = null;
             try
             {
                 int ord = ordinal++;
-                if (!_reader.IsDBNull(ord))
+                if (!reader.IsDBNull(ord))
                 {
-                    string str = _reader.GetString(ord);
+                    string str = reader.GetString(ord);
                     var parser = new JsonParser(str);
-                    JArr ja = (JArr) parser.Parse();
+                    var ja = (JArr) parser.Parse();
                     int len = ja.Count;
                     v = new D[len];
                     for (int i = 0; i < len; i++)
@@ -1447,62 +1394,57 @@ namespace WebReady.Db
                         obj.Read(jo, proj);
                         v[i] = obj;
                     }
-
-                    return this;
                 }
             }
             catch
             {
             }
-
-            v = null;
-            return this;
         }
 
         public void Write<C>(C cnt) where C : IContent, ISink
         {
-            int fc = _reader.FieldCount;
+            int fc = reader.FieldCount;
             for (int i = 0; i < fc; i++)
             {
-                string name = _reader.GetName(i);
-                if (_reader.IsDBNull(i))
+                string name = reader.GetName(i);
+                if (reader.IsDBNull(i))
                 {
                     cnt.PutNull(name);
                     continue;
                 }
 
-                var typ = _reader.GetFieldType(i);
+                var typ = reader.GetFieldType(i);
                 if (typ == typeof(bool))
                 {
-                    cnt.Put(name, _reader.GetBoolean(i));
+                    cnt.Put(name, reader.GetBoolean(i));
                 }
                 else if (typ == typeof(short))
                 {
-                    cnt.Put(name, _reader.GetInt16(i));
+                    cnt.Put(name, reader.GetInt16(i));
                 }
                 else if (typ == typeof(int))
                 {
-                    cnt.Put(name, _reader.GetInt32(i));
+                    cnt.Put(name, reader.GetInt32(i));
                 }
                 else if (typ == typeof(long))
                 {
-                    cnt.Put(name, _reader.GetInt64(i));
+                    cnt.Put(name, reader.GetInt64(i));
                 }
                 else if (typ == typeof(string))
                 {
-                    cnt.Put(name, _reader.GetString(i));
+                    cnt.Put(name, reader.GetString(i));
                 }
                 else if (typ == typeof(decimal))
                 {
-                    cnt.Put(name, _reader.GetDecimal(i));
+                    cnt.Put(name, reader.GetDecimal(i));
                 }
                 else if (typ == typeof(double))
                 {
-                    cnt.Put(name, _reader.GetDouble(i));
+                    cnt.Put(name, reader.GetDouble(i));
                 }
                 else if (typ == typeof(DateTime))
                 {
-                    cnt.Put(name, _reader.GetDateTime(i));
+                    cnt.Put(name, reader.GetDateTime(i));
                 }
             }
         }
@@ -1510,25 +1452,25 @@ namespace WebReady.Db
         public IContent Dump()
         {
             JsonContent cnt = new JsonContent(false, 8192);
-            int fc = _reader.FieldCount;
-            while (_reader.Read())
+            int fc = reader.FieldCount;
+            while (reader.Read())
             {
                 cnt.ARR_();
                 for (int i = 0; i < fc; i++)
                 {
                     cnt.OBJ_();
-                    var typ = _reader.GetFieldType(i);
+                    var typ = reader.GetFieldType(i);
                     if (typ == typeof(short))
                     {
-                        cnt.Put(_reader.GetName(i), _reader.GetInt16(i));
+                        cnt.Put(reader.GetName(i), reader.GetInt16(i));
                     }
                     else if (typ == typeof(int))
                     {
-                        cnt.Put(_reader.GetName(i), _reader.GetInt32(i));
+                        cnt.Put(reader.GetName(i), reader.GetInt32(i));
                     }
                     else if (typ == typeof(string))
                     {
-                        cnt.Put(_reader.GetName(i), _reader.GetString(i));
+                        cnt.Put(reader.GetName(i), reader.GetString(i));
                     }
 
                     cnt._OBJ();
@@ -1546,12 +1488,12 @@ namespace WebReady.Db
 
         public void PutNull(string name)
         {
-            _command.Parameters.AddWithValue(name, DBNull.Value);
+            command.Parameters.AddWithValue(name, DBNull.Value);
         }
 
         public void Put(string name, JNumber v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<decimal>(name, NpgsqlDbType.Numeric)
+            command.Parameters.Add(new NpgsqlParameter<decimal>(name, NpgsqlDbType.Numeric)
             {
                 TypedValue = v.Decimal
             });
@@ -1559,7 +1501,7 @@ namespace WebReady.Db
 
         public void Put(string name, bool v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<bool>(name, NpgsqlDbType.Boolean)
+            command.Parameters.Add(new NpgsqlParameter<bool>(name, NpgsqlDbType.Boolean)
             {
                 TypedValue = v
             });
@@ -1567,7 +1509,7 @@ namespace WebReady.Db
 
         public void Put(string name, char v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<char>(name, NpgsqlDbType.Char)
+            command.Parameters.Add(new NpgsqlParameter<char>(name, NpgsqlDbType.Char)
             {
                 TypedValue = v
             });
@@ -1575,7 +1517,7 @@ namespace WebReady.Db
 
         public void Put(string name, short v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<short>(name, NpgsqlDbType.Smallint)
+            command.Parameters.Add(new NpgsqlParameter<short>(name, NpgsqlDbType.Smallint)
             {
                 TypedValue = v
             });
@@ -1583,7 +1525,7 @@ namespace WebReady.Db
 
         public void Put(string name, uint v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<uint>(name, NpgsqlDbType.Oid)
+            command.Parameters.Add(new NpgsqlParameter<uint>(name, NpgsqlDbType.Oid)
             {
                 TypedValue = v
             });
@@ -1591,7 +1533,7 @@ namespace WebReady.Db
 
         public void Put(string name, int v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<int>(name, NpgsqlDbType.Integer)
+            command.Parameters.Add(new NpgsqlParameter<int>(name, NpgsqlDbType.Integer)
             {
                 TypedValue = v
             });
@@ -1599,7 +1541,7 @@ namespace WebReady.Db
 
         public void Put(string name, long v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<long>(name, NpgsqlDbType.Bigint)
+            command.Parameters.Add(new NpgsqlParameter<long>(name, NpgsqlDbType.Bigint)
             {
                 TypedValue = v
             });
@@ -1607,7 +1549,7 @@ namespace WebReady.Db
 
         public void Put(string name, double v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<double>(name, NpgsqlDbType.Double)
+            command.Parameters.Add(new NpgsqlParameter<double>(name, NpgsqlDbType.Double)
             {
                 TypedValue = v
             });
@@ -1615,7 +1557,7 @@ namespace WebReady.Db
 
         public void Put(string name, decimal v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<decimal>(name, NpgsqlDbType.Money)
+            command.Parameters.Add(new NpgsqlParameter<decimal>(name, NpgsqlDbType.Money)
             {
                 TypedValue = v
             });
@@ -1624,7 +1566,7 @@ namespace WebReady.Db
         public void Put(string name, DateTime v)
         {
             bool date = v.Hour == 0 && v.Minute == 0 && v.Second == 0 && v.Millisecond == 0;
-            _command.Parameters.Add(new NpgsqlParameter<DateTime>(name, date ? NpgsqlDbType.Date : NpgsqlDbType.Timestamp)
+            command.Parameters.Add(new NpgsqlParameter<DateTime>(name, date ? NpgsqlDbType.Date : NpgsqlDbType.Timestamp)
             {
                 TypedValue = v
             });
@@ -1633,7 +1575,7 @@ namespace WebReady.Db
         public void Put(string name, string v)
         {
             int len = v?.Length ?? 0;
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Varchar, len)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Varchar, len)
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
@@ -1641,7 +1583,7 @@ namespace WebReady.Db
 
         public void Put(string name, ArraySegment<byte> v)
         {
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Bytea, v.Count)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Bytea, v.Count)
             {
                 Value = (v.Array != null) ? (object) v : DBNull.Value
             });
@@ -1649,7 +1591,7 @@ namespace WebReady.Db
 
         public void Put(string name, Guid v)
         {
-            _command.Parameters.Add(new NpgsqlParameter<Guid>(name, NpgsqlDbType.Uuid)
+            command.Parameters.Add(new NpgsqlParameter<Guid>(name, NpgsqlDbType.Uuid)
             {
                 TypedValue = v
             });
@@ -1657,7 +1599,7 @@ namespace WebReady.Db
 
         public void Put(string name, byte[] v)
         {
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Bytea, v?.Length ?? 0)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Bytea, v?.Length ?? 0)
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
@@ -1665,7 +1607,7 @@ namespace WebReady.Db
 
         public void Put(string name, short[] v)
         {
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Smallint)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Smallint)
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
@@ -1673,7 +1615,7 @@ namespace WebReady.Db
 
         public void Put(string name, int[] v)
         {
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Integer)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Integer)
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
@@ -1681,7 +1623,7 @@ namespace WebReady.Db
 
         public void Put(string name, long[] v)
         {
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Bigint)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Bigint)
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
@@ -1689,7 +1631,7 @@ namespace WebReady.Db
 
         public void Put(string name, string[] v)
         {
-            _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Text)
+            command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Array | NpgsqlDbType.Text)
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
@@ -1699,14 +1641,14 @@ namespace WebReady.Db
         {
             if (v == null)
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = DBNull.Value
                 });
             }
             else
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = v.ToString()
                 });
@@ -1717,14 +1659,14 @@ namespace WebReady.Db
         {
             if (v == null)
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = DBNull.Value
                 });
             }
             else
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = v.ToString()
                 });
@@ -1735,11 +1677,11 @@ namespace WebReady.Db
         {
             if (v == null)
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb) {Value = DBNull.Value});
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb) {Value = DBNull.Value});
             }
             else
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = DataUtility.ToString(v, proj)
                 });
@@ -1750,14 +1692,14 @@ namespace WebReady.Db
         {
             if (v == null)
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = DBNull.Value
                 });
             }
             else
             {
-                _command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
+                command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Jsonb)
                 {
                     Value = DataUtility.ToString(v, proj)
                 });
@@ -1774,67 +1716,67 @@ namespace WebReady.Db
 
         public ISqlParams SetNull()
         {
-            PutNull(PARAMS[_paramidx++]);
+            PutNull(PARAMS[paramidx++]);
             return this;
         }
 
         public ISqlParams Set(bool v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(char v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(short v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(uint v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(int v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(long v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(double v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(decimal v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(JNumber v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(DateTime v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
@@ -1845,43 +1787,43 @@ namespace WebReady.Db
                 v = null;
             }
 
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(ArraySegment<byte> v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(byte[] v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(short[] v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(int[] v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(long[] v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
         public ISqlParams Set(string[] v)
         {
-            Put(PARAMS[_paramidx++], v);
+            Put(PARAMS[paramidx++], v);
             return this;
         }
 
@@ -1897,13 +1839,13 @@ namespace WebReady.Db
 
         public ISqlParams Set(IData v, byte proj = 0x0f)
         {
-            Put(PARAMS[_paramidx++], v, proj);
+            Put(PARAMS[paramidx++], v, proj);
             return this;
         }
 
         public ISqlParams Set<D>(D[] v, byte proj = 0x0f) where D : IData
         {
-            Put(PARAMS[_paramidx++], v, proj);
+            Put(PARAMS[paramidx++], v, proj);
             return this;
         }
 

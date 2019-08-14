@@ -43,6 +43,7 @@ namespace WebReady
             {
                 attrs = new Map<string, string>(8);
             }
+
             attrs.Add(name, value);
         }
 
@@ -62,6 +63,7 @@ namespace WebReady
                     Array.Copy(temp, 0, children, 0, len);
                 }
             }
+
             children[count++] = elem;
         }
 
@@ -87,6 +89,7 @@ namespace WebReady
                         return elem;
                     }
                 }
+
                 for (int i = 0; i < current; i++)
                 {
                     XElem elem = children[i];
@@ -97,6 +100,7 @@ namespace WebReady
                     }
                 }
             }
+
             return null;
         }
 
@@ -117,6 +121,7 @@ namespace WebReady
                 v = attr.ToBool();
                 return true;
             }
+
             return false;
         }
 
@@ -127,6 +132,7 @@ namespace WebReady
                 v = attr.ToChar();
                 return true;
             }
+
             return false;
         }
 
@@ -137,6 +143,7 @@ namespace WebReady
                 v = attr.ToShort();
                 return true;
             }
+
             return false;
         }
 
@@ -147,6 +154,7 @@ namespace WebReady
                 v = attr.ToInt();
                 return true;
             }
+
             return false;
         }
 
@@ -157,6 +165,7 @@ namespace WebReady
                 v = attr.ToLong();
                 return true;
             }
+
             return false;
         }
 
@@ -167,6 +176,7 @@ namespace WebReady
                 v = double.Parse(attr);
                 return true;
             }
+
             return false;
         }
 
@@ -177,6 +187,7 @@ namespace WebReady
                 v = decimal.Parse(attr);
                 return true;
             }
+
             return false;
         }
 
@@ -187,6 +198,7 @@ namespace WebReady
                 v = attr.ToDateTime();
                 return true;
             }
+
             return false;
         }
 
@@ -197,6 +209,7 @@ namespace WebReady
                 v = attr;
                 return true;
             }
+
             return false;
         }
 
@@ -260,97 +273,97 @@ namespace WebReady
         // LET
         //
 
-        public ISource Let(out bool v)
+        public void Let(out bool v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out char v)
+        public void Let(out char v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out short v)
+        public void Let(out short v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out int v)
+        public void Let(out int v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out long v)
+        public void Let(out long v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out double v)
+        public void Let(out double v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out decimal v)
+        public void Let(out decimal v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out DateTime v)
+        public void Let(out DateTime v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out string v)
+        public void Let(out string v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out ArraySegment<byte> v)
+        public void Let(out ArraySegment<byte> v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out Guid v)
+        public void Let(out Guid v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out short[] v)
+        public void Let(out short[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out int[] v)
+        public void Let(out int[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out long[] v)
+        public void Let(out long[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out string[] v)
+        public void Let(out string[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JObj v)
+        public void Let(out JObj v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let(out JArr v)
+        public void Let(out JArr v)
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }
 
-        public ISource Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
+        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
         {
             throw new NotImplementedException();
         }

@@ -180,14 +180,11 @@ namespace WebReady.Db
                     snk.Put(name, v);
                 }
             },
-            new DbType(3802, "jsonb"),
-
-
-            new DbType(16, "bool")
+            new DbType(3802, "jsonb")
             {
                 Converter = (name, src, snk) =>
                 {
-                    bool v = false;
+                    string v = null;
                     src.Get(name, ref v);
                     snk.Put(name, v);
                 }

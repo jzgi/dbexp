@@ -11,46 +11,51 @@ namespace WebReady.Web
         public const string GET = "GET", POST = "POST", PUT = "PUT", DELETE = "DELETE";
 
         // subscoping variables
-        WebVar[] _vars;
+        Setting[] settings;
 
         // supported method operations
-        readonly WebOp[] _ops =
+        readonly Verb[] verbs =
         {
-            new WebOp(GET),
-            new WebOp(POST),
-            new WebOp(PUT),
-            new WebOp(DELETE),
+            new Verb(GET),
+            new Verb(POST),
+            new Verb(PUT),
+            new Verb(DELETE),
         };
 
-        public WebVar[] Vars => _vars;
+        public Setting[] Settings => settings;
 
-        public WebOp[] Ops => _ops;
+        public Verb[] Verbs => verbs;
 
-        public void AddVar(string name)
+        public void AddSetting(string name)
         {
-            _vars = _vars.AddOf(new WebVar
+            settings = settings.AddOf(new Setting
             {
                 Name = name
             });
         }
 
-        public void AddOp(string optype, string role)
+        public void AddOpRole(string optype, string role)
         {
+            if (optype == null || role == null) return;
+
+            // ignore system role
+            if (role == "postgres") return;
+
             if (optype == GET || optype == "SELECT")
             {
-                _ops[0].AddRole(role);
+                verbs[0].AddRole(role);
             }
             else if (optype == POST || optype == "INSERT")
             {
-                _ops[1].AddRole(role);
+                verbs[1].AddRole(role);
             }
-            else if (optype == POST || optype == "UPDATE")
+            else if (optype == PUT || optype == "UPDATE")
             {
-                _ops[2].AddRole(role);
+                verbs[2].AddRole(role);
             }
             else if (optype == DELETE)
             {
-                _ops[3].AddRole(role);
+                verbs[3].AddRole(role);
             }
         }
 
@@ -63,13 +68,13 @@ namespace WebReady.Web
         protected internal override async Task HandleAsync(string rsc, WebContext wc)
         {
             string[] vars = null;
-            if (_vars != null)
+            if (settings != null)
             {
-                vars = new string[_vars.Length];
+                vars = new string[settings.Length];
 
                 int p = 0;
                 int slash = 0;
-                for (int i = 0; i < _vars.Length; i++)
+                for (int i = 0; i < settings.Length; i++)
                 {
                     slash = slash = rsc.IndexOf('/', slash);
                     if (slash == -1) break;
@@ -82,7 +87,7 @@ namespace WebReady.Web
             // determine current role
             var prin = wc.Principal;
 
-            foreach (var op in _ops)
+            foreach (var op in verbs)
             {
                 foreach (var r in op.Roles)
                 {

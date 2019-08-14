@@ -1116,6 +1116,25 @@ namespace WebReady.Db
             return this;
         }
 
+        public ISource Let(out uint v)
+        {
+            try
+            {
+                int ord = ordinal++;
+                if (!_reader.IsDBNull(ord))
+                {
+                    v = _reader.GetFieldValue<uint>(ord);
+                    return this;
+                }
+            }
+            catch
+            {
+            }
+
+            v = 0;
+            return this;
+        }
+
         public ISource Let(out int v)
         {
             try

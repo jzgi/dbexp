@@ -118,6 +118,7 @@ namespace WebReady.Web
 
                 var nsp = (uint) dc.Scalar("SELECT oid FROM pg_namespace WHERE nspname = 'public'", prepare: false);
 
+                // load views
                 dc.QueryAll("SELECT oid, relname AS name, pg_get_viewdef(oid) AS definition, (pg_relation_is_updatable(oid::regclass, false) & 20) = 20 AS updatable, (pg_relation_is_updatable(oid::regclass, false) & 8) = 8 AS insertable FROM pg_class WHERE relnamespace = " + nsp + " AND relkind = 'v'", prepare: false);
                 while (dc.Next())
                 {
@@ -137,22 +138,32 @@ namespace WebReady.Web
                     }
                 }
 
+                // roles
+                //
+
+                var roles = new Map<uint, string>(16)
+                {
+                    {0, "PUBLIC"}
+                };
+                dc.Query("SELECT oid, rolname FROM pg_roles");
+                while (dc.Next())
+                {
+                    dc.Let(out uint oid);
+                    dc.Let(out string rolname);
+                    roles.Add(oid, rolname);
+                }
+
                 using (var dcb = src.NewDbContext())
                 {
-                    dcb.QueryAll("SELECT c.relname, c.optype, r.rolname FROM (SELECT oid, relname, (aclexplode(COALESCE(pg_class.relacl, acldefault('r'::\"char\", pg_class.relowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_class.relacl, acldefault('r'::\"char\", pg_class.relowner)))).privilege_type AS optype FROM pg_class WHERE relnamespace = " + nsp + " AND relkind = 'v') c, pg_roles r WHERE c.grantee = r.oid; ");
+                    dcb.QueryAll("SELECT relname, (aclexplode(COALESCE(pg_class.relacl, acldefault('r'::\"char\", pg_class.relowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_class.relacl, acldefault('r'::\"char\", pg_class.relowner)))).privilege_type AS optype FROM pg_class WHERE relkind = 'v' AND relnamespace = " + nsp);
                     while (dcb.Next())
                     {
-                        string relname = null;
-                        dcb.Get(nameof(relname), ref relname);
-
-                        string optype = null;
-                        dcb.Get(nameof(optype), ref optype);
-
-                        string rolname = null;
-                        dcb.Get(nameof(rolname), ref rolname);
+                        dcb.Let(out string relname);
+                        dcb.Let(out uint grantee);
+                        dcb.Let(out string optype);
 
                         var ctr = _controllers[relname];
-                        ((DbViewSet) ctr)?.AddOp(optype, rolname);
+                        ((DbViewSet) ctr)?.AddOpRole(optype, roles[grantee]);
                     }
                 }
             }
@@ -183,22 +194,32 @@ namespace WebReady.Web
                     Actions.Add(action);
                 }
 
+                // load roles
+                //
+
+                var roles = new Map<uint, string>(16)
+                {
+                    {0, "PUBLIC"}
+                };
+                dc.Query("SELECT oid, rolname FROM pg_roles");
+                while (dc.Next())
+                {
+                    dc.Let(out uint oid);
+                    dc.Let(out string rolname);
+                    roles.Add(oid, rolname);
+                }
+
                 using (var dcb = src.NewDbContext())
                 {
-                    dcb.QueryAll("SELECT p.proname, p.optype, r.rolname from (SELECT pg_proc.oid, pg_proc.proname, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).privilege_type AS optype FROM pg_proc WHERE pronamespace = " + nsp + ") p, pg_roles r WHERE p.grantee = r.oid;");
+                    dcb.QueryAll("SELECT proname, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).privilege_type AS optype FROM pg_proc WHERE pronamespace = " + nsp);
                     while (dcb.Next())
                     {
-                        string proname = null;
-                        dcb.Get(nameof(proname), ref proname);
-
-                        string optype = null;
-                        dcb.Get(nameof(optype), ref optype);
-
-                        string rolname = null;
-                        dcb.Get(nameof(rolname), ref rolname);
+                        dcb.Let(out string proname);
+                        dcb.Let(out uint grantee);
+                        dcb.Let(out string optype);
 
                         var ctr = Actions[proname];
-                        ((DbFunctionAction) ctr)?.AddOp(optype, rolname);
+                        ((DbFunctionAction) ctr)?.AddOp(optype, roles[grantee]);
                     }
                 }
             }

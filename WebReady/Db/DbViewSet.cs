@@ -46,7 +46,7 @@ namespace WebReady.Db
                 if (p2 == -1) break;
                 string var_name = definition.Substring(p + BEGIN.Length, p2 - p - BEGIN.Length);
                 // create a variable
-                AddVar(var_name);
+                AddSetting(var_name);
                 // adjust position
                 p = p2 + END.Length;
             }
@@ -68,9 +68,9 @@ namespace WebReady.Db
             var sql = new StringBuilder();
 
             // set vars as session variables
-            for (int i = 0; i < Vars?.Length; i++)
+            for (int i = 0; i < Settings?.Length; i++)
             {
-                var v = Vars[i];
+                var v = Settings[i];
                 sql.Append("SET ").Append(v.Name).Append(" = @").Append(vars[i]).Append(";");
             }
 

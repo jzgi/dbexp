@@ -9,14 +9,14 @@ namespace WebReady
     /// </summary>
     public class Map<K, V> : IEnumerable<Map<K, V>.Entry>
     {
-        int[] _buckets;
+        int[] buckets;
 
-        protected Entry[] _entries;
+        protected Entry[] entries;
 
-        int _count;
+        int count;
 
         // current group head
-        int _head = -1;
+        int head = -1;
 
         public Map(int capacity = 16)
         {
@@ -32,39 +32,39 @@ namespace WebReady
 
         void ReInit(int size) // size must be power of 2
         {
-            if (_entries == null || size > _entries.Length) // allocalte new arrays as needed
+            if (entries == null || size > entries.Length) // allocalte new arrays as needed
             {
-                _buckets = new int[size];
-                _entries = new Entry[size];
+                buckets = new int[size];
+                entries = new Entry[size];
             }
 
-            for (int i = 0; i < _buckets.Length; i++) // initialize all buckets to -1
+            for (int i = 0; i < buckets.Length; i++) // initialize all buckets to -1
             {
-                _buckets[i] = -1;
+                buckets[i] = -1;
             }
 
-            _count = 0;
+            count = 0;
         }
 
-        public int Count => _count;
+        public int Count => count;
 
-        public Entry EntryAt(int idx) => _entries[idx];
+        public Entry EntryAt(int idx) => entries[idx];
 
-        public K KeyAt(int idx) => _entries[idx].key;
+        public K KeyAt(int idx) => entries[idx].key;
 
-        public V ValueAt(int idx) => _entries[idx].value;
+        public V ValueAt(int idx) => entries[idx].value;
 
         public V[] GroupOf(K key)
         {
             int idx = IndexOf(key);
             if (idx > -1)
             {
-                int tail = _entries[idx].tail;
+                int tail = entries[idx].tail;
                 int ret = tail - idx; // number of returned elements
                 V[] arr = new V[ret];
                 for (int i = 0; i < ret; i++)
                 {
-                    arr[i] = _entries[idx + 1 + i].value;
+                    arr[i] = entries[idx + 1 + i].value;
                 }
 
                 return arr;
@@ -76,17 +76,17 @@ namespace WebReady
         public int IndexOf(K key)
         {
             int code = key.GetHashCode() & 0x7fffffff;
-            int buck = code % _buckets.Length; // target bucket
-            int idx = _buckets[buck];
+            int buck = code % buckets.Length; // target bucket
+            int idx = buckets[buck];
             while (idx != -1)
             {
-                Entry e = _entries[idx];
+                Entry e = entries[idx];
                 if (e.Match(code, key))
                 {
                     return idx;
                 }
 
-                idx = _entries[idx].next; // adjust for next index
+                idx = entries[idx].next; // adjust for next index
             }
 
             return -1;
@@ -94,9 +94,9 @@ namespace WebReady
 
         public void Clear()
         {
-            if (_entries != null)
+            if (entries != null)
             {
-                ReInit(_entries.Length);
+                ReInit(entries.Length);
             }
         }
 
@@ -113,11 +113,11 @@ namespace WebReady
         void Add(K key, V value, bool rehash)
         {
             // ensure double-than-needed capacity
-            if (!rehash && _count >= _entries.Length / 2)
+            if (!rehash && count >= entries.Length / 2)
             {
-                Entry[] old = _entries;
-                int oldc = _count;
-                ReInit(_entries.Length * 2);
+                Entry[] old = entries;
+                int oldc = count;
+                ReInit(entries.Length * 2);
                 // re-add old elements
                 for (int i = 0; i < oldc; i++)
                 {
@@ -126,36 +126,36 @@ namespace WebReady
             }
 
             int code = key.GetHashCode() & 0x7fffffff;
-            int buck = code % _buckets.Length; // target bucket
-            int idx = _buckets[buck];
+            int buck = code % buckets.Length; // target bucket
+            int idx = buckets[buck];
             while (idx != -1)
             {
-                Entry e = _entries[idx];
+                Entry e = entries[idx];
                 if (e.Match(code, key))
                 {
                     e.value = value;
                     return; // replace the old value
                 }
 
-                idx = _entries[idx].next; // adjust for next index
+                idx = entries[idx].next; // adjust for next index
             }
 
             // add a new entry
-            idx = _count;
-            _entries[idx] = new Entry(code, _buckets[buck], key, value);
-            _buckets[buck] = idx;
-            _count++;
+            idx = count;
+            entries[idx] = new Entry(code, buckets[buck], key, value);
+            buckets[buck] = idx;
+            count++;
 
             // decide group
             if (value is IGroupKeyable<K> gkeyable)
             {
                 // compare to current head
-                if (_head == -1 || !gkeyable.GroupAs(_entries[_head].key))
+                if (head == -1 || !gkeyable.GroupAs(entries[head].key))
                 {
-                    _head = idx;
+                    head = idx;
                 }
 
-                _entries[_head].tail = idx;
+                entries[head].tail = idx;
             }
         }
 
@@ -172,18 +172,18 @@ namespace WebReady
         public bool TryGet(K key, out V value)
         {
             int code = key.GetHashCode() & 0x7fffffff;
-            int buck = code % _buckets.Length; // target bucket
-            int idx = _buckets[buck];
+            int buck = code % buckets.Length; // target bucket
+            int idx = buckets[buck];
             while (idx != -1)
             {
-                var e = _entries[idx];
+                var e = entries[idx];
                 if (e.Match(code, key))
                 {
                     value = e.value;
                     return true;
                 }
 
-                idx = _entries[idx].next; // adjust for next index
+                idx = entries[idx].next; // adjust for next index
             }
 
             value = default;
@@ -222,9 +222,9 @@ namespace WebReady
         public V[] All(Predicate<V> cond = null)
         {
             var list = new ValueList<V>(16);
-            for (int i = 0; i < _count; i++)
+            for (int i = 0; i < count; i++)
             {
-                var v = _entries[i].value;
+                var v = entries[i].value;
                 if (cond == null || cond(v))
                 {
                     list.Add(v);
@@ -236,9 +236,9 @@ namespace WebReady
 
         public V Find(Predicate<V> cond = null)
         {
-            for (int i = 0; i < _count; i++)
+            for (int i = 0; i < count; i++)
             {
-                var v = _entries[i].value;
+                var v = entries[i].value;
                 if (cond == null || cond(v))
                 {
                     return v;
@@ -250,13 +250,13 @@ namespace WebReady
 
         public void ForEach(Func<K, V, bool> cond, Action<K, V> hand)
         {
-            for (int i = 0; i < _count; i++)
+            for (int i = 0; i < count; i++)
             {
-                K key = _entries[i].key;
-                V value = _entries[i].value;
+                K key = entries[i].key;
+                V value = entries[i].value;
                 if (cond == null || cond(key, value))
                 {
-                    hand(_entries[i].key, _entries[i].value);
+                    hand(entries[i].key, entries[i].value);
                 }
             }
         }
@@ -321,9 +321,9 @@ namespace WebReady
                 current = -1;
             }
 
-            public Entry Current => map._entries[current];
+            public Entry Current => map.entries[current];
 
-            object IEnumerator.Current => map._entries[current];
+            object IEnumerator.Current => map.entries[current];
 
             public void Dispose()
             {

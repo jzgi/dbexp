@@ -21,7 +21,7 @@ namespace WebReady.Web
     public abstract class WebService : WebWork, IHttpApplication<HttpContext>
     {
         // sub-controllers of the service
-        readonly Map<string, WebController> _controllers = new Map<string, WebController>(64);
+        readonly Map<string, WebController> controllers = new Map<string, WebController>(64);
 
         //
         // http implementation
@@ -35,12 +35,10 @@ namespace WebReady.Web
         ConcurrentDictionary<string, Response> _cache;
 
         // the embedded HTTP server
-        KestrelServer _server;
+        KestrelServer server;
 
         // the response cache cleaner thread
-        Thread _cleaner;
-
-        public Map<string, WebController> Scopes => _controllers;
+        Thread cleaner;
 
 
         internal JObj Config
@@ -69,9 +67,9 @@ namespace WebReady.Web
                 var opts = new KestrelServerOptions();
                 var logf = new LoggerFactory();
                 logf.AddProvider(Framework.Logger);
-                _server = new KestrelServer(Options.Create(opts), Framework.TransportFactory, logf);
+                server = new KestrelServer(Options.Create(opts), Framework.TransportFactory, logf);
 
-                var coll = _server.Features.Get<IServerAddressesFeature>().Addresses;
+                var coll = server.Features.Get<IServerAddressesFeature>().Addresses;
                 foreach (string a in addrs)
                 {
                     coll.Add(a.Trim());
@@ -87,7 +85,7 @@ namespace WebReady.Web
                 Name = name
             };
 
-            _controllers.Add(name, ctr);
+            controllers.Add(name, ctr);
 
             // applevel init
             ctr.OnInitialize();
@@ -97,7 +95,7 @@ namespace WebReady.Web
 
         public T AddController<T>(T ctr) where T : WebController
         {
-            _controllers.Add(ctr.Name, ctr);
+            controllers.Add(ctr.Name, ctr);
             ctr.Parent = this;
 
             // applevel init
@@ -106,7 +104,9 @@ namespace WebReady.Web
             return ctr;
         }
 
-        public void LoadSetsFromDb(string source)
+        public Map<string, WebController> Controllers => controllers;
+
+        public void LoadSubsFromDb(string source)
         {
             // load db types
 
@@ -162,22 +162,13 @@ namespace WebReady.Web
                         dcb.Let(out uint grantee);
                         dcb.Let(out string optype);
 
-                        var ctr = _controllers[relname];
-                        ((DbViewSet) ctr)?.AddOpRole(optype, roles[grantee]);
+                        var ctr = controllers[relname];
+                        ((DbViewSet) ctr)?.AddRole(optype, roles[grantee]);
                     }
                 }
-            }
-        }
-
-        public void LoadActionsFromDb(string source)
-        {
-            var src = Framework.GetDbSource(source);
-
-            using (var dc = src.NewDbContext())
-            {
-                var nsp = (uint) dc.Scalar("SELECT oid FROM pg_namespace WHERE nspname = 'public'", prepare: false);
 
                 // load functions
+                //
                 dc.QueryAll("SELECT NOT (proisagg OR proiswindow) AS callable, oid, proname AS name, provolatile AS volatile, prorettype AS rettype, proretset AS retset, proargmodes, proargnames, proargtypes, proallargtypes, proargdefaults FROM pg_proc WHERE pronamespace = " + nsp, prepare: false);
                 while (dc.Next())
                 {
@@ -194,21 +185,6 @@ namespace WebReady.Web
                     Actions.Add(action);
                 }
 
-                // load roles
-                //
-
-                var roles = new Map<uint, string>(16)
-                {
-                    {0, "PUBLIC"}
-                };
-                dc.Query("SELECT oid, rolname FROM pg_roles");
-                while (dc.Next())
-                {
-                    dc.Let(out uint oid);
-                    dc.Let(out string rolname);
-                    roles.Add(oid, rolname);
-                }
-
                 using (var dcb = src.NewDbContext())
                 {
                     dcb.QueryAll("SELECT proname, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).grantee AS grantee, (aclexplode(COALESCE(pg_proc.proacl, acldefault('f'::\"char\", pg_proc.proowner)))).privilege_type AS optype FROM pg_proc WHERE pronamespace = " + nsp);
@@ -219,7 +195,7 @@ namespace WebReady.Web
                         dcb.Let(out string optype);
 
                         var ctr = Actions[proname];
-                        ((DbFunctionAction) ctr)?.AddOp(optype, roles[grantee]);
+                        ((DbFunctionAction) ctr)?.AddRole(optype, roles[grantee]);
                     }
                 }
             }
@@ -269,7 +245,7 @@ namespace WebReady.Web
                     if (slash != -1)
                     {
                         string name = rsc.Substring(0, slash);
-                        var ctr = _controllers[name];
+                        var ctr = controllers[name];
                         if (ctr == null)
                         {
                             throw new WebException("Controller not found: " + name)
@@ -371,14 +347,14 @@ namespace WebReady.Web
 
         internal async Task StartAsync(CancellationToken token)
         {
-            await _server.StartAsync(this, token);
+            await server.StartAsync(this, token);
 
             Console.WriteLine(Name + " started at " + addrs[0]);
 
             // create and start the cleaner thread
             if (_cache != null)
             {
-                _cleaner = new Thread(() =>
+                cleaner = new Thread(() =>
                 {
                     while (!token.IsCancellationRequested)
                     {
@@ -395,13 +371,13 @@ namespace WebReady.Web
                         }
                     }
                 });
-                _cleaner.Start();
+                cleaner.Start();
             }
         }
 
         internal async Task StopAsync(CancellationToken token)
         {
-            await _server.StopAsync(token);
+            await server.StopAsync(token);
 
             // close logger
             //            logWriter.Flush();
@@ -410,7 +386,7 @@ namespace WebReady.Web
 
         public void Dispose()
         {
-            _server.Dispose();
+            server.Dispose();
         }
 
         //
@@ -453,9 +429,9 @@ namespace WebReady.Web
             h.T("<main style=\"display: grid;; grid-template-columns: repeat(auto-fit, minmax(20rem, 36rem)); grid-gap: 12px;\">");
 
             // controlers
-            for (int i = 0; i < _controllers.Count; i++)
+            for (int i = 0; i < controllers.Count; i++)
             {
-                var ctr = _controllers.ValueAt(i);
+                var ctr = controllers.ValueAt(i);
                 ctr.Describe(h);
             }
 

@@ -10,7 +10,7 @@ namespace WebReady.Web
     {
         readonly string[] _roles;
 
-        readonly Map<string, WebAction> _actions = new Map<string, WebAction>(32);
+        readonly Map<string, WebAction> actions = new Map<string, WebAction>(32);
 
         protected WebWork()
         {
@@ -44,13 +44,13 @@ namespace WebReady.Web
                 }
                 else continue;
 
-                _actions.Add(action.Name, action);
+                actions.Add(action.Name, action);
             }
         }
 
         public string[] Roles => _roles;
 
-        public Map<string, WebAction> Actions => _actions;
+        public Map<string, WebAction> Actions => actions;
 
 
         protected internal override async Task HandleAsync(string rsc, WebContext wc)
@@ -78,7 +78,7 @@ namespace WebReady.Web
 
             // resolve the resource
             string name = rsc;
-            var act = _actions[name];
+            var act = actions[name];
             if (act == null)
             {
                 wc.Give(404, "Action not found: " + name, shared: true, maxage: 12);
@@ -96,14 +96,37 @@ namespace WebReady.Web
 
         internal override void Describe(HtmlContent h)
         {
-            for (int i = 0; i < _actions.Count; i++)
+            h.T("<ul>");
+            for (int i = 0; i < actions.Count; i++)
             {
-                var a = _actions.ValueAt(i);
-                h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
-                h.T("<h3><code>").TT(a.Name).T("</code></h3>");
+                var a = actions.ValueAt(i);
+                h.T("<li style=\"border: 1px solid silver; padding: 8px;\">");
+                h.T("<em><code>").TT(a.Name).T("</code></em>");
                 h.HR();
-                h.T("</article>");
+
+                if (a.IsPublic)
+                {
+                    h.T("PUBLIC");
+                }
+                else
+                {
+                    var roles = a.Roles;
+                    for (var k = 0; k < roles.Count; k++)
+                    {
+                        if (k > 0)
+                        {
+                            h.T(", ");
+                        }
+
+                        var role = roles[k];
+                        h.T(role);
+                    }
+                }
+
+                h.T("</li>");
             }
+
+            h.T("</ul>");
         }
     }
 }

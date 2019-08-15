@@ -14,7 +14,9 @@ namespace WebReady.Web
 
         readonly bool async;
 
-        readonly List<string> _roles = new List<string>(8);
+        bool @public;
+
+        readonly List<string> roles = new List<string>(8);
 
         protected WebAction(WebWork work, string name, bool async)
         {
@@ -23,9 +25,17 @@ namespace WebReady.Web
             this.async = async;
         }
 
-        internal void AddOp(string optype, string role)
+        internal void AddRole(string optype, string role)
         {
-            _roles.Add(role);
+            if (role == "postgres") return;
+
+            if (role == "PUBLIC")
+            {
+                @public = true;
+                return;
+            }
+
+            roles.Add(role);
         }
 
         public WebWork Work => work;
@@ -33,6 +43,10 @@ namespace WebReady.Web
         public string Name => name;
 
         public bool IsAsync => async;
+
+        public bool IsPublic => @public;
+
+        public IReadOnlyList<string> Roles => roles;
 
 
         /// <summary>

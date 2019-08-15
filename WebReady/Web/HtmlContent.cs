@@ -7,21 +7,21 @@ namespace WebReady.Web
     /// </summary>
     public class HtmlContent : DynamicContent
     {
-        readonly WebContext _webctx;
+        readonly WebContext webctx;
 
         // data output context in levels, if any
-        object[] _stack;
+        object[] stack;
 
-        int _level = -1;
+        int level = -1;
 
         public HtmlContent(WebContext webctx, bool binary, int capacity = 32 * 1024) : base(binary, capacity)
         {
-            _webctx = webctx;
+            this.webctx = webctx;
         }
 
         public override string Type { get; set; } = "text/html; charset=utf-8";
 
-        public WebContext WebContext => _webctx;
+        public WebContext WebContext => webctx;
 
         public void AddEsc(string v)
         {
@@ -1176,13 +1176,13 @@ namespace WebReady.Web
 
             if (arr != null)
             {
-                if (_stack == null) _stack = new object[4]; // init contexts
-                _level++; // enter a new level
+                if (stack == null) stack = new object[4]; // init contexts
+                level++; // enter a new level
 
                 for (int i = 0; i < arr.Length; i++)
                 {
                     D obj = arr[i];
-                    _stack[_level] = obj;
+                    stack[level] = obj;
 
                     Add("<li class=\"uk-flex");
                     if (li != null)
@@ -1195,10 +1195,10 @@ namespace WebReady.Web
                     item(obj);
                     Add("</li>");
 
-                    _stack[_level] = null;
+                    stack[level] = null;
                 }
 
-                _level--; // exit the level
+                level--; // exit the level
             }
 
             Add("</ul>");
@@ -1218,13 +1218,13 @@ namespace WebReady.Web
 
             if (arr != null)
             {
-                if (_stack == null) _stack = new object[4]; // init contexts
-                _level++; // enter a new level
+                if (stack == null) stack = new object[4]; // init contexts
+                level++; // enter a new level
 
                 for (int i = 0; i < arr.Length; i++)
                 {
                     D obj = arr[i];
-                    _stack[_level] = obj;
+                    stack[level] = obj;
 
                     Add("<li class=\"uk-flex uk-card uk-card-default");
                     if (li != null)
@@ -1237,10 +1237,10 @@ namespace WebReady.Web
                     item(obj);
                     Add("</li>");
 
-                    _stack[_level] = null;
+                    stack[level] = null;
                 }
 
-                _level--; // exit the level
+                level--; // exit the level
             }
 
             // pagination if any
@@ -1268,12 +1268,12 @@ namespace WebReady.Web
             Add("<main class=\"uk-board\">");
             if (arr != null)
             {
-                if (_stack == null) _stack = new object[4]; // init contexts
-                _level++; // enter a new level
+                if (stack == null) stack = new object[4]; // init contexts
+                level++; // enter a new level
                 for (int i = 0; i < arr.Length; i++)
                 {
                     D obj = arr[i];
-                    _stack[_level] = obj;
+                    stack[level] = obj;
                     Add("<form class=\"uk-card");
                     if (css != null)
                     {
@@ -1284,10 +1284,10 @@ namespace WebReady.Web
                     Add("\">");
                     card(obj);
                     Add("</form>");
-                    _stack[_level] = null;
+                    stack[level] = null;
                 }
 
-                _level--; // exit the level
+                level--; // exit the level
             }
 
             Add("</main>");
@@ -1298,12 +1298,12 @@ namespace WebReady.Web
             Add("<main uk-grid class=\"uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m uk-child-width-1-4@l uk-child-width-1-5@xl\">");
             if (arr != null)
             {
-                if (_stack == null) _stack = new object[4]; // init contexts
-                _level++; // enter a new level
+                if (stack == null) stack = new object[4]; // init contexts
+                level++; // enter a new level
                 for (int i = 0; i < arr.Length; i++)
                 {
                     D obj = arr[i];
-                    _stack[_level] = obj;
+                    stack[level] = obj;
                     Add("<article class=\"uk-card uk-card-default");
                     if (css != null)
                     {
@@ -1314,10 +1314,10 @@ namespace WebReady.Web
                     Add("\">");
                     card(obj);
                     Add("</article>");
-                    _stack[_level] = null;
+                    stack[level] = null;
                 }
 
-                _level--; // exit the level
+                level--; // exit the level
             }
 
             Add("</main>");

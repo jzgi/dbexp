@@ -13,18 +13,56 @@ namespace WebReady.Web
         // subscoping variables
         Setting[] settings;
 
+        bool insertable;
+
+        bool updatable;
+
         // supported method operations
-        readonly Verb[] verbs =
+        readonly Verb[] verbs = new Verb[4]
         {
-            new Verb(GET),
-            new Verb(POST),
-            new Verb(PUT),
-            new Verb(DELETE),
+            new Verb("GET", "SELECT"), null, null, null
         };
+
 
         public Setting[] Settings => settings;
 
         public Verb[] Verbs => verbs;
+
+        public bool PK { get; set; }
+
+        public bool Primary { get; set; }
+
+        public bool Insertable
+        {
+            get => insertable;
+            set
+            {
+                insertable = value;
+                if (verbs[1] == null)
+                {
+                    verbs[1] = new Verb("POST", "INSERT");
+                }
+            }
+        }
+
+        public bool Updatable
+        {
+            get => updatable;
+            set
+            {
+                updatable = value;
+                if (verbs[2] == null)
+                {
+                    verbs[2] = new Verb("PUT", "UPDATE");
+                }
+
+                if (verbs[3] == null)
+                {
+                    verbs[3] = new Verb("DELETE", "DELETE");
+                }
+            }
+        }
+
 
         public void AddSetting(string name)
         {
@@ -34,28 +72,20 @@ namespace WebReady.Web
             });
         }
 
-        public void AddOpRole(string optype, string role)
+        public void AddRole(string op, string role)
         {
-            if (optype == null || role == null) return;
+            if (op == null || role == null) return;
 
             // ignore system role
             if (role == "postgres") return;
 
-            if (optype == GET || optype == "SELECT")
+            for (int i = 0; i < verbs.Length; i++)
             {
-                verbs[0].AddRole(role);
-            }
-            else if (optype == POST || optype == "INSERT")
-            {
-                verbs[1].AddRole(role);
-            }
-            else if (optype == PUT || optype == "UPDATE")
-            {
-                verbs[2].AddRole(role);
-            }
-            else if (optype == DELETE)
-            {
-                verbs[3].AddRole(role);
+                var verb = verbs[i];
+                if (verb.Method == op || verb.Op == op)
+                {
+                    verb.AddRole(role);
+                }
             }
         }
 
@@ -114,6 +144,23 @@ namespace WebReady.Web
             h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
             h.T("<h3><code>").TT(Name).T("</code></h3>");
             h.HR();
+
+            // methods and roles
+            //
+
+            h.T("<ul>");
+            for (int i = 0; i < verbs.Length; i++)
+            {
+                var verb = verbs[i];
+                if (verb != null)
+                {
+                    h.T("<li>");
+                    h.T(verb.Method);
+                    h.T("</li>");
+                }
+            }
+            h.T("</ul>");
+
             h.T("</article>");
         }
     }

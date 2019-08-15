@@ -20,9 +20,6 @@ namespace WebReady.Db
 
         readonly string check_option;
 
-        readonly bool updatable;
-
-        readonly bool insertable;
 
         readonly Map<string, DbField> _columns = new Map<string, DbField>(64);
 
@@ -52,8 +49,17 @@ namespace WebReady.Db
             }
 
             s.Get(nameof(check_option), ref check_option);
+
+            bool pkey = false;
+            bool updatable = false;
+            bool insertable = false;
+            s.Get(nameof(pkey), ref pkey);
             s.Get(nameof(updatable), ref updatable);
             s.Get(nameof(insertable), ref insertable);
+
+            Primary = pkey;
+            Updatable = updatable;
+            Insertable = insertable;
         }
 
         public uint Oid => oid;

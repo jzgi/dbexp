@@ -8,7 +8,7 @@ namespace WebReady.Web
         readonly string method;
 
         // database operation
-        readonly string _optype;
+        readonly string op;
 
         // is the PUBLIC role
         bool @public;
@@ -16,28 +16,32 @@ namespace WebReady.Web
         // specific roles
         readonly List<string> roles = new List<string>(8);
 
-        internal Verb(string method)
+        internal Verb(string method, string op)
         {
             this.method = method;
+            this.op = op;
         }
 
         public string Method => method;
 
-        public string OpType => _optype;
+        public string Op => op;
 
         public bool IsPublic => @public;
 
         public IReadOnlyList<string> Roles => roles;
 
-        internal void AddRole(string r)
+        internal void AddRole(string role)
         {
-            if (r == "PUBLIC")
+            if (role == "PUBLIC")
             {
                 @public = true;
             }
             else
             {
-                roles.Add(r);
+                if (!roles.Contains(role))
+                {
+                    roles.Add(role);
+                }
             }
         }
     }

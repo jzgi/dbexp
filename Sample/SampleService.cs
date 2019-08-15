@@ -7,9 +7,7 @@ namespace Sample
     {
         protected internal override void OnInitialize()
         {
-            LoadSetsFromDb("samp");
-
-            LoadActionsFromDb("samp");
+            LoadSubsFromDb("samp");
         }
 
         public bool DoAuthenticate(WebContext wc)

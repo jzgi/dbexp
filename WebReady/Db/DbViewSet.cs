@@ -43,21 +43,21 @@ namespace WebReady.Db
                 if (p2 == -1) break;
                 string var_name = definition.Substring(p + BEGIN.Length, p2 - p - BEGIN.Length);
                 // create a variable
-                AddSetting(var_name);
+                AddVar(var_name);
                 // adjust position
                 p = p2 + END.Length;
             }
 
             s.Get(nameof(check_option), ref check_option);
 
-            bool pkey = false;
+            bool pk = false;
             bool updatable = false;
             bool insertable = false;
-            s.Get(nameof(pkey), ref pkey);
+            s.Get(nameof(pk), ref pk);
             s.Get(nameof(updatable), ref updatable);
             s.Get(nameof(insertable), ref insertable);
 
-            Primary = pkey;
+            PK = pk;
             Updatable = updatable;
             Insertable = insertable;
         }
@@ -74,9 +74,9 @@ namespace WebReady.Db
             var sql = new StringBuilder();
 
             // set vars as session variables
-            for (int i = 0; i < Settings?.Length; i++)
+            for (int i = 0; i < Vars?.Count; i++)
             {
-                var v = Settings[i];
+                var v = Vars[i];
                 sql.Append("SET ").Append(v.Name).Append(" = @").Append(vars[i]).Append(";");
             }
 

@@ -29,7 +29,7 @@ namespace WebReady.Web
 
         public Verb[] Verbs => verbs;
 
-        public bool PK { get; set; }
+        public abstract bool Identifiable { get; }
 
         public bool Insertable
         {
@@ -158,9 +158,9 @@ namespace WebReady.Web
                 h.T("/");
             }
 
-            if (PK)
+            if (Identifiable)
             {
-                h.T("[key]");
+                h.T("[id]");
             }
 
             h.T("</code></h3>");

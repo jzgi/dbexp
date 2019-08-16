@@ -21,7 +21,7 @@ namespace WebReady.Db
         readonly string check_option;
 
 
-        readonly Map<string, DbField> _columns = new Map<string, DbField>(64);
+        readonly Map<string, DbField> columns = new Map<string, DbField>(64);
 
         internal DbViewSet(DbContext s)
         {
@@ -57,7 +57,6 @@ namespace WebReady.Db
             s.Get(nameof(updatable), ref updatable);
             s.Get(nameof(insertable), ref insertable);
 
-            PK = pk;
             Updatable = updatable;
             Insertable = insertable;
         }
@@ -66,8 +65,10 @@ namespace WebReady.Db
 
         internal void AddColumn(DbField field)
         {
-            _columns.Add(field);
+            columns.Add(field);
         }
+
+        public override bool Identifiable => columns.ValueAt(0)?.Key == "id";
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
         {
@@ -119,9 +120,9 @@ namespace WebReady.Db
             if (single)
             {
                 cnt.OBJ_();
-                for (int i = 0; i < _columns.Count; i++)
+                for (int i = 0; i < columns.Count; i++)
                 {
-                    var col = _columns.ValueAt(i);
+                    var col = columns.ValueAt(i);
                     col.Convert(dc, cnt);
                 }
 
@@ -133,9 +134,9 @@ namespace WebReady.Db
                 while (dc.Next())
                 {
                     cnt.OBJ_();
-                    for (int i = 0; i < _columns.Count; i++)
+                    for (int i = 0; i < columns.Count; i++)
                     {
-                        var col = _columns.ValueAt(i);
+                        var col = columns.ValueAt(i);
                         col.Convert(dc, cnt);
                     }
 

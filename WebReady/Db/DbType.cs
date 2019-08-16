@@ -204,5 +204,7 @@ namespace WebReady.Db
         public Action<string, ISource, ISink> Converter { get; private set; }
 
         public uint Key => oid;
+        
+        public string Name => name;
     }
 }

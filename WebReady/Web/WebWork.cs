@@ -8,7 +8,7 @@ namespace WebReady.Web
     /// </summary>
     public abstract class WebWork : WebController
     {
-        readonly string[] _roles;
+        readonly string[] roles;
 
         readonly Map<string, WebAction> actions = new Map<string, WebAction>(32);
 
@@ -16,7 +16,7 @@ namespace WebReady.Web
         {
             var typ = GetType();
 
-            _roles = ((RolesAttribute) typ.GetCustomAttribute(typeof(RolesAttribute), true))?.Roles;
+            roles = ((RolesAttribute) typ.GetCustomAttribute(typeof(RolesAttribute), true))?.Roles;
 
 
             // Gather method-based actions
@@ -48,7 +48,7 @@ namespace WebReady.Web
             }
         }
 
-        public string[] Roles => _roles;
+        public string[] Roles => roles;
 
         public Map<string, WebAction> Actions => actions;
 
@@ -58,7 +58,7 @@ namespace WebReady.Web
             // do access check
             //
 
-            if (_roles != null)
+            if (roles != null)
             {
                 var prin = wc.Principal;
                 if (prin == null)
@@ -66,9 +66,9 @@ namespace WebReady.Web
                     throw new WebException {Code = 401}; // Unauthorized
                 }
 
-                for (int i = 0; i < _roles.Length; i++)
+                for (int i = 0; i < roles.Length; i++)
                 {
-                    if (prin.IsRole(_roles[i])) goto Okay;
+                    if (prin.IsRole(roles[i])) goto Okay;
                 }
 
                 throw new WebException {Code = 403}; // Forbidden
@@ -100,30 +100,7 @@ namespace WebReady.Web
             for (int i = 0; i < actions.Count; i++)
             {
                 var a = actions[i].Value;
-                h.T("<li style=\"border: 1px solid silver; padding: 8px;\">");
-                h.T("<em><code>").TT(a.Name).T("</code></em>");
-                h.HR();
-
-                if (a.IsPublic)
-                {
-                    h.T("PUBLIC");
-                }
-                else
-                {
-                    var roles = a.Roles;
-                    for (var k = 0; k < roles.Count; k++)
-                    {
-                        if (k > 0)
-                        {
-                            h.T(", ");
-                        }
-
-                        var role = roles[k];
-                        h.T(role);
-                    }
-                }
-
-                h.T("</li>");
+                a.Describe(h);
             }
 
             h.T("</ul>");

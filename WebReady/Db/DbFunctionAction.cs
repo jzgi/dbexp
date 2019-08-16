@@ -67,6 +67,44 @@ namespace WebReady.Db
             }
         }
 
+        protected internal override void Describe(HtmlContent h)
+        {
+            h.T("<li style=\"border: 1px solid silver; padding: 8px;\">");
+            h.T("<em><code>").TT(Name).T("</code></em>");
+            // arguments
+            //
+            h.T("(<br>");
+            for (var k = 0; k < inargs.Count; k++)
+            {
+                var fld = inargs[k].Value;
+                h.T(fld.Name).T("<br>");
+            }
+            h.T(")<br>");
+
+            if (IsPublic)
+            {
+                h.T("PUBLIC");
+            }
+            else
+            {
+                var roles = Roles;
+                for (var k = 0; k < roles.Count; k++)
+                {
+                    if (k > 0)
+                    {
+                        h.T(", ");
+                    }
+
+                    var role = roles[k];
+                    h.T(role);
+                }
+            }
+
+
+
+            h.T("</li>");
+        }
+
         internal override async Task ExecuteAsync(WebContext wc)
         {
             ISource src = null;

@@ -152,7 +152,8 @@ namespace WebReady.Db
         internal override void Describe(HtmlContent h)
         {
             h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
-            h.T("<h3><code>").TT(Name);
+            h.T("<header>");
+            h.T("<code>").TT(Name);
             h.T("/");
             for (int i = 0; i < Vars.Count; i++)
             {
@@ -168,20 +169,17 @@ namespace WebReady.Db
                 h.T("[id]");
             }
 
-            h.T("</code></h3>");
+            h.T("</code>");
+            h.T("</header>");
 
             h.T("<ul>");
             for (int i = 0; i < columns.Count; i++)
             {
-                if (i > 0)
-                {
-                    h.T(", ");
-                }
-
+                h.T("<li>");
                 var col = columns[i].Value;
-                h.T(col.Name);
+                h.T(col.Name).T(" ").T(col.Type.Name);
+                h.T("</li>");
             }
-
             h.T("</ul>");
 
             // methods and roles

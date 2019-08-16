@@ -49,7 +49,7 @@ namespace WebReady
 
         public bool Get(string name, ref bool v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -60,7 +60,7 @@ namespace WebReady
 
         public bool Get(string name, ref char v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -71,7 +71,7 @@ namespace WebReady
 
         public bool Get(string name, ref short v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -82,7 +82,7 @@ namespace WebReady
 
         public bool Get(string name, ref int v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -93,7 +93,7 @@ namespace WebReady
 
         public bool Get(string name, ref long v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -104,7 +104,7 @@ namespace WebReady
 
         public bool Get(string name, ref double v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -115,7 +115,7 @@ namespace WebReady
 
         public bool Get(string name, ref decimal v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -126,7 +126,7 @@ namespace WebReady
 
         public bool Get(string name, ref DateTime v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -137,7 +137,7 @@ namespace WebReady
 
         public bool Get(string name, ref string v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -153,7 +153,7 @@ namespace WebReady
 
         public bool Get(string name, ref ArraySegment<byte> v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -169,7 +169,7 @@ namespace WebReady
 
         public bool Get(string name, ref short[] v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -180,7 +180,7 @@ namespace WebReady
 
         public bool Get(string name, ref int[] v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -191,7 +191,7 @@ namespace WebReady
 
         public bool Get(string name, ref long[] v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -202,7 +202,7 @@ namespace WebReady
 
         public bool Get(string name, ref string[] v)
         {
-            if (TryGet(name, out var fld))
+            if (TryGetValue(name, out var fld))
             {
                 v = fld;
                 return true;
@@ -242,7 +242,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -252,7 +252,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -262,7 +262,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -272,7 +272,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -282,7 +282,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -292,7 +292,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -302,7 +302,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -312,7 +312,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -322,7 +322,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -347,7 +347,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -357,7 +357,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 
@@ -367,7 +367,7 @@ namespace WebReady
             int ord = ordinal++;
             if (ord < Count)
             {
-                v = ValueAt(ord);
+                v = this[ord].Value;
             }
         }
 

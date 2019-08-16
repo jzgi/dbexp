@@ -78,8 +78,8 @@ namespace WebReady.Web
 
             // resolve the resource
             string name = rsc;
-            var act = actions[name];
-            if (act == null)
+            WebAction act;
+            if (!actions.TryGetValue(name, out act))
             {
                 wc.Give(404, "Action not found: " + name, shared: true, maxage: 12);
                 return;
@@ -99,7 +99,7 @@ namespace WebReady.Web
             h.T("<ul>");
             for (int i = 0; i < actions.Count; i++)
             {
-                var a = actions.ValueAt(i);
+                var a = actions[i].Value;
                 h.T("<li style=\"border: 1px solid silver; padding: 8px;\">");
                 h.T("<em><code>").TT(a.Name).T("</code></em>");
                 h.HR();

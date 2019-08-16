@@ -68,7 +68,7 @@ namespace WebReady.Db
             columns.Add(field);
         }
 
-        public override bool Identifiable => columns.ValueAt(0)?.Key == "id";
+        public override bool Identifiable => columns[0].Key == "id";
 
         public override async Task OperateAsync(WebContext wc, string method, string[] vars, string subscript)
         {
@@ -122,7 +122,7 @@ namespace WebReady.Db
                 cnt.OBJ_();
                 for (int i = 0; i < columns.Count; i++)
                 {
-                    var col = columns.ValueAt(i);
+                    var col = columns[i].Value;
                     col.Convert(dc, cnt);
                 }
 
@@ -136,7 +136,7 @@ namespace WebReady.Db
                     cnt.OBJ_();
                     for (int i = 0; i < columns.Count; i++)
                     {
-                        var col = columns.ValueAt(i);
+                        var col = columns[i].Value;
                         col.Convert(dc, cnt);
                     }
 
@@ -147,6 +147,61 @@ namespace WebReady.Db
             }
 
             return cnt;
+        }
+
+        internal override void Describe(HtmlContent h)
+        {
+            h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
+            h.T("<h3><code>").TT(Name);
+            h.T("/");
+            for (int i = 0; i < Vars.Count; i++)
+            {
+                h.T("&lt;");
+                var var = Vars[i];
+                h.T(var.Name);
+                h.T("&gt;");
+                h.T("/");
+            }
+
+            if (Identifiable)
+            {
+                h.T("[id]");
+            }
+
+            h.T("</code></h3>");
+
+            h.T("<ul>");
+            for (int i = 0; i < columns.Count; i++)
+            {
+                if (i > 0)
+                {
+                    h.T(", ");
+                }
+
+                var col = columns[i].Value;
+                h.T(col.Name);
+            }
+
+            h.T("</ul>");
+
+            // methods and roles
+            //
+
+            h.T("<ul>");
+            for (int i = 0; i < Verbs.Length; i++)
+            {
+                var verb = Verbs[i];
+                if (verb != null)
+                {
+                    h.T("<li>");
+                    h.T(verb.Method);
+                    h.T("</li>");
+                }
+            }
+
+            h.T("</ul>");
+
+            h.T("</article>");
         }
     }
 }

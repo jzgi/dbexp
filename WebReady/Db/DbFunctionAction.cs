@@ -84,7 +84,7 @@ namespace WebReady.Db
                 var sql = dc.Sql("SELECT ").T(Name).T("(");
                 for (int i = 0; i < inargs.Count; i++)
                 {
-                    var arg = inargs.ValueAt(i);
+                    var arg = inargs[i].Value;
                     arg.Convert(src, dc);
                 }
 
@@ -93,7 +93,7 @@ namespace WebReady.Db
                 // set parameters
                 for (int i = 0; i < inargs.Count; i++)
                 {
-                    var arg = inargs.ValueAt(i);
+                    var arg = inargs[i].Value;
 //                    arg.SqlParam(src, dc);
                 }
 

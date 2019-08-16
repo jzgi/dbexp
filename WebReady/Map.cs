@@ -7,7 +7,7 @@ namespace WebReady
     /// <summary>
     /// An add-only data collection that can act as both a list, a dictionary and/or a two-layered tree.
     /// </summary>
-    public class Map<K, V> : IEnumerable<Map<K, V>.Entry>
+    public class Map<K, V> : IReadOnlyList<Map<K, V>.Entry>
     {
         int[] buckets;
 
@@ -49,10 +49,6 @@ namespace WebReady
         public int Count => count;
 
         public Entry EntryAt(int idx) => entries[idx];
-
-        public K KeyAt(int idx) => entries[idx].key;
-
-        public V ValueAt(int idx) => entries[idx].value;
 
         public V[] GroupOf(K key)
         {
@@ -161,7 +157,7 @@ namespace WebReady
 
         public bool Contains(K key)
         {
-            if (TryGet(key, out _))
+            if (TryGetValue(key, out _))
             {
                 return true;
             }
@@ -169,7 +165,12 @@ namespace WebReady
             return false;
         }
 
-        public bool TryGet(K key, out V value)
+        public V GetValue(K key)
+        {
+            return TryGetValue(key, out V v) ? v : default;
+        }
+
+        public bool TryGetValue(K key, out V value)
         {
             int code = key.GetHashCode() & 0x7fffffff;
             int buck = code % buckets.Length; // target bucket
@@ -203,20 +204,17 @@ namespace WebReady
         //
         // advanced search operations that can be overridden with concurrency constructs
 
-        public V this[K key]
+        public Entry this[int index]
         {
             get
             {
-                if (key == null) return default;
-
-                if (TryGet(key, out var val))
+                if (index >= count)
                 {
-                    return val;
+                    throw new IndexOutOfRangeException();
                 }
 
-                return default;
+                return entries[index];
             }
-            set => Add(key, value);
         }
 
         public V[] All(Predicate<V> cond = null)

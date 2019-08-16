@@ -30,7 +30,7 @@ namespace WebReady
 
         public Map<string, string> Attrs => attrs;
 
-        public string Attr(string attr) => attrs?[attr];
+        public string Attr(string attr) => attrs?.GetValue(attr);
 
         /// <summary>
         /// The text node of this element, can be null.
@@ -116,7 +116,7 @@ namespace WebReady
         public bool Get(string name, ref bool v)
         {
             // try attribute
-            if (attrs != null && attrs.TryGet(name, out var attr))
+            if (attrs != null && attrs.TryGetValue(name, out var attr))
             {
                 v = attr.ToBool();
                 return true;
@@ -127,7 +127,7 @@ namespace WebReady
 
         public bool Get(string name, ref char v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = attr.ToChar();
                 return true;
@@ -138,7 +138,7 @@ namespace WebReady
 
         public bool Get(string name, ref short v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = attr.ToShort();
                 return true;
@@ -149,7 +149,7 @@ namespace WebReady
 
         public bool Get(string name, ref int v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = attr.ToInt();
                 return true;
@@ -160,7 +160,7 @@ namespace WebReady
 
         public bool Get(string name, ref long v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = attr.ToLong();
                 return true;
@@ -171,7 +171,7 @@ namespace WebReady
 
         public bool Get(string name, ref double v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = double.Parse(attr);
                 return true;
@@ -182,7 +182,7 @@ namespace WebReady
 
         public bool Get(string name, ref decimal v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = decimal.Parse(attr);
                 return true;
@@ -193,7 +193,7 @@ namespace WebReady
 
         public bool Get(string name, ref DateTime v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = attr.ToDateTime();
                 return true;
@@ -204,7 +204,7 @@ namespace WebReady
 
         public bool Get(string name, ref string v)
         {
-            if (attrs.TryGet(name, out var attr))
+            if (attrs.TryGetValue(name, out var attr))
             {
                 v = attr;
                 return true;

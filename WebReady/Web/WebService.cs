@@ -162,8 +162,8 @@ namespace WebReady.Web
                         dcb.Let(out uint grantee);
                         dcb.Let(out string optype);
 
-                        var ctr = controllers[relname];
-                        ((DbViewSet) ctr)?.AddRole(optype, roles[grantee]);
+                        var ctr = controllers.GetValue(relname);
+                        ((DbViewSet) ctr)?.AddRole(optype, roles.GetValue(grantee));
                     }
                 }
 
@@ -194,8 +194,8 @@ namespace WebReady.Web
                         dcb.Let(out uint grantee);
                         dcb.Let(out string optype);
 
-                        var ctr = Actions[proname];
-                        ((DbFunctionAction) ctr)?.AddRole(optype, roles[grantee]);
+                        var ctr = Actions.GetValue(proname);
+                        ((DbFunctionAction) ctr)?.AddRole(optype, roles.GetValue(grantee));
                     }
                 }
             }
@@ -245,7 +245,7 @@ namespace WebReady.Web
                     if (slash != -1)
                     {
                         string name = rsc.Substring(0, slash);
-                        var ctr = controllers[name];
+                        var ctr = controllers.GetValue(name);
                         if (ctr == null)
                         {
                             throw new WebException("Controller not found: " + name)
@@ -431,7 +431,7 @@ namespace WebReady.Web
             // controlers
             for (int i = 0; i < controllers.Count; i++)
             {
-                var ctr = controllers.ValueAt(i);
+                var ctr = controllers[i].Value;
                 ctr.Describe(h);
             }
 
@@ -449,25 +449,25 @@ namespace WebReady.Web
         public class Response
         {
             // response status, 0 means cleared, otherwise one of the cacheable status
-            int _code;
+            int code;
 
             // can be set to null
-            IContent _content;
+            IContent content;
 
             // maxage in seconds
-            int _maxage;
+            int maxage;
 
             // time ticks when entered or cleared
-            int _stamp;
+            int stamp;
 
-            int _hits;
+            int hits;
 
             internal Response(int code, IContent content, int maxage, int stamp)
             {
-                _code = code;
-                _content = content;
-                _maxage = maxage;
-                _stamp = stamp;
+                this.code = code;
+                this.content = content;
+                this.maxage = maxage;
+                this.stamp = stamp;
             }
 
             /// <summary>
@@ -478,9 +478,9 @@ namespace WebReady.Web
                 return code == 200 || code == 203 || code == 204 || code == 206 || code == 300 || code == 301 || code == 404 || code == 405 || code == 410 || code == 414 || code == 501;
             }
 
-            public int Hits => _hits;
+            public int Hits => hits;
 
-            public bool IsCleared => _code == 0;
+            public bool IsCleared => code == 0;
 
             /// <summary>
             /// 
@@ -491,16 +491,16 @@ namespace WebReady.Web
             {
                 lock (this)
                 {
-                    int pass = now - (_stamp + _maxage * 1000);
+                    int pass = now - (stamp + maxage * 1000);
 
-                    if (_code == 0) return pass < 900 * 1000; // 15 minutes
+                    if (code == 0) return pass < 900 * 1000; // 15 minutes
 
                     if (pass >= 0) // to clear this reply
                     {
-                        _code = 0; // set to cleared
-                        _content = null; // NOTE: the buffer won't return to the pool
-                        _maxage = 0;
-                        _stamp = now; // time being cleared
+                        code = 0; // set to cleared
+                        content = null; // NOTE: the buffer won't return to the pool
+                        maxage = 0;
+                        stamp = now; // time being cleared
                     }
 
                     return true;
@@ -511,17 +511,17 @@ namespace WebReady.Web
             {
                 lock (this)
                 {
-                    if (_code == 0)
+                    if (code == 0)
                     {
                         return false;
                     }
 
-                    short remain = (short) (((_stamp + _maxage * 1000) - now) / 1000); // remaining in seconds
+                    short remain = (short) (((stamp + maxage * 1000) - now) / 1000); // remaining in seconds
                     if (remain > 0)
                     {
                         wc.IsInCache = true;
-                        wc.Give(_code, _content, true, remain);
-                        Interlocked.Increment(ref _hits);
+                        wc.Give(code, content, true, remain);
+                        Interlocked.Increment(ref hits);
                         return true;
                     }
 
@@ -531,7 +531,7 @@ namespace WebReady.Web
 
             internal Response MergeWith(Response old)
             {
-                Interlocked.Add(ref _hits, old.Hits);
+                Interlocked.Add(ref hits, old.Hits);
                 return this;
             }
         }

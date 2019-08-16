@@ -144,45 +144,5 @@ namespace WebReady.Web
         //
         public abstract Task OperateAsync(WebContext wc, string method, string[] vars, string subscript);
 
-        internal override void Describe(HtmlContent h)
-        {
-            h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
-            h.T("<h3><code>").TT(Name);
-            h.T("/");
-            for (int i = 0; i < varlst.Count; i++)
-            {
-                h.T("&lt;");
-                var var = varlst[i];
-                h.T(var.Name);
-                h.T("&gt;");
-                h.T("/");
-            }
-
-            if (Identifiable)
-            {
-                h.T("[id]");
-            }
-
-            h.T("</code></h3>");
-
-            // methods and roles
-            //
-
-            h.T("<ul>");
-            for (int i = 0; i < verbs.Length; i++)
-            {
-                var verb = verbs[i];
-                if (verb != null)
-                {
-                    h.T("<li>");
-                    h.T(verb.Method);
-                    h.T("</li>");
-                }
-            }
-
-            h.T("</ul>");
-
-            h.T("</article>");
-        }
     }
 }

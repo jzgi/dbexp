@@ -48,7 +48,7 @@ namespace WebReady
 
         public bool Get(string name, ref bool v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -59,7 +59,7 @@ namespace WebReady
 
         public bool Get(string name, ref char v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -70,7 +70,7 @@ namespace WebReady
 
         public bool Get(string name, ref short v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -81,7 +81,7 @@ namespace WebReady
 
         public bool Get(string name, ref int v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -92,7 +92,7 @@ namespace WebReady
 
         public bool Get(string name, ref long v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -103,7 +103,7 @@ namespace WebReady
 
         public bool Get(string name, ref double v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -114,7 +114,7 @@ namespace WebReady
 
         public bool Get(string name, ref decimal v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -125,7 +125,7 @@ namespace WebReady
 
         public bool Get(string name, ref DateTime v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -136,7 +136,7 @@ namespace WebReady
 
         public bool Get(string name, ref string v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -162,7 +162,7 @@ namespace WebReady
 
         public bool Get(string name, ref short[] v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 JArr ja = mbr;
                 if (ja != null)
@@ -182,7 +182,7 @@ namespace WebReady
 
         public bool Get(string name, ref int[] v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 JArr ja = mbr;
                 if (ja != null)
@@ -202,7 +202,7 @@ namespace WebReady
 
         public bool Get(string name, ref long[] v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 JArr ja = mbr;
                 if (ja != null)
@@ -222,7 +222,7 @@ namespace WebReady
 
         public bool Get(string name, ref string[] v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 JArr ja = mbr;
                 if (ja != null)
@@ -242,7 +242,7 @@ namespace WebReady
 
         public bool Get(string name, ref JObj v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -253,7 +253,7 @@ namespace WebReady
 
         public bool Get(string name, ref JArr v)
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 v = mbr;
                 return true;
@@ -264,7 +264,7 @@ namespace WebReady
 
         public bool Get<D>(string name, ref D v, byte proj = 0x0f) where D : IData, new()
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 JObj jobj = mbr;
                 if (jobj != null)
@@ -281,7 +281,7 @@ namespace WebReady
 
         public bool Get<D>(string name, ref D[] v, byte proj = 0x0f) where D : IData, new()
         {
-            if (TryGet(name, out var mbr))
+            if (TryGetValue(name, out var mbr))
             {
                 JArr ja = mbr;
                 if (ja != null)
@@ -419,7 +419,7 @@ namespace WebReady
         {
             for (int i = 0; i < Count; i++)
             {
-                JMbr mbr = ValueAt(i);
+                JMbr mbr = this[i].Value;
                 JType t = mbr.type;
                 if (t == JType.Array)
                 {

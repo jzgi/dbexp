@@ -28,7 +28,7 @@ namespace WebReady.Db
 
             s.Get(nameof(notnull), ref notnull);
 
-            type = DbType.BASE[typoid];
+            type = DbType.BASE.GetValue(typoid);
         }
 
         public DbField(char mode, string name, uint typoid, bool def)
@@ -38,7 +38,7 @@ namespace WebReady.Db
             this.typoid = typoid;
             this.def = def;
 
-            type = DbType.BASE[typoid];
+            type = DbType.BASE.GetValue(typoid);
         }
 
         public string Key => name;

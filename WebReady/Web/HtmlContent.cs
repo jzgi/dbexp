@@ -872,7 +872,7 @@ namespace WebReady.Web
                 for (int i = 0; i < keys.Length; i++)
                 {
                     var key = keys[i];
-                    var val = map[key];
+                    var val = map.GetValue(key);
                     if (i > 0) Add("&nbsp;");
                     Add(val.ToString());
                 }

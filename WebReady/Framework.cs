@@ -70,8 +70,8 @@ namespace WebReady
             JsonParser parser = new JsonParser(bytes, bytes.Length);
             Config = (JObj) parser.Parse();
 
-            logging = Config[nameof(logging)];
-            sign = Config[nameof(sign)];
+            logging = Config.GetValue(nameof(logging));
+            sign = Config.GetValue(nameof(sign));
 
             // setup logger first
             //
@@ -86,10 +86,10 @@ namespace WebReady
                 return;
             }
 
-            Web = Config["WEB"];
-            Db = Config["DB"];
-            Net = Config["NET"];
-            Ext = Config["EXT"];
+            Web = Config.GetValue("WEB");
+            Db = Config.GetValue("DB");
+            Net = Config.GetValue("NET");
+            Ext = Config.GetValue("EXT");
 
             // references
             if (Net != null)
@@ -143,13 +143,13 @@ namespace WebReady
 
         public static T CreateService<T>(string name) where T : WebService, new()
         {
-            JObj web = Config["WEB"];
+            JObj web = Config.GetValue("WEB");
             if (web == null)
             {
                 throw new FrameworkException("Missing 'WEB' in " + WEPAPP_JSON);
             }
 
-            JObj cfg = web[name];
+            JObj cfg = web.GetValue(name);
             if (cfg == null)
             {
                 throw new FrameworkException("missing '" + name + "' service in " + WEPAPP_JSON);
@@ -166,11 +166,11 @@ namespace WebReady
             return svc;
         }
 
-        public static DbSource GetDbSource(string name) => sources[name];
+        public static DbSource GetDbSource(string name) => sources.GetValue(name);
 
         public static DbContext NewDbContext(string source, IsolationLevel? level = null)
         {
-            var src = sources[source];
+            var src = sources.GetValue(source);
             if (src == null)
             {
                 throw new FrameworkException("missing DB '" + source + "' in " + WEPAPP_JSON);
@@ -239,7 +239,7 @@ namespace WebReady
             //
             for (int i = 0; i < services.Count; i++)
             {
-                var svc = services.ValueAt(i);
+                var svc = services[i].Value;
                 await svc.StartAsync(Canceller.Token);
             }
 
@@ -267,7 +267,7 @@ namespace WebReady
 
             for (int i = 0; i < services.Count; i++)
             {
-                var svc = services.ValueAt(i);
+                var svc = services[i].Value;
                 await svc.StopAsync(Canceller.Token);
             }
 

@@ -31,7 +31,7 @@ namespace WebReady.Db
             s.Get(nameof(rettype), ref rettype);
             s.Get(nameof(retset), ref retset);
 
-            string proargmodes = null;
+            char[] proargmodes = null;
             s.Get(nameof(proargmodes), ref proargmodes);
 
             string[] proargnames = null;
@@ -69,16 +69,17 @@ namespace WebReady.Db
 
         protected internal override void Describe(HtmlContent h)
         {
-            h.T("<li style=\"border: 1px solid silver; padding: 8px;\">");
-            h.T("<em><code>").TT(Name).T("</code></em>");
+            h.T("<li>");
+            h.T("<code>").TT(Name).T("</code>");
             // arguments
             //
             h.T("(<br>");
             for (var k = 0; k < inargs.Count; k++)
             {
                 var fld = inargs[k].Value;
-                h.T(fld.Name).T("<br>");
+                h.T(fld.Name).T(" ").T(fld.Type.Name).T("<br>");
             }
+
             h.T(")<br>");
 
             if (IsPublic)
@@ -100,8 +101,6 @@ namespace WebReady.Db
                 }
             }
 
-
-
             h.T("</li>");
         }
 
@@ -122,8 +121,13 @@ namespace WebReady.Db
                 var sql = dc.Sql("SELECT ").T(Name).T("(");
                 for (int i = 0; i < inargs.Count; i++)
                 {
+                    if (i > 0)
+                    {
+                        sql.T(", ");
+                    }
+
                     var arg = inargs[i].Value;
-                    arg.Convert(src, dc);
+                    sql.T(arg.Name);
                 }
 
                 sql.T(");");
@@ -132,7 +136,7 @@ namespace WebReady.Db
                 for (int i = 0; i < inargs.Count; i++)
                 {
                     var arg = inargs[i].Value;
-//                    arg.SqlParam(src, dc);
+                    arg.Convert(src, dc);
                 }
 
                 await dc.ExecuteAsync();

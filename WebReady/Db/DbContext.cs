@@ -952,6 +952,24 @@ namespace WebReady.Db
             throw new NotImplementedException();
         }
 
+        public bool Get(string name, ref char[] v)
+        {
+            try
+            {
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<char[]>(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
         public bool Get(string name, ref short[] v)
         {
             try
@@ -1273,6 +1291,22 @@ namespace WebReady.Db
                         reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
                         v = buf;
                     }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        public void Let(out char[] v)
+        {
+            v = null;
+            try
+            {
+                int ord = ordinal++;
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<char[]>(ord);
                 }
             }
             catch

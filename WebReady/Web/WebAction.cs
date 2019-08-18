@@ -51,8 +51,8 @@ namespace WebReady.Web
 
         protected internal virtual void Describe(HtmlContent h)
         {
-            h.T("<li style=\"border: 1px solid silver; padding: 8px;\">");
-            h.T("<em><code>").TT(Name).T("</code></em>");
+            h.T("<li>");
+            h.T("<code>").TT(Name).T("</code>");
 
             if (IsPublic)
             {

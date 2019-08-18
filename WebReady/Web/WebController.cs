@@ -15,6 +15,8 @@ namespace WebReady.Web
         /// </summary>
         public WebController Parent { get; internal set; }
 
+        public string Pathing { get; internal set; }
+
         /// <summary>
         /// The unique name of the controller.
         /// </summary>

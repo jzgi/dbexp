@@ -96,6 +96,8 @@ namespace WebReady.Web
 
         internal override void Describe(HtmlContent h)
         {
+            h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
+            h.T("<header>").T(Pathing).T("</header>");
             h.T("<ul>");
             for (int i = 0; i < actions.Count; i++)
             {
@@ -104,6 +106,7 @@ namespace WebReady.Web
             }
 
             h.T("</ul>");
+            h.T("</article>");
         }
     }
 }

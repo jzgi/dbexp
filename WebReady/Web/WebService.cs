@@ -40,6 +40,7 @@ namespace WebReady.Web
         // the response cache cleaner thread
         Thread cleaner;
 
+        protected WebService() => Pathing = "/";
 
         internal JObj Config
         {
@@ -82,7 +83,8 @@ namespace WebReady.Web
             var ctr = new T()
             {
                 Parent = this,
-                Name = name
+                Name = name,
+                Pathing = "/" + name + "/"
             };
 
             controllers.Add(name, ctr);
@@ -97,6 +99,7 @@ namespace WebReady.Web
         {
             controllers.Add(ctr.Name, ctr);
             ctr.Parent = this;
+            ctr.Pathing = "/" + ctr.Name + "/";
 
             // applevel init
             ctr.OnInitialize();
@@ -428,15 +431,15 @@ namespace WebReady.Web
             h.H3(Name.ToUpper());
             h.T("<main style=\"display: grid;; grid-template-columns: repeat(auto-fit, minmax(20rem, 36rem)); grid-gap: 12px;\">");
 
+            // describe this work 
+            Describe(h);
+
             // controlers
             for (int i = 0; i < controllers.Count; i++)
             {
                 var ctr = controllers[i].Value;
                 ctr.Describe(h);
             }
-
-            // describe this work 
-            Describe(h);
 
             h.T("</main>");
             h.T("</body></html>");

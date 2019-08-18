@@ -153,8 +153,7 @@ namespace WebReady.Db
         {
             h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
             h.T("<header>");
-            h.T("<code>").TT(Name);
-            h.T("/");
+            h.T("<code>").T(Pathing);
             for (int i = 0; i < Vars.Count; i++)
             {
                 h.T("&lt;");

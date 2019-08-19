@@ -31,6 +31,12 @@ namespace WebReady.Db
             s.Get(nameof(rettype), ref rettype);
             s.Get(nameof(retset), ref retset);
 
+            Type = DbType.BASE.GetValue(rettype);
+            if (Type == null)
+            {
+//                throw new DbException("Unsupported db type: " + oid);
+            }
+
             char[] proargmodes = null;
             s.Get(nameof(proargmodes), ref proargmodes);
 
@@ -106,7 +112,7 @@ namespace WebReady.Db
 
         internal override async Task ExecuteAsync(WebContext wc)
         {
-            ISource src = null;
+            ISource src;
             if (wc.IsGet)
             {
                 src = wc.Query;
@@ -127,19 +133,42 @@ namespace WebReady.Db
                     }
 
                     var arg = inargs[i].Value;
-                    sql.T(arg.Name);
+                    sql.T("@").T(arg.Name);
                 }
 
                 sql.T(");");
 
-                // set parameters
-                for (int i = 0; i < inargs.Count; i++)
+                await dc.QueryAllAsync(p =>
                 {
-                    var arg = inargs[i].Value;
-                    arg.Convert(src, dc);
-                }
+                    // set parameters
+                    for (int i = 0; i < inargs.Count; i++)
+                    {
+                        var arg = inargs[i].Value;
+                        arg.Convert(src, dc);
+                    }
+                });
 
-                await dc.ExecuteAsync();
+                // result
+                if (tableargs != null)
+                {
+                    var cnt = new JsonContent(true, 32 * 1024);
+                    cnt.ARR_();
+                    while (dc.Next())
+                    {
+                        cnt.OBJ_();
+                        for (int i = 0; i < tableargs.Count; i++)
+                        {
+                            var arg = tableargs[i].Value;
+                            arg.Convert(dc, cnt);
+                        }
+
+                        cnt._OBJ();
+                    }
+
+                    cnt._ARR();
+
+                    wc.Give(200, cnt);
+                }
             }
         }
     }

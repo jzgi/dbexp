@@ -83,7 +83,7 @@ namespace WebReady.Db
             for (var k = 0; k < inargs.Count; k++)
             {
                 var fld = inargs[k].Value;
-                h.T(fld.Name).T(" ").T(fld.Type.Name).T("<br>");
+                h.T("&nbsp;&nbsp;&nbsp;&nbsp;").T(fld.Name).T(": ").T(fld.Type.Name).T("<br>");
             }
 
             h.T(")<br>");
@@ -138,19 +138,19 @@ namespace WebReady.Db
 
                 sql.T(");");
 
-                await dc.QueryAllAsync(p =>
-                {
-                    // set parameters
-                    for (int i = 0; i < inargs.Count; i++)
-                    {
-                        var arg = inargs[i].Value;
-                        arg.Convert(src, dc);
-                    }
-                });
-
                 // result
                 if (tableargs != null)
                 {
+                    await dc.QueryAllAsync(p =>
+                    {
+                        // set parameters
+                        for (int i = 0; i < inargs.Count; i++)
+                        {
+                            var arg = inargs[i].Value;
+                            arg.Convert(src, dc);
+                        }
+                    });
+
                     var cnt = new JsonContent(true, 32 * 1024);
                     cnt.ARR_();
                     while (dc.Next())
@@ -168,6 +168,21 @@ namespace WebReady.Db
                     cnt._ARR();
 
                     wc.Give(200, cnt);
+                }
+                else
+                {
+                    object obj = await dc.ScalarAsync(p =>
+                    {
+                        // set parameters
+                        for (int i = 0; i < inargs.Count; i++)
+                        {
+                            var arg = inargs[i].Value;
+                            arg.Convert(src, dc);
+                        }
+                    });
+
+                    wc.Give(200, obj.ToString());
+                    
                 }
             }
         }

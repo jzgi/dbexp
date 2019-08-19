@@ -94,22 +94,64 @@ namespace WebReady.Db
             }
             else if (method == "POST")
             {
-//                sql.T("INSERT INTO ").T(Name);
-//                sql._VALUES_()
+                sql.Append("INSERT INTO ").Append(Name).Append(" (");
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        sql.Append(", ");
+                    }
+
+                    var col = columns[i].Value;
+                    sql.Append(col.Name);
+                }
+
+                sql.Append(") VALUES (");
+                for (int i = 0; i < columns.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        sql.Append(", ");
+                    }
+
+                    var col = columns[i].Value;
+                    sql.Append("@").Append(col.Name);
+                }
+
+                sql.Append(");");
+
+
                 JObj f = await wc.ReadAsync<JObj>();
+
+                // execute with parameters
+                //
+                using (var dc = Source.NewDbContext())
+                {
+                    await dc.ExecuteAsync(p =>
+                    {
+                        for (int i = 0; i < columns.Count; i++)
+                        {
+                            var col = columns[i].Value;
+                            col.Convert(f, dc);
+                        }
+                    });
+                }
             }
             else if (method == "PUT")
             {
                 sql.Append("UPDATE ").Append(Name).Append(" SET ");
-//                sql._VALUES_()
             }
             else if (method == "DELETE")
             {
-                sql.Append("DELETE FROM ").Append(Name);
-//                sql._VALUES_()
+                var f = wc.Query;
+                var idcol = columns[0].value;
+
+                sql.Append("DELETE FROM ").Append(Name).Append(" WHERE ");
+                sql.Append(idcol.Name).Append(" = @").Append(idcol.Name);
+
                 using (var dc = Source.NewDbContext())
                 {
-                    await dc.QueryAsync();
+                    await dc.ExecuteAsync(p => { idcol.Convert(f, dc); });
                 }
             }
         }
@@ -152,6 +194,7 @@ namespace WebReady.Db
         internal override void Describe(HtmlContent h)
         {
             h.T("<article style=\"border: 1px solid silver; padding: 8px;\">");
+
             h.T("<header>");
             h.T("<code>").T(Pathing);
             for (int i = 0; i < Vars.Count; i++)
@@ -179,6 +222,7 @@ namespace WebReady.Db
                 h.T(col.Name).T(" ").T(col.Type.Name);
                 h.T("</li>");
             }
+
             h.T("</ul>");
 
             // methods and roles
@@ -192,6 +236,26 @@ namespace WebReady.Db
                 {
                     h.T("<li>");
                     h.T(verb.Method);
+                    // roles
+                    h.T(" for ");
+                    if (verb.IsPublic)
+                    {
+                        h.T("PUBLIC");
+                    }
+                    else
+                    {
+                        for (int k = 0; k < verb.Roles.Count; k++)
+                        {
+                            if (k > 0)
+                            {
+                                h.T(", ");
+                            }
+
+                            var role = verb.Roles[k];
+                            h.T(role);
+                        }
+                    }
+
                     h.T("</li>");
                 }
             }

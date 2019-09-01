@@ -116,6 +116,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v ? "true" : "false");
@@ -129,9 +130,15 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
+        }
+
+        public void Put(string name, byte v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, short v)
@@ -142,6 +149,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
@@ -155,6 +163,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
@@ -168,9 +177,15 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
+        }
+
+        public void Put(string name, float v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, double v)
@@ -181,6 +196,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
@@ -194,6 +210,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
@@ -207,9 +224,14 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             Add(v);
+        }
+
+        public void Put(string name, Guid v)
+        {
         }
 
         public void Put(string name, string v)
@@ -220,20 +242,27 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             AddEsc(v);
         }
 
-        public void Put(string name, Guid v)
+        public void Put(string name, bool[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, char[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, byte[] v)
         {
         }
 
         public void Put(string name, ArraySegment<byte> v)
-        {
-        }
-
-        public void Put(string name, byte[] v)
         {
         }
 
@@ -245,6 +274,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             for (int i = 0; i < v.Length; i++)
@@ -262,6 +292,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             for (int i = 0; i < v.Length; i++)
@@ -279,6 +310,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             for (int i = 0; i < v.Length; i++)
@@ -286,6 +318,31 @@ namespace WebReady
                 if (i > 0) Add(',');
                 Add(v[i]);
             }
+        }
+
+        public void Put(string name, float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, Guid[] v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, string[] v)
@@ -296,6 +353,7 @@ namespace WebReady
             {
                 Add('&');
             }
+
             Add(name);
             Add('=');
             for (int i = 0; i < v.Length; i++)
@@ -323,7 +381,7 @@ namespace WebReady
         {
         }
 
-        public void PutFrom(ISource s)
+        public void PutFromSource(ISource s)
         {
             throw new NotImplementedException();
         }

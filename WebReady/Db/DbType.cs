@@ -9,7 +9,7 @@ namespace WebReady.Db
 
         public static readonly Map<uint, DbType> BASE = new Map<uint, DbType>()
         {
-            new DbType(16, "bool")
+            new DbType(16, "BOOL")
             {
                 Converter = (name, src, snk) =>
                 {
@@ -18,16 +18,25 @@ namespace WebReady.Db
                     snk.Put(name, v);
                 }
             },
-            new DbType(17, "bytea")
+            new DbType(1000, "BOOL[]")
             {
                 Converter = (name, src, snk) =>
                 {
-                    ArraySegment<byte> v = null;
+                    bool[] v = null;
                     src.Get(name, ref v);
                     snk.Put(name, v);
                 }
             },
-            new DbType(18, "char")
+            new DbType(17, "BYTEA")
+            {
+                Converter = (name, src, snk) =>
+                {
+                    byte[] v = null;
+                    src.Get(name, ref v);
+                    snk.Put(name, v);
+                }
+            },
+            new DbType(18, "CHAR")
             {
                 Converter = (name, src, snk) =>
                 {
@@ -204,7 +213,7 @@ namespace WebReady.Db
         public Action<string, ISource, ISink> Converter { get; private set; }
 
         public uint Key => oid;
-        
+
         public string Name => name;
     }
 }

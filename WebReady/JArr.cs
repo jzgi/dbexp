@@ -75,6 +75,12 @@ namespace WebReady
             return jo != null && jo.Get(name, ref v);
         }
 
+
+        public bool Get(string name, ref byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref short v)
         {
             JObj jo = elements[current];
@@ -91,6 +97,11 @@ namespace WebReady
         {
             JObj jo = elements[current];
             return jo != null && jo.Get(name, ref v);
+        }
+
+        public bool Get(string name, ref float v)
+        {
+            throw new NotImplementedException();
         }
 
         public bool Get(string name, ref double v)
@@ -111,19 +122,23 @@ namespace WebReady
             return jo != null && jo.Get(name, ref v);
         }
 
+        public bool Get(string name, ref Guid v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref string v)
         {
             JObj jo = elements[current];
             return jo != null && jo.Get(name, ref v);
         }
 
-        public bool Get(string name, ref ArraySegment<byte> v)
+        public bool Get(string name, ref bool[] v)
         {
-            JObj jo = elements[current];
-            return jo != null && jo.Get(name, ref v);
+            throw new NotImplementedException();
         }
 
-        public bool Get(string name, ref Guid v)
+        public bool Get(string name, ref char[] v)
         {
             throw new NotImplementedException();
         }
@@ -134,11 +149,6 @@ namespace WebReady
             return jo != null && jo.Get(name, ref v);
         }
 
-        public bool Get<D>(string name, ref D v, byte proj = 0x0f) where D : IData, new()
-        {
-            JObj jo = elements[current];
-            return jo != null && jo.Get(name, ref v, proj);
-        }
 
         public bool Get(string name, ref short[] v)
         {
@@ -158,6 +168,31 @@ namespace WebReady
             return jo != null && jo.Get(name, ref v);
         }
 
+        public bool Get(string name, ref float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref Guid[] v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref string[] v)
         {
             JObj jo = elements[current];
@@ -174,110 +209,18 @@ namespace WebReady
             throw new NotImplementedException();
         }
 
+        public bool Get<D>(string name, ref D v, byte proj = 0x0f) where D : IData, new()
+        {
+            JObj jo = elements[current];
+            return jo != null && jo.Get(name, ref v, proj);
+        }
+
         public bool Get<D>(string name, ref D[] v, byte proj = 0x0f) where D : IData, new()
         {
             JObj jo = elements[current];
             return jo != null && jo.Get(name, ref v);
         }
 
-        //
-        // LET
-        //
-
-        public void Let(out bool v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out char v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out short v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out int v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out long v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out double v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out decimal v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out DateTime v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out string v)
-        {
-            v = elements[current];
-        }
-
-        public void Let(out ArraySegment<byte> v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out Guid v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out short[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out int[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out long[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out string[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out JObj v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out JArr v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
-        {
-            throw new NotImplementedException();
-        }
 
         //
         // ENTIRITY
@@ -373,7 +316,7 @@ namespace WebReady
         public IContent Dump()
         {
             var cnt = new JsonContent(true, 4096);
-            cnt.PutFrom(this);
+            cnt.PutFromSource(this);
             return cnt;
         }
 
@@ -382,7 +325,7 @@ namespace WebReady
             JsonContent cnt = new JsonContent(false, 4096);
             try
             {
-                cnt.PutFrom(this);
+                cnt.PutFromSource(this);
                 return cnt.ToString();
             }
             finally

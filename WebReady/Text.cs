@@ -99,6 +99,11 @@ namespace WebReady
             throw new NotImplementedException();
         }
 
+        public bool Get(string name, ref byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref short v)
         {
             throw new NotImplementedException();
@@ -110,6 +115,11 @@ namespace WebReady
         }
 
         public bool Get(string name, ref long v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref float v)
         {
             throw new NotImplementedException();
         }
@@ -129,17 +139,22 @@ namespace WebReady
             throw new NotImplementedException();
         }
 
+        public bool Get(string name, ref Guid v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref string v)
         {
             throw new NotImplementedException();
         }
 
-        public bool Get(string name, ref ArraySegment<byte> v)
+        public bool Get(string name, ref bool[] v)
         {
             throw new NotImplementedException();
         }
 
-        public bool Get(string name, ref Guid v)
+        public bool Get(string name, ref char[] v)
         {
             throw new NotImplementedException();
         }
@@ -164,6 +179,31 @@ namespace WebReady
             throw new NotImplementedException();
         }
 
+        public bool Get(string name, ref float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref Guid[] v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref string[] v)
         {
             throw new NotImplementedException();
@@ -179,115 +219,15 @@ namespace WebReady
             throw new NotImplementedException();
         }
 
-        public bool Get<D>(string name, ref D v, byte proj = 0x0f) where D : IData, new()
+        public bool Get<D>(string name, ref D v, byte proj = 15) where D : IData, new()
         {
             throw new NotImplementedException();
         }
 
-        public bool Get<D>(string name, ref D[] v, byte proj = 0x0f) where D : IData, new()
+        public bool Get<D>(string name, ref D[] v, byte proj = 15) where D : IData, new()
         {
             throw new NotImplementedException();
         }
-
-        //
-        // LET
-        //
-
-        public void Let(out bool v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out char v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out short v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out int v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out long v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out double v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out decimal v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out DateTime v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out string v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out ArraySegment<byte> v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out Guid v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out short[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out int[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out long[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out string[] v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out JObj v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let(out JArr v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let<D>(out D v, byte proj = 0x0f) where D : IData, new()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Let<D>(out D[] v, byte proj = 0x0f) where D : IData, new()
-        {
-            throw new NotImplementedException();
-        }
-
 
         //
         // ENTITY

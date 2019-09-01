@@ -60,6 +60,11 @@ namespace WebReady
             Add(v);
         }
 
+        public void Put(string name, byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Put(string name, short v)
         {
             Part(name);
@@ -76,6 +81,11 @@ namespace WebReady
         {
             Part(name);
             Add(v);
+        }
+
+        public void Put(string name, float v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, double v)
@@ -96,21 +106,31 @@ namespace WebReady
             Add(v);
         }
 
+        public void Put(string name, Guid v)
+        {
+        }
+
         public void Put(string name, string v)
         {
             Part(name);
             Add(v ?? "null");
         }
 
-        public virtual void Put(string name, ArraySegment<byte> v)
+        public void Put(string name, bool[] v)
         {
+            throw new NotImplementedException();
         }
 
-        public void Put(string name, Guid v)
+        public void Put(string name, char[] v)
         {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, byte[] v)
+        {
+        }
+
+        public virtual void Put(string name, ArraySegment<byte> v)
         {
         }
 
@@ -129,6 +149,7 @@ namespace WebReady
                     if (i > 0) Add(',');
                     Add(v[i]);
                 }
+
                 Add(']');
             }
         }
@@ -148,6 +169,7 @@ namespace WebReady
                     if (i > 0) Add(',');
                     Add(v[i]);
                 }
+
                 Add(']');
             }
         }
@@ -166,8 +188,34 @@ namespace WebReady
                     if (i > 0) Add(',');
                     Add(v[i]);
                 }
+
                 Add(']');
             }
+        }
+
+        public void Put(string name, float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, Guid[] v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, string[] v)
@@ -186,6 +234,7 @@ namespace WebReady
                     string str = v[i];
                     Add(str ?? "null");
                 }
+
                 Add(']');
             }
         }
@@ -229,11 +278,12 @@ namespace WebReady
                 {
                     Put(null, v[i], proj);
                 }
+
                 Add(']');
             }
         }
 
-        public void PutFrom(ISource s)
+        public void PutFromSource(ISource s)
         {
             throw new NotImplementedException();
         }

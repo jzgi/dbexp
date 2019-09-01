@@ -182,6 +182,11 @@ namespace WebReady
             Add('"');
         }
 
+        public void Put(string name, byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Put(string name, short v)
         {
             if (counts[level]++ > 0) Add(',');
@@ -219,6 +224,11 @@ namespace WebReady
                 Add(':');
             }
             Add(v);
+        }
+
+        public void Put(string name, float v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, double v)
@@ -261,6 +271,10 @@ namespace WebReady
             Add(v);
             Add('"');
         }
+        public void Put(string name, Guid v)
+        {
+        }
+
 
         public void Put(string name, string v)
         {
@@ -284,11 +298,17 @@ namespace WebReady
             }
         }
 
-        public void Put(string name, ArraySegment<byte> v)
+        public void Put(string name, bool[] v)
         {
+            throw new NotImplementedException();
         }
 
-        public void Put(string name, Guid v)
+        public void Put(string name, char[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, ArraySegment<byte> v)
         {
         }
 
@@ -373,6 +393,31 @@ namespace WebReady
                 }
                 Add(']');
             }
+        }
+
+        public void Put(string name, float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, Guid[] v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, string[] v)
@@ -548,7 +593,7 @@ namespace WebReady
             }
         }
 
-        public void PutFrom(ISource v)
+        public void PutFromSource(ISource v)
         {
             if (counts[level]++ > 0) Add(',');
             if (v == null)

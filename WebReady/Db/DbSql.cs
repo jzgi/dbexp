@@ -332,6 +332,11 @@ namespace WebReady.Db
             }
         }
 
+        public void Put(string name, byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Put(string name, short v)
         {
             if (name != null)
@@ -366,6 +371,11 @@ namespace WebReady.Db
             {
                 Add(v);
             }
+        }
+
+        public void Put(string name, float v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, double v)
@@ -404,6 +414,12 @@ namespace WebReady.Db
             }
         }
 
+
+        public void Put(string name, Guid v)
+        {
+            Build(name);
+        }
+
         public void Put(string name, string v)
         {
             if (name != null)
@@ -418,19 +434,24 @@ namespace WebReady.Db
             }
         }
 
-        public void Put(string name, ArraySegment<byte> v)
+        public void Put(string name, bool[] v)
         {
-            Build(name);
+            throw new NotImplementedException();
         }
 
-        public void Put(string name, Guid v)
+        public void Put(string name, char[] v)
         {
-            Build(name);
+            throw new NotImplementedException();
         }
 
         public void Put(string name, byte[] v)
         {
             Build(name);
+        }
+
+        public void Put(string name, ArraySegment<byte> v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, short[] v)
@@ -523,6 +544,31 @@ namespace WebReady.Db
             }
         }
 
+        public void Put(string name, float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, Guid[] v)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Put(string name, string[] v)
         {
             if (name != null)
@@ -599,7 +645,7 @@ namespace WebReady.Db
             Build(name);
         }
 
-        public void PutFrom(ISource s)
+        public void PutFromSource(ISource s)
         {
             throw new NotImplementedException();
         }

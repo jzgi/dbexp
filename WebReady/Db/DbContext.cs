@@ -10,7 +10,7 @@ namespace WebReady.Db
     /// <summary>
     /// An environment for database operations. It provides strong-typed reads/writes and lightweight O/R mapping.
     /// </summary>
-    public sealed class DbContext : ISource, ISqlParams, IDisposable
+    public sealed class DbContext : ISource, IDbParameters, IDisposable
     {
         static readonly string[] PARAMS =
         {
@@ -169,12 +169,12 @@ namespace WebReady.Db
         {
         }
 
-        public bool Query(Action<ISqlParams> p = null, bool prepare = true)
+        public bool Query(Action<IDbParameters> p = null, bool prepare = true)
         {
             return Query(_sql.ToString(), p, prepare);
         }
 
-        public bool Query(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public bool Query(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -195,7 +195,7 @@ namespace WebReady.Db
             return reader.Read();
         }
 
-        public async Task<bool> QueryAsync(Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -216,7 +216,7 @@ namespace WebReady.Db
             return reader.Read();
         }
 
-        public async Task<bool> QueryAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -237,7 +237,7 @@ namespace WebReady.Db
             return reader.Read();
         }
 
-        public D Query<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D Query<D>(Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (Query(p, prepare))
             {
@@ -247,7 +247,7 @@ namespace WebReady.Db
             return default;
         }
 
-        public D Query<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D Query<D>(string sql, Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (Query(sql, p, prepare))
             {
@@ -257,7 +257,7 @@ namespace WebReady.Db
             return default;
         }
 
-        public async Task<D> QueryAsync<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D> QueryAsync<D>(Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAsync(p, prepare))
             {
@@ -267,7 +267,7 @@ namespace WebReady.Db
             return default;
         }
 
-        public async Task<D> QueryAsync<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D> QueryAsync<D>(string sql, Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAsync(sql, p, prepare))
             {
@@ -277,12 +277,12 @@ namespace WebReady.Db
             return default;
         }
 
-        public bool QueryAll(Action<ISqlParams> p = null, bool prepare = true)
+        public bool QueryAll(Action<IDbParameters> p = null, bool prepare = true)
         {
             return QueryAll(_sql.ToString(), p, prepare);
         }
 
-        public bool QueryAll(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public bool QueryAll(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -303,7 +303,7 @@ namespace WebReady.Db
             return reader.HasRows;
         }
 
-        public async Task<bool> QueryAllAsync(Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAllAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -324,7 +324,7 @@ namespace WebReady.Db
             return reader.HasRows;
         }
 
-        public async Task<bool> QueryAllAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<bool> QueryAllAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -345,7 +345,7 @@ namespace WebReady.Db
             return reader.HasRows;
         }
 
-        public D[] QueryAll<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D[] QueryAll<D>(Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(p, prepare))
             {
@@ -355,7 +355,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public D[] QueryAll<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public D[] QueryAll<D>(string sql, Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(sql, p, prepare))
             {
@@ -365,7 +365,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<D[]> QueryAllAsync<D>(Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D[]> QueryAllAsync<D>(Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(p, prepare))
             {
@@ -375,7 +375,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<D[]> QueryAllAsync<D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
+        public async Task<D[]> QueryAllAsync<D>(string sql, Action<IDbParameters> p = null, byte proj = 0x0f, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(sql, p, prepare))
             {
@@ -385,7 +385,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public Map<K, D> QueryAll<K, D>(Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public Map<K, D> QueryAll<K, D>(Action<IDbParameters> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(p, prepare))
             {
@@ -395,7 +395,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public Map<K, D> QueryAll<K, D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public Map<K, D> QueryAll<K, D>(string sql, Action<IDbParameters> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (QueryAll(sql, p, prepare))
             {
@@ -405,7 +405,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<Map<K, D>> QueryAllAsync<K, D>(Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public async Task<Map<K, D>> QueryAllAsync<K, D>(Action<IDbParameters> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(p, prepare))
             {
@@ -415,7 +415,7 @@ namespace WebReady.Db
             return null;
         }
 
-        public async Task<Map<K, D>> QueryAllAsync<K, D>(string sql, Action<ISqlParams> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
+        public async Task<Map<K, D>> QueryAllAsync<K, D>(string sql, Action<IDbParameters> p = null, byte proj = 0x0f, Func<D, K> keyer = null, bool prepare = true) where D : IData, new()
         {
             if (await QueryAllAsync(sql, p, prepare))
             {
@@ -438,12 +438,12 @@ namespace WebReady.Db
             }
         }
 
-        public int Execute(Action<ISqlParams> p = null, bool prepare = true)
+        public int Execute(Action<IDbParameters> p = null, bool prepare = true)
         {
             return Execute(_sql.ToString(), p, prepare);
         }
 
-        public int Execute(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public int Execute(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -462,7 +462,7 @@ namespace WebReady.Db
             return command.ExecuteNonQuery();
         }
 
-        public async Task<int> ExecuteAsync(Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<int> ExecuteAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -481,7 +481,7 @@ namespace WebReady.Db
             return await command.ExecuteNonQueryAsync();
         }
 
-        public async Task<int> ExecuteAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<int> ExecuteAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -500,12 +500,12 @@ namespace WebReady.Db
             return await command.ExecuteNonQueryAsync();
         }
 
-        public object Scalar(Action<ISqlParams> p = null, bool prepare = true)
+        public object Scalar(Action<IDbParameters> p = null, bool prepare = true)
         {
             return Scalar(_sql.ToString(), p, prepare);
         }
 
-        public object Scalar(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public object Scalar(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -525,7 +525,7 @@ namespace WebReady.Db
             return res == DBNull.Value ? null : res;
         }
 
-        public async Task<object> ScalarAsync(Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<object> ScalarAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -544,7 +544,7 @@ namespace WebReady.Db
             return await command.ExecuteScalarAsync();
         }
 
-        public async Task<object> ScalarAsync(string sql, Action<ISqlParams> p = null, bool prepare = true)
+        public async Task<object> ScalarAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
             if (_connection.State != ConnectionState.Open)
             {
@@ -653,6 +653,11 @@ namespace WebReady.Db
             return false;
         }
 
+        public bool Get(string name, ref byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref short v)
         {
             try
@@ -705,6 +710,29 @@ namespace WebReady.Db
             }
 
             return false;
+        }
+
+        public bool Get(string name, ref uint v)
+        {
+            try
+            {
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<uint>(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Get(string name, ref float v)
+        {
+            throw new NotImplementedException();
         }
 
         public bool Get(string name, ref double v)
@@ -761,24 +789,6 @@ namespace WebReady.Db
             return false;
         }
 
-        public bool Get(string name, ref string v)
-        {
-            try
-            {
-                int ord = reader.GetOrdinal(name);
-                if (!reader.IsDBNull(ord))
-                {
-                    v = reader.GetString(ord);
-                    return true;
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
         public bool Get(string name, ref Guid v)
         {
             try
@@ -797,6 +807,34 @@ namespace WebReady.Db
             return false;
         }
 
+        public bool Get(string name, ref string v)
+        {
+            try
+            {
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetString(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Get(string name, ref bool[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Get(string name, ref byte[] v)
         {
             try
@@ -811,66 +849,6 @@ namespace WebReady.Db
                         reader.GetBytes(ord, 0, v, 0, len); // read data into the buffer
                         return true;
                     }
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
-        public bool Get(string name, ref ArraySegment<byte> v)
-        {
-            try
-            {
-                int ord = reader.GetOrdinal(name);
-                if (!reader.IsDBNull(ord))
-                {
-                    int len;
-                    if ((len = (int) reader.GetBytes(ord, 0, null, 0, 0)) > 0)
-                    {
-                        byte[] buf = new byte[len];
-                        reader.GetBytes(ord, 0, buf, 0, len); // read data into the buffer
-                        v = new ArraySegment<byte>(buf, 0, len);
-                        return true;
-                    }
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
-        public bool Get(string name, ref uint v)
-        {
-            try
-            {
-                int ord = reader.GetOrdinal(name);
-                if (!reader.IsDBNull(ord))
-                {
-                    v = reader.GetFieldValue<uint>(ord);
-                    return true;
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
-        }
-
-        public bool Get(string name, ref uint[] v)
-        {
-            try
-            {
-                int ord = reader.GetOrdinal(name);
-                if (!reader.IsDBNull(ord))
-                {
-                    v = reader.GetFieldValue<uint[]>(ord);
-                    return true;
                 }
             }
             catch
@@ -1022,6 +1000,44 @@ namespace WebReady.Db
             }
 
             return false;
+        }
+
+        public bool Get(string name, ref uint[] v)
+        {
+            try
+            {
+                int ord = reader.GetOrdinal(name);
+                if (!reader.IsDBNull(ord))
+                {
+                    v = reader.GetFieldValue<uint[]>(ord);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        public bool Get(string name, ref double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Get(string name, ref Guid[] v)
+        {
+            throw new NotImplementedException();
         }
 
         public bool Get(string name, ref string[] v)
@@ -1549,17 +1565,14 @@ namespace WebReady.Db
             });
         }
 
+        public void Put(string name, byte v)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Put(string name, short v)
         {
             command.Parameters.Add(new NpgsqlParameter<short>(name, NpgsqlDbType.Smallint)
-            {
-                TypedValue = v
-            });
-        }
-
-        public void Put(string name, uint v)
-        {
-            command.Parameters.Add(new NpgsqlParameter<uint>(name, NpgsqlDbType.Oid)
             {
                 TypedValue = v
             });
@@ -1579,6 +1592,19 @@ namespace WebReady.Db
             {
                 TypedValue = v
             });
+        }
+
+        public void Put(string name, uint v)
+        {
+            command.Parameters.Add(new NpgsqlParameter<uint>(name, NpgsqlDbType.Oid)
+            {
+                TypedValue = v
+            });
+        }
+
+        public void Put(string name, float v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, double v)
@@ -1606,6 +1632,14 @@ namespace WebReady.Db
             });
         }
 
+        public void Put(string name, Guid v)
+        {
+            command.Parameters.Add(new NpgsqlParameter<Guid>(name, NpgsqlDbType.Uuid)
+            {
+                TypedValue = v
+            });
+        }
+
         public void Put(string name, string v)
         {
             int len = v?.Length ?? 0;
@@ -1615,19 +1649,21 @@ namespace WebReady.Db
             });
         }
 
+        public void Put(string name, bool[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, char[] v)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Put(string name, ArraySegment<byte> v)
         {
             command.Parameters.Add(new NpgsqlParameter(name, NpgsqlDbType.Bytea, v.Count)
             {
                 Value = (v.Array != null) ? (object) v : DBNull.Value
-            });
-        }
-
-        public void Put(string name, Guid v)
-        {
-            command.Parameters.Add(new NpgsqlParameter<Guid>(name, NpgsqlDbType.Uuid)
-            {
-                TypedValue = v
             });
         }
 
@@ -1661,6 +1697,31 @@ namespace WebReady.Db
             {
                 Value = (v != null) ? (object) v : DBNull.Value
             });
+        }
+
+        public void Put(string name, float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, decimal[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Put(string name, Guid[] v)
+        {
+            throw new NotImplementedException();
         }
 
         public void Put(string name, string[] v)
@@ -1740,7 +1801,7 @@ namespace WebReady.Db
             }
         }
 
-        public void PutFrom(ISource s)
+        public void PutFromSource(ISource s)
         {
             throw new NotImplementedException();
         }
@@ -1748,73 +1809,88 @@ namespace WebReady.Db
         // positional
         //
 
-        public ISqlParams SetNull()
+        public IDbParameters SetNull()
         {
             PutNull(PARAMS[paramidx++]);
             return this;
         }
 
-        public ISqlParams Set(bool v)
+        public IDbParameters Set(bool v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(char v)
+        public IDbParameters Set(char v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(short v)
+        public IDbParameters Set(byte v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(short v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(uint v)
+        public IDbParameters Set(int v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(int v)
+        public IDbParameters Set(long v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(long v)
+        public IDbParameters Set(uint v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(double v)
+        public IDbParameters Set(float v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(double v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(decimal v)
+        public IDbParameters Set(decimal v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(JNumber v)
+        public IDbParameters Set(JNumber v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(DateTime v)
+        public IDbParameters Set(DateTime v)
         {
             Put(PARAMS[paramidx++], v);
             return this;
         }
 
-        public ISqlParams Set(string v)
+        public IDbParameters Set(Guid v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(string v)
         {
             if (v == string.Empty)
             {
@@ -1825,65 +1901,100 @@ namespace WebReady.Db
             return this;
         }
 
-        public ISqlParams Set(ArraySegment<byte> v)
-        {
-            Put(PARAMS[paramidx++], v);
-            return this;
-        }
-
-        public ISqlParams Set(byte[] v)
-        {
-            Put(PARAMS[paramidx++], v);
-            return this;
-        }
-
-        public ISqlParams Set(short[] v)
-        {
-            Put(PARAMS[paramidx++], v);
-            return this;
-        }
-
-        public ISqlParams Set(int[] v)
-        {
-            Put(PARAMS[paramidx++], v);
-            return this;
-        }
-
-        public ISqlParams Set(long[] v)
-        {
-            Put(PARAMS[paramidx++], v);
-            return this;
-        }
-
-        public ISqlParams Set(string[] v)
-        {
-            Put(PARAMS[paramidx++], v);
-            return this;
-        }
-
-        public ISqlParams Set(JObj v)
+        public IDbParameters Set(bool[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISqlParams Set(JArr v)
+        public IDbParameters Set(char[] v)
         {
             throw new NotImplementedException();
         }
 
-        public ISqlParams Set(IData v, byte proj = 0x0f)
+        public IDbParameters Set(byte[] v)
+        {
+            Put(PARAMS[paramidx++], v);
+            return this;
+        }
+
+        public IDbParameters Set(ArraySegment<byte> v)
+        {
+            Put(PARAMS[paramidx++], v);
+            return this;
+        }
+
+        public IDbParameters Set(short[] v)
+        {
+            Put(PARAMS[paramidx++], v);
+            return this;
+        }
+
+        public IDbParameters Set(int[] v)
+        {
+            Put(PARAMS[paramidx++], v);
+            return this;
+        }
+
+        public IDbParameters Set(long[] v)
+        {
+            Put(PARAMS[paramidx++], v);
+            return this;
+        }
+
+        public IDbParameters Set(uint[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(float[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(double[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(DateTime[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(Guid[] v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(string[] v)
+        {
+            Put(PARAMS[paramidx++], v);
+            return this;
+        }
+
+        public IDbParameters Set(JObj v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(JArr v)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbParameters Set(IData v, byte proj = 0x0f)
         {
             Put(PARAMS[paramidx++], v, proj);
             return this;
         }
 
-        public ISqlParams Set<D>(D[] v, byte proj = 0x0f) where D : IData
+        public IDbParameters Set<D>(D[] v, byte proj = 0x0f) where D : IData
         {
             Put(PARAMS[paramidx++], v, proj);
             return this;
         }
 
-        public ISqlParams SetIn(string[] v)
+        public IDbParameters SetIn(string[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {
@@ -1893,7 +2004,7 @@ namespace WebReady.Db
             return this;
         }
 
-        public ISqlParams SetIn(short[] v)
+        public IDbParameters SetIn(short[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {
@@ -1903,7 +2014,7 @@ namespace WebReady.Db
             return this;
         }
 
-        public ISqlParams SetIn(int[] v)
+        public IDbParameters SetIn(int[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {
@@ -1913,7 +2024,7 @@ namespace WebReady.Db
             return this;
         }
 
-        public ISqlParams SetIn(long[] v)
+        public IDbParameters SetIn(long[] v)
         {
             for (int i = 0; i < v.Length; i++)
             {

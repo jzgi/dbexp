@@ -31,7 +31,7 @@ namespace WebReady.Db
             s.Get(nameof(rettype), ref rettype);
             s.Get(nameof(retset), ref retset);
 
-            Type = DbType.BASE.GetValue(rettype);
+            Type = DbType.GetBaseType(rettype);
             if (Type == null)
             {
 //                throw new DbException("Unsupported db type: " + oid);
@@ -182,7 +182,6 @@ namespace WebReady.Db
                     });
 
                     wc.Give(200, obj.ToString());
-                    
                 }
             }
         }

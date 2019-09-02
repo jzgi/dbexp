@@ -24,7 +24,9 @@ namespace WebReady.Db
             "v17", "v18", "v19", "v20", "v21", "v22", "v23", "v24", "v15", "v16", "v17", "v18", "v19", "v20", "v21", "v22", "v23", "v24", "v25", "v26", "v27", "v28", "v29", "v30", "v31", "v32"
         };
 
-        readonly NpgsqlConnection _connection;
+        readonly DbSource source;
+
+        readonly NpgsqlConnection connection;
 
         readonly NpgsqlCommand command;
 
@@ -42,14 +44,18 @@ namespace WebReady.Db
         // current parameter index
         int paramidx;
 
-        internal DbContext(DbSource db)
+        internal DbContext(DbSource src)
         {
-            _connection = new NpgsqlConnection(db.ConnectionString);
+            source = src;
+
+            connection = new NpgsqlConnection(src.ConnectionString);
             command = new NpgsqlCommand
             {
-                Connection = _connection
+                Connection = connection
             };
         }
+
+        public DbSource Source => source;
 
         public bool IsMultiple => multiple;
 
@@ -85,20 +91,20 @@ namespace WebReady.Db
 
                 reader?.Close();
                 command.Transaction = null;
-                _connection.Close();
+                connection.Close();
             }
         }
 
         public void Begin(IsolationLevel level = IsolationLevel.ReadCommitted)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             if (transact == null)
             {
-                transact = _connection.BeginTransaction(level);
+                transact = connection.BeginTransaction(level);
                 command.Transaction = transact;
             }
         }
@@ -176,9 +182,9 @@ namespace WebReady.Db
 
         public bool Query(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -197,9 +203,9 @@ namespace WebReady.Db
 
         public async Task<bool> QueryAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -218,9 +224,9 @@ namespace WebReady.Db
 
         public async Task<bool> QueryAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -284,9 +290,9 @@ namespace WebReady.Db
 
         public bool QueryAll(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -305,9 +311,9 @@ namespace WebReady.Db
 
         public async Task<bool> QueryAllAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -326,9 +332,9 @@ namespace WebReady.Db
 
         public async Task<bool> QueryAllAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -445,9 +451,9 @@ namespace WebReady.Db
 
         public int Execute(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -464,9 +470,9 @@ namespace WebReady.Db
 
         public async Task<int> ExecuteAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -483,9 +489,9 @@ namespace WebReady.Db
 
         public async Task<int> ExecuteAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -507,9 +513,9 @@ namespace WebReady.Db
 
         public object Scalar(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -527,9 +533,9 @@ namespace WebReady.Db
 
         public async Task<object> ScalarAsync(Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();
@@ -546,9 +552,9 @@ namespace WebReady.Db
 
         public async Task<object> ScalarAsync(string sql, Action<IDbParameters> p = null, bool prepare = true)
         {
-            if (_connection.State != ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
-                _connection.Open();
+                connection.Open();
             }
 
             Clear();

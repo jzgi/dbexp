@@ -20,6 +20,8 @@ namespace WebReady.Db
 
         readonly string _connstr;
 
+        readonly Map<uint, DbType> composites = new Map<uint, DbType>(64);
+
         internal DbSource(JObj s)
         {
             s.Get(nameof(host), ref host);
@@ -41,6 +43,41 @@ namespace WebReady.Db
             sb.Append(";No Reset On Close=").Append(true);
 
             _connstr = sb.ToString();
+
+            // load public composite types
+            //
+            using (var dc = NewDbContext())
+            {
+                // composite types
+                dc.QueryAll("SELECT t.oid, t.typname, t.typarray FROM pg_type t, pg_class c WHERE t.oid = c.reltype AND c.relkind = 'c'");
+                while (dc.Next())
+                {
+                    dc.Let(out uint oid);
+                    dc.Let(out string name);
+                    dc.Let(out uint typarray);
+                    composites.Add(new DbType(oid, name)
+                    {
+                        Converter = (n, src, snk) =>
+                        {
+                            JObj v = null;
+                            src.Get(n, ref v);
+                            snk.Put(n, v);
+                        }
+                    });
+                }
+
+                // add columns and the related array type 
+                for (int i = 0; i < composites.Count; i++)
+                {
+                    var comp = composites[i].Value;
+                    dc.QueryAll("SELECT attname AS name, atttypid AS typoid, atthasdef AS def, attnotnull AS notnull FROM pg_attribute WHERE attrelid = @1", p => p.Set(comp.Key));
+                    while (dc.Next())
+                    {
+                        comp.AddColumn(new DbField(dc));
+                    }
+                    // array
+                }
+            }
         }
 
         public string Name { get; internal set; }

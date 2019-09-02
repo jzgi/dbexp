@@ -285,13 +285,22 @@ namespace WebReady.Db
 
         readonly string name;
 
+        // columns if this is a composite type
+        readonly Map<string, DbField> columns = new Map<string, DbField>(64);
+
+
         internal DbType(uint oid, string name)
         {
             this.oid = oid;
             this.name = name;
         }
 
-        public Action<string, ISource, ISink> Converter { get; private set; }
+        internal void AddColumn(DbField field)
+        {
+            columns.Add(field);
+        }
+
+        public Action<string, ISource, ISink> Converter { get; internal set; }
 
         public uint Key => oid;
 

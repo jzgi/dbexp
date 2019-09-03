@@ -20,12 +20,5 @@
     "dir": "http://dir.144000.tv"
   },
   "EXT": {
-    "appid": "wx8522f41a2ddcd17e",
-    "appsecret": "ebce206103e439514f3c4748c683274e",
-    "mchid": "1509982691",
-    "noncestr": "30A5FE271",
-    "spbillcreateip": "47.100.96.253",
-    "key": "28165ACAB74C2FBF3B042B5D2F87D274",
-    "watchurl": "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzUyNTkxNzM3Nw==&scene=124#wechat_redirect"
   }
 }

@@ -18,7 +18,7 @@ namespace WebReady.Db
 
         readonly string password;
 
-        readonly string _connstr;
+        readonly string connstr;
 
         readonly Map<uint, DbType> composites = new Map<uint, DbType>(64);
 
@@ -42,7 +42,7 @@ namespace WebReady.Db
             sb.Append(";Write Buffer Size=").Append(1024 * 32);
             sb.Append(";No Reset On Close=").Append(true);
 
-            _connstr = sb.ToString();
+            connstr = sb.ToString();
 
             // load public composite types
             //
@@ -55,7 +55,7 @@ namespace WebReady.Db
                     dc.Let(out uint oid);
                     dc.Let(out string name);
                     dc.Let(out uint typarray);
-                    composites.Add(new DbType(oid, name)
+                    composites.Add(new DbType(oid, name, typarray)
                     {
                         Converter = (n, src, snk) =>
                         {
@@ -66,8 +66,9 @@ namespace WebReady.Db
                     });
                 }
 
-                // add columns and the related array type 
-                for (int i = 0; i < composites.Count; i++)
+                // add columns and the related array type
+                int count = composites.Count;
+                for (int i = 0; i < count; i++)
                 {
                     var comp = composites[i].Value;
                     dc.QueryAll("SELECT attname AS name, atttypid AS typoid, atthasdef AS def, attnotnull AS notnull FROM pg_attribute WHERE attrelid = @1", p => p.Set(comp.Key));
@@ -75,7 +76,21 @@ namespace WebReady.Db
                     {
                         comp.AddColumn(new DbField(dc));
                     }
-                    // array
+
+                    // the corresponding array type
+                    dc.Query("SELECT oid, typname, typarray FROM pg_type WHERE oid = @1", p => p.Set(comp.arrayoid));
+                    dc.Let(out uint oid);
+                    dc.Let(out string name);
+                    composites.Add(new DbType(oid, name)
+                    {
+                        ElementType = comp,
+                        Converter = (n, src, snk) =>
+                        {
+                            JArr v = null;
+                            src.Get(n, ref v);
+                            snk.Put(n, v);
+                        }
+                    });
                 }
             }
         }
@@ -84,7 +99,7 @@ namespace WebReady.Db
 
         public string Key => Name;
 
-        public string ConnectionString => _connstr;
+        public string ConnectionString => connstr;
 
         public DbContext NewDbContext(IsolationLevel? level = null)
         {
